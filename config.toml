@@ -1,0 +1,19 @@
+[Server]
+    SysName = "erpsys"
+    Addr = "0.0.0.0:8080"
+    WriteTimeout = 30
+    ReadTimeout = 30
+    Environment = "debug"
+    StoragePath = "media"
+    MaxFileSize = 33554432 # 32M‬
+[DBC]
+    Dsn = ""
+    DBName = ""
+    MaxOpenConns = 10
+    MaxIdleConns = 10
+    ConnMaxLifetime = 30
+[Cache]
+
+[Email]
+
+[Pay]
