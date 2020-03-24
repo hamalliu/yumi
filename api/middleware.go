@@ -9,8 +9,8 @@ import (
 
 	"yumi/conf"
 	"yumi/controller"
-	"yumi/internal/session"
 	"yumi/response"
+	"yumi/session"
 	"yumi/utils"
 	"yumi/utils/log"
 )

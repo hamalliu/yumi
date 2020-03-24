@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"yumi/conf"
-	"yumi/internal/db"
+	"yumi/internal/humble/db"
 	"yumi/model"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"yumi/external/pay"
 	"yumi/external/pay/wx_nativepay"
-	"yumi/internal/entity"
+	"yumi/internal/entities"
 	"yumi/utils/internal_error"
 )
 

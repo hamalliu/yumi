@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"yumi/conf"
-	"yumi/internal/db"
+	"yumi/internal/humble/db"
 	"yumi/response"
 )
 

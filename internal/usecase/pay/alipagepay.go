@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"yumi/external/pay/ali_pagepay"
-	"yumi/internal/entity"
+	"yumi/internal/entities"
 	"yumi/utils/internal_error"
 )
 

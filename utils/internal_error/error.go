@@ -40,3 +40,12 @@ func With(err error) error {
 	log.Error2(fmt.Sprintf("%s\n", err.Error()))
 	return err
 }
+
+func Critical(err error) error {
+	var targetErr *Error
+	if !goerrors.As(err, &targetErr) {
+		err = &Error{s: fmt.Sprintf("%+v", errors.WithStack(err))}
+	}
+	log.Critical2(fmt.Sprintf("%s\n", err.Error()))
+	return err
+}

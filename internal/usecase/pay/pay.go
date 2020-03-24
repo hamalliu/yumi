@@ -8,7 +8,7 @@ import (
 	"yumi/external/pay"
 	"yumi/external/pay/ali_pagepay"
 	"yumi/external/pay/wx_nativepay"
-	"yumi/internal/entity"
+	"yumi/internal/entities/orderpay"
 	"yumi/utils/internal_error"
 	"yumi/utils/log"
 )
@@ -43,7 +43,7 @@ func SubmitOrder(notifyUrl string, totalFee int, accountGuid, body, detail, time
 		    "status" = ?
 		WHERE 
 			"seq_id" = ?`
-		if _, err := dbc.Get().Exec(sqlStr, getCode(seqId), entity.OrderPayStatusSubmitted, seqId); err != nil {
+		if _, err := dbc.Get().Exec(sqlStr, getCode(seqId), orderpay.OrderPayStatusSubmitted, seqId); err != nil {
 			return internal_error.With(err)
 		}
 	}
@@ -53,7 +53,7 @@ func SubmitOrder(notifyUrl string, totalFee int, accountGuid, body, detail, time
 
 //立即支付
 func Pay(code string) error {
-	order := entity.OrderPay{}
+	order := orderpay.OrderPay{}
 	if err := order.Load(code); err != nil {
 		return err
 	}
@@ -66,10 +66,10 @@ func Pay(code string) error {
 
 	//如果未支付则关闭订单，将状态置为已提交
 	switch order.Status {
-	case entity.OrderPayStatusSubmitted:
+	case orderpay.OrderPayStatusSubmitted:
 		return nil
 
-	case entity.OrderPayStatusWaitPay:
+	case orderpay.OrderPayStatusWaitPay:
 		switch order.PayWay {
 		case PayWayAliPagePay:
 			if mch, err := getAliApp(order.AppId); err != nil {
@@ -94,10 +94,10 @@ func Pay(code string) error {
 			return nil
 		}
 
-	case entity.OrderPayStatusPaid:
+	case orderpay.OrderPayStatusPaid:
 		return fmt.Errorf("该订单已支付")
 
-	case entity.OrderPayStatusCancelled:
+	case orderpay.OrderPayStatusCancelled:
 		return fmt.Errorf("该订单已取消")
 
 	default:
@@ -108,7 +108,7 @@ func Pay(code string) error {
 //支付遇到问题
 func PayProblem(code string) error {
 	//查询支付结果，如果未支付，则关闭订单，如果成功则更新订单
-	order := entity.OrderPay{}
+	order := orderpay.OrderPay{}
 	if err := order.Load(code); err != nil {
 		return err
 	}
@@ -121,10 +121,10 @@ func PayProblem(code string) error {
 
 	//如果未支付则关闭订单，将状态置为已提交
 	switch order.Status {
-	case entity.OrderPayStatusSubmitted:
+	case orderpay.OrderPayStatusSubmitted:
 		return nil
 
-	case entity.OrderPayStatusWaitPay:
+	case orderpay.OrderPayStatusWaitPay:
 		switch order.PayWay {
 		case PayWayAliPagePay:
 			if mch, err := getAliApp(order.AppId); err != nil {
@@ -149,10 +149,10 @@ func PayProblem(code string) error {
 			return nil
 		}
 
-	case entity.OrderPayStatusPaid:
+	case orderpay.OrderPayStatusPaid:
 		return nil
 
-	case entity.OrderPayStatusCancelled:
+	case orderpay.OrderPayStatusCancelled:
 		return nil
 
 	default:
@@ -164,7 +164,7 @@ func PayProblem(code string) error {
 func PayCompleted(code string) error {
 	//查询支付结果，如果成功则更新订单
 	//查询支付结果，如果未支付，则关闭订单，如果成功则更新订单
-	order := entity.OrderPay{}
+	order := orderpay.OrderPay{}
 	if err := order.Load(code); err != nil {
 		return err
 	}
@@ -177,10 +177,10 @@ func PayCompleted(code string) error {
 
 	//如果未支付则关闭订单，将状态置为已提交
 	switch order.Status {
-	case entity.OrderPayStatusSubmitted:
+	case orderpay.OrderPayStatusSubmitted:
 		return nil
 
-	case entity.OrderPayStatusWaitPay:
+	case orderpay.OrderPayStatusWaitPay:
 		switch order.PayWay {
 		case PayWayAliPagePay:
 			if mch, err := getAliApp(order.AppId); err != nil {
@@ -205,10 +205,10 @@ func PayCompleted(code string) error {
 			return nil
 		}
 
-	case entity.OrderPayStatusPaid:
+	case orderpay.OrderPayStatusPaid:
 		return nil
 
-	case entity.OrderPayStatusCancelled:
+	case orderpay.OrderPayStatusCancelled:
 		return nil
 
 	default:
@@ -218,17 +218,17 @@ func PayCompleted(code string) error {
 
 //取消订单
 func CancellOrder(code string) error {
-	order := entity.OrderPay{}
+	order := orderpay.OrderPay{}
 	if err := order.Load(code); err != nil {
 		return err
 	}
 	defer order.Release()
 
-	if order.Status == entity.OrderPayStatusSubmitted {
+	if order.Status == orderpay.OrderPayStatusSubmitted {
 		//将状态置为已取消
 		return order.SetCancelled()
 	}
-	if order.Status == entity.OrderPayStatusWaitPay {
+	if order.Status == orderpay.OrderPayStatusWaitPay {
 		//关闭订单，将状态置为已取消
 		switch order.PayWay {
 		case PayWayAliPagePay:
