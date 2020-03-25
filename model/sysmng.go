@@ -1,22 +1,18 @@
 package model
 
-import (
-	"time"
-)
-
 //账号
 type Account struct {
-	Id           int64     `db:"id" json:"id"`
-	User         string    `db:"user" json:"user"`                 //用户名(用于登录)
-	Name         string    `db:"name" json:"name"`                 //真实姓名
-	Code         string    `db:"code" json:"code"`                 //账号编码
-	Mobile       string    `db:"mobile" json:"mobile"`             //电话号码
-	Password     string    `db:"password" json:"password"`         //密码
-	RegisterTime time.Time `db:"registertime" json:"registertime"` //注册时间
-	Status       string    `db:"status" json:"status"`             //状态：关闭，启用
+	Id           int64      `db:"id" json:"id"`
+	User         string     `db:"user" json:"user"`                 //用户名(用于登录)
+	Name         string     `db:"name" json:"name"`                 //真实姓名
+	Code         string     `db:"code" json:"code"`                 //账号编码
+	Mobile       string     `db:"mobile" json:"mobile"`             //电话号码
+	Password     string     `db:"password" json:"password"`         //密码
+	RegisterTime SecondTime `db:"registertime" json:"registertime"` //注册时间
+	Status       string     `db:"status" json:"status"`             //状态：关闭，启用
 
-	Operator    string    `db:"operator" json:"operator"`       //修改人
-	OperateTime time.Time `db:"operatetime" json:"operatetime"` //修改时间
+	Operator    string     `db:"operator" json:"operator"`       //修改人
+	OperateTime SecondTime `db:"operatetime" json:"operatetime"` //修改时间
 
 	Checked bool `db:"-" json:"_checked"` //备注
 }
@@ -28,8 +24,8 @@ type Role struct {
 	Code   string `db:"code" json:"code"`     //编码
 	Status string `db:"status" json:"status"` //状态：关闭，启用
 
-	Operator    string    `db:"operator" json:"operator"`       //修改人
-	OperateTime time.Time `db:"operatetime" json:"operatetime"` //更新时间
+	Operator    string     `db:"operator" json:"operator"`       //修改人
+	OperateTime SecondTime `db:"operatetime" json:"operatetime"` //更新时间
 
 	Checked bool `db:"-" json:"_checked"` //是否被选中
 }
@@ -57,8 +53,8 @@ type Menu struct {
 	CurSubCode  uint `db:"cursubcode" json:"-"`  //最新子菜单编码（以便推算下一个子菜单编码）
 	CurFuncCode uint `db:"curfunccode" json:"-"` //最新菜单功能编码（以便推算下一个子菜单编码）
 
-	Operator    string    `db:"operator" json:"operator"`       //操作者
-	OperateTime time.Time `db:"operatetime" json:"operatetime"` //操作时间
+	Operator    string     `db:"operator" json:"operator"`       //操作者
+	OperateTime SecondTime `db:"operatetime" json:"operatetime"` //操作时间
 }
 
 //账号菜单关联
@@ -109,26 +105,26 @@ type Power struct {
 
 //系统数据字典
 type SysDataDict struct {
-	Id          int64     `db:"id" json:"id"`
-	Name        string    `db:"dictname" json:"dictname"`       //字典类型名称
-	Code        string    `db:"dictcode" json:"dictcode"`       //字典类型编码
-	Remark      string    `db:"remark" json:"remark"`           //备注
-	OperateTime time.Time `db:"operatetime" json:"operatetime"` //更新时间
-	Operator    string    `db:"operator" json:"operator"`       //操作人
-	RowNumber   int       `db:"rownumber" json:"rownumber"`     //行号
-	Checked     bool      `db:"-" json:"_checked"`              //是否选中
+	Id          int64      `db:"id" json:"id"`
+	Name        string     `db:"dictname" json:"dictname"`       //字典类型名称
+	Code        string     `db:"dictcode" json:"dictcode"`       //字典类型编码
+	Remark      string     `db:"remark" json:"remark"`           //备注
+	OperateTime SecondTime `db:"operatetime" json:"operatetime"` //更新时间
+	Operator    string     `db:"operator" json:"operator"`       //操作人
+	RowNumber   int        `db:"rownumber" json:"rownumber"`     //行号
+	Checked     bool       `db:"-" json:"_checked"`              //是否选中
 }
 
 //系统数据字典item
 type SysDataDictItem struct {
-	Id          int64     `db:"id" json:"id"`
-	Pptr        string    `db:"pptr" json:"pptr"`
-	Name        string    `db:"name" json:"name"`
-	Code        string    `db:"code" json:"code"`
-	OperateTime time.Time `db:"operatetime" json:"operatetime"` //更新时间
-	Operator    string    `db:"operator" json:"operator"`       //操作人
-	RowNumber   int       `db:"rownumber" json:"rownumber"`     //行号
-	Checked     bool      `db:"-" json:"_checked"`              //是否选中
+	Id          int64      `db:"id" json:"id"`
+	Pptr        string     `db:"pptr" json:"pptr"`
+	Name        string     `db:"name" json:"name"`
+	Code        string     `db:"code" json:"code"`
+	OperateTime SecondTime `db:"operatetime" json:"operatetime"` //更新时间
+	Operator    string     `db:"operator" json:"operator"`       //操作人
+	RowNumber   int        `db:"rownumber" json:"rownumber"`     //行号
+	Checked     bool       `db:"-" json:"_checked"`              //是否选中
 }
 
 //更新记录
