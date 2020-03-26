@@ -1,8 +1,9 @@
-package orderpay
+package threepay
 
 import (
 	"fmt"
 	"time"
+	"yumi/internal/entities/orderpay"
 
 	"yumi/external/pay"
 	"yumi/external/pay/wx_nativepay"
@@ -15,21 +16,21 @@ func GetWxNative1() WxNative1 {
 	return ""
 }
 
-func (wxpay WxNative1) Pay(mch wx_nativepay.Merchant, order *OrderPay) (string, error) {
+func (wxpay WxNative1) Pay(mch wx_nativepay.Merchant, e *orderpay.Entity) (string, error) {
 	//订单是否过期
-	if order.PayExpire < time.Now().Format(TimeFormat) {
+	if e.PayExpire.Unix() < time.Now().Unix() {
 		return "", fmt.Errorf("订单已过期不能发起支付")
 	}
 
 	//支付订单状态必须为已支付
-	if order.Status != OrderPayStatusSubmitted {
+	if e.Status != orderpay.Submitted {
 		return "", fmt.Errorf("不能发起重复支付订单")
 	}
 
-	if bizUrl, err := wx_nativepay.GetDefault().BizPayShortUrl(mch, order.Code); err != nil {
+	if bizUrl, err := wx_nativepay.GetDefault().BizPayShortUrl(mch, e.Code); err != nil {
 		return "", internal_error.With(err)
 	} else {
-		if err := order.SetPayWay(PayWayWxNative1Pay, mch.AppId, mch.MchId); err != nil {
+		if err := e.SetPayWay(orderpay.PayWayWxNative1Pay, mch.AppId, mch.MchId); err != nil {
 			return "", err
 		}
 		return bizUrl, nil
@@ -45,7 +46,7 @@ func (wxpay WxNative1) PrepayNotify(mch wx_nativepay.Merchant, req wx_nativepay.
 		NonceStr:   pay.GetNonceStr(),
 	}
 
-	order := OrderPay{}
+	order := orderpay.OrderPay{}
 	if err := order.Load(req.ProductId); err != nil {
 		resp.ResultCode = "FAIL"
 		resp.ErrCodeDes = err.Error()
@@ -84,8 +85,8 @@ func (wxpay WxNative1) PrepayNotify(mch wx_nativepay.Merchant, req wx_nativepay.
 	}
 }
 
-func (wxpay WxNative1) CloseOrder(mch wx_nativepay.Merchant, order OrderPay) error {
-	if order.Status != OrderPayStatusWaitPay {
+func (wxpay WxNative1) CloseOrder(mch wx_nativepay.Merchant, order orderpay.OrderPay) error {
+	if order.Status != orderpay.WaitPay {
 		return fmt.Errorf("只能关闭待支付的账单")
 	}
 
@@ -101,7 +102,7 @@ func (wxpay WxNative1) CloseOrder(mch wx_nativepay.Merchant, order OrderPay) err
 }
 
 func (wxpay WxNative1) PayNotify(mch wx_nativepay.Merchant, req wx_nativepay.ReqPayNotify) error {
-	order := OrderPay{}
+	order := orderpay.OrderPay{}
 	if err := order.LoadByOutTradeNo(req.AppId, req.OutTradeNo); err != nil {
 		return err
 	}
@@ -115,10 +116,10 @@ func (wxpay WxNative1) PayNotify(mch wx_nativepay.Merchant, req wx_nativepay.Req
 		return err
 	}
 
-	if order.Status == OrderPayStatusPaid {
+	if order.Status == orderpay.Paid {
 		return nil
 	}
-	if order.Status == OrderPayStatusWaitPay {
+	if order.Status == orderpay.WaitPay {
 		if payTime, err := toTimeFormat(req.TimeEnd); err != nil {
 			return err
 		} else {
@@ -128,8 +129,8 @@ func (wxpay WxNative1) PayNotify(mch wx_nativepay.Merchant, req wx_nativepay.Req
 		}
 		return nil
 	}
-	if order.Status == OrderPayStatusSubmitted ||
-		order.Status == OrderPayStatusCancelled {
+	if order.Status == orderpay.Submitted ||
+		order.Status == orderpay.Cancelled {
 		//支付宝没有处理好，关闭订单和支付执行顺序。
 		//TODO 这种情况可能引发重复支付，应该记录紧急日志，并通知管理员处理。
 	}
@@ -159,7 +160,7 @@ func toTimeFormat(timeStr string) (string, error) {
 
 //...
 //可以添加对账服务，获取支付评价
-func (wxpay WxNative1) PayCompleted(mch wx_nativepay.Merchant, order OrderPay) error {
+func (wxpay WxNative1) PayCompleted(mch wx_nativepay.Merchant, order orderpay.OrderPay) error {
 	if ret, err := wx_nativepay.GetDefault().OrderQuery(mch, order.TransactionId, order.OutTradeNo); err != nil {
 		return internal_error.With(err)
 	} else {
@@ -185,7 +186,7 @@ func (wxpay WxNative1) PayCompleted(mch wx_nativepay.Merchant, order OrderPay) e
 	}
 }
 
-func (wxpay WxNative1) PayProblem(mch wx_nativepay.Merchant, order OrderPay) error {
+func (wxpay WxNative1) PayProblem(mch wx_nativepay.Merchant, order orderpay.OrderPay) error {
 	if ret, err := wx_nativepay.GetDefault().OrderQuery(mch, order.TransactionId, order.OutTradeNo); err != nil {
 		return internal_error.With(err)
 	} else {
@@ -217,7 +218,7 @@ func (wxpay WxNative1) PayProblem(mch wx_nativepay.Merchant, order OrderPay) err
 	}
 }
 
-func (wxpay WxNative1) CheckStartPay(mch wx_nativepay.Merchant, order OrderPay) error {
+func (wxpay WxNative1) CheckStartPay(mch wx_nativepay.Merchant, order orderpay.OrderPay) error {
 	if ret, err := wx_nativepay.GetDefault().OrderQuery(mch, order.TransactionId, order.OutTradeNo); err != nil {
 		return internal_error.With(err)
 	} else {

@@ -43,7 +43,7 @@ func SubmitOrder(notifyUrl string, totalFee int, accountGuid, body, detail, time
 		    "status" = ?
 		WHERE 
 			"seq_id" = ?`
-		if _, err := dbc.Get().Exec(sqlStr, getCode(seqId), orderpay.OrderPayStatusSubmitted, seqId); err != nil {
+		if _, err := dbc.Get().Exec(sqlStr, getCode(seqId), orderpay.Submitted, seqId); err != nil {
 			return internal_error.With(err)
 		}
 	}
@@ -66,10 +66,10 @@ func Pay(code string) error {
 
 	//如果未支付则关闭订单，将状态置为已提交
 	switch order.Status {
-	case orderpay.OrderPayStatusSubmitted:
+	case orderpay.Submitted:
 		return nil
 
-	case orderpay.OrderPayStatusWaitPay:
+	case orderpay.WaitPay:
 		switch order.PayWay {
 		case PayWayAliPagePay:
 			if mch, err := getAliApp(order.AppId); err != nil {
@@ -94,10 +94,10 @@ func Pay(code string) error {
 			return nil
 		}
 
-	case orderpay.OrderPayStatusPaid:
+	case orderpay.Paid:
 		return fmt.Errorf("该订单已支付")
 
-	case orderpay.OrderPayStatusCancelled:
+	case orderpay.Cancelled:
 		return fmt.Errorf("该订单已取消")
 
 	default:
@@ -121,10 +121,10 @@ func PayProblem(code string) error {
 
 	//如果未支付则关闭订单，将状态置为已提交
 	switch order.Status {
-	case orderpay.OrderPayStatusSubmitted:
+	case orderpay.Submitted:
 		return nil
 
-	case orderpay.OrderPayStatusWaitPay:
+	case orderpay.WaitPay:
 		switch order.PayWay {
 		case PayWayAliPagePay:
 			if mch, err := getAliApp(order.AppId); err != nil {
@@ -149,10 +149,10 @@ func PayProblem(code string) error {
 			return nil
 		}
 
-	case orderpay.OrderPayStatusPaid:
+	case orderpay.Paid:
 		return nil
 
-	case orderpay.OrderPayStatusCancelled:
+	case orderpay.Cancelled:
 		return nil
 
 	default:
@@ -177,10 +177,10 @@ func PayCompleted(code string) error {
 
 	//如果未支付则关闭订单，将状态置为已提交
 	switch order.Status {
-	case orderpay.OrderPayStatusSubmitted:
+	case orderpay.Submitted:
 		return nil
 
-	case orderpay.OrderPayStatusWaitPay:
+	case orderpay.WaitPay:
 		switch order.PayWay {
 		case PayWayAliPagePay:
 			if mch, err := getAliApp(order.AppId); err != nil {
@@ -205,10 +205,10 @@ func PayCompleted(code string) error {
 			return nil
 		}
 
-	case orderpay.OrderPayStatusPaid:
+	case orderpay.Paid:
 		return nil
 
-	case orderpay.OrderPayStatusCancelled:
+	case orderpay.Cancelled:
 		return nil
 
 	default:
@@ -224,11 +224,11 @@ func CancellOrder(code string) error {
 	}
 	defer order.Release()
 
-	if order.Status == orderpay.OrderPayStatusSubmitted {
+	if order.Status == orderpay.Submitted {
 		//将状态置为已取消
 		return order.SetCancelled()
 	}
-	if order.Status == orderpay.OrderPayStatusWaitPay {
+	if order.Status == orderpay.WaitPay {
 		//关闭订单，将状态置为已取消
 		switch order.PayWay {
 		case PayWayAliPagePay:
