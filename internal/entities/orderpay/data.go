@@ -21,22 +21,20 @@ type OrderPay struct {
 
 	//交易方式
 	TradeWay TradeWay `db:"pay_way"`
+	//卖家key（）
+	SellerKey string `db:"seller_key"`
 
 	//开放平台应用唯一id
 	AppId string `db:"appid"`
-
 	//商户id（如果支付方式为支付宝则是seller_id，
 	// 收款支付宝账号对应的支付宝唯一用户号。如果为微信则是微信商户号）
 	MchId string `db:"mch_id"`
-
 	//支付平台订单号（如果支付方式为支付宝则是支付宝订单号，如果为微信则是微信订单号）
 	TransactionId string `db:"transaction_id"`
-
+	//回调url
+	NotifyUrl string `db:"notify_url"`
 	//买家账号id（如果支付方式为支付宝则是买家支付宝账号id，如果为微信则是微信账号id）
 	BuyerLogonId string `db:"buyer_logon_id"`
-
-	//买家账号id（如果支付方式为支付宝则是买家支付宝账号id，如果为微信则是微信账号id）
-	NotifyUrl string `db:"notify_url"`
 
 	BuyerAccountGuid string    `db:"buyer_account_guid"` //买家账号guid
 	TotalFee         int       `db:"total_fee"`          //订单总金额，单位为分
@@ -70,7 +68,7 @@ type OrderGoods struct {
 type Data interface {
 	Clone() Data
 	//提交订单
-	SubmitOrder(outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress, submitTime time.Time, code string, status Status) error
+	SubmitOrder(sellerKey, outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress, submitTime time.Time, code string, status Status) error
 	//支付成功，更新订单状态（待支付->已支付）
 	PaySuccess(payTime time.Time, status Status) error
 	//关闭订单，更新订单状态（待支付->已提交）

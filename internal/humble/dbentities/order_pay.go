@@ -22,16 +22,16 @@ func (m Data) Clone() orderpay.Data {
 	return &Data{}
 }
 
-func (m *Data) SubmitOrder(outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress, submitTime time.Time, code string, status orderpay.Status) error {
+func (m *Data) SubmitOrder(sellerKey, outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress, submitTime time.Time, code string, status orderpay.Status) error {
 	sqlStr := `
 		INSERT 
 		INTO 
 			order_pay 
-			("out_trade_no", "notify_url", "total_fee", "body", "detail", "timeout_express", "submit_time") 
+			("seller_key", out_trade_no", "notify_url", "total_fee", "body", "detail", "timeout_express", "submit_time") 
 		VALUES 
-			(?, ?, ?, ?, ?,  ?, ?, ?)`
+			(?, ?, ?, ?, ?, ?,  ?, ?, ?)`
 	if _, err := dbc.Get().Insert(sqlStr,
-		outTradeNo, notifyUrl, totalFee, body, detail, timeoutExpress, submitTime); err != nil {
+		sellerKey, outTradeNo, notifyUrl, totalFee, body, detail, timeoutExpress, submitTime); err != nil {
 		return internal_error.With(err)
 	} else {
 		sqlStr = `

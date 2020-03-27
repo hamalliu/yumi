@@ -4,9 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"yumi/external/pay/ali_pagepay"
-	"yumi/external/pay/wx_nativepay"
-	"yumi/internal/humble/threepay"
+	"yumi/internal/humble/tradeplatform"
 	"yumi/utils/internal_error"
 )
 
@@ -33,6 +31,10 @@ func Pay(code string) (res PayResult, err error) {
 		return res, fmt.Errorf("订单已过期，不能发起支付")
 	}
 
+	if err := e.SetPayWay(aliPagePay, mch.AppId, ret.SellerId); err != nil {
+		return nil, internal_error.With(err)
+	}
+
 	switch e.Status {
 	case Submitted:
 		switch e.PayWay {
@@ -40,7 +42,7 @@ func Pay(code string) (res PayResult, err error) {
 			if mch, err := getAliApp(e.AppId); err != nil {
 				return res, err
 			} else {
-				if htmlByte, err := threepay.GetAliPagePay().Pay(mch, e); err != nil {
+				if htmlByte, err := tradeplatform.GetAliPagePay().Pay(mch, e); err != nil {
 					return res, err
 				} else {
 					res.AliPayHtml = htmlByte
@@ -52,7 +54,7 @@ func Pay(code string) (res PayResult, err error) {
 			if mch, err := getWxApp(e.AppId); err != nil {
 				return res, err
 			} else {
-				if bizUrl, err := threepay.GetWxNative1().Pay(mch, e); err != nil {
+				if bizUrl, err := tradeplatform.GetWxNative1().Pay(mch, e); err != nil {
 					return res, err
 				} else {
 					res.WxPayBizUrl = bizUrl
@@ -94,13 +96,13 @@ func QueryPayStatus(code string) (res TradeStatus, err error) {
 			if mch, err := getAliApp(e.AppId); err != nil {
 				return "", err
 			} else {
-				return threepay.GetAliPagePay().QueryPayStatus(mch, e)
+				return tradeplatform.GetAliPagePay().QueryPayStatus(mch, e)
 			}
 		case PayWayWxNative1Pay:
 			if mch, err := getWxApp(e.AppId); err != nil {
 				return "", err
 			} else {
-				return threepay.GetWxNative1().QueryPayStatus(mch, e)
+				return tradeplatform.GetWxNative1().QueryPayStatus(mch, e)
 			}
 		default:
 			err := fmt.Errorf("不支持的支付方式")
@@ -151,29 +153,4 @@ func Refund() error {
 //TODO 退款查询（只查询退款中的订单）
 func QueryRefundStatus() error {
 	return nil
-}
-
-//======================================================================================================================
-func getWxApp(code string) (wx_nativepay.Merchant, error) {
-	mch := wx_nativepay.Merchant{}
-	if ret, err := GetWxApp(code); err != nil {
-		return mch, err
-	} else {
-		mch.AppId = ret.AppId
-		mch.MchId = ret.MchId
-		mch.PrivateKey = ret.PrivateKey
-		return mch, nil
-	}
-}
-
-func getAliApp(code string) (ali_pagepay.Merchant, error) {
-	mch := ali_pagepay.Merchant{}
-	if ret, err := GetAliApp(code); err != nil {
-		return mch, err
-	} else {
-		mch.AppId = ret.AppId
-		mch.PublicKey = ret.PublicKey
-		mch.PrivateKey = ret.PrivateKey
-		return mch, nil
-	}
 }

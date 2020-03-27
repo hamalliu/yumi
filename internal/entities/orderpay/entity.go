@@ -23,37 +23,37 @@ type Entity struct {
  */
 
 //提交订单
-func (e *Entity) SubmitOrder(notifyUrl string, totalFee int, body, detail, accountGuid, code string, timeoutExpress time.Time) error {
+func (e *Entity) submitOrder(notifyUrl string, totalFee int, body, detail, accountGuid, code string, timeoutExpress time.Time) error {
 	return e.Data.SubmitOrder(getOutTradeNo(), notifyUrl, totalFee, body, detail, timeoutExpress, time.Now(), code, Submitted)
 }
 
 //支付成功，更新订单状态（待支付->已支付）
-func (e *Entity) PaySuccess(paytime string) error {
+func (e *Entity) paySuccess(paytime string) error {
 	return e.Data.PaySuccess(time.Now(), Paid)
 }
 
 //关闭订单，更新订单状态（待支付->已提交）
-func (e *Entity) SetSubmitted() error {
+func (e *Entity) setSubmitted() error {
 	return e.Data.SetSubmitted(Submitted)
 }
 
 //设置订单错误
-func (e *Entity) SetError() error {
+func (e *Entity) setError() error {
 	return e.Data.SetError(time.Now(), Error)
 }
 
 //设置取消订单
-func (e *Entity) SetCancelled() error {
+func (e *Entity) setCancelled() error {
 	return e.Data.SetCancelled(time.Now(), Cancelled)
 }
 
 //设置支付方式
-func (e *Entity) SetPayWay(payWay TradeWay, appId, mchId string) error {
+func (e *Entity) setPayWay(payWay TradeWay, appId, mchId string) error {
 	return e.Data.SetPayWay(payWay, appId, mchId, WaitPay)
 }
 
 //设置订单号
-func (e *Entity) SetTransactionId(transactionId, buyerLogonId string) error {
+func (e *Entity) setTransactionId(transactionId, buyerLogonId string) error {
 	return e.Data.SetTransactionId(transactionId, buyerLogonId)
 }
 

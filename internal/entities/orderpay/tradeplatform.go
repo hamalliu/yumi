@@ -1,9 +1,5 @@
 package orderpay
 
-import (
-	"yumi/external/pay/ali_pagepay"
-)
-
 type TradeStatus string
 
 const (
@@ -13,14 +9,24 @@ const (
 	TradeStatusFinished TradeStatus = "交易完成"
 )
 
+type TradePay struct {
+	AppId string
+	MchId string
+	Data  interface{}
+}
+
+type TradePayQuery struct {
+	BuyerLogonId  string
+	TransactionId string
+	TradeStatus   TradeStatus
+}
+
 type Trade interface {
-	Pay(e *Entity) ([]byte, error)
-	QueryPayStatus(mch ali_pagepay.Merchant, e *Entity) (TradeStatus, error)
-	TradeClose(mch ali_pagepay.Merchant, e *Entity) error
-	PayNotify(mch ali_pagepay.Merchant, rawQuery string)
-	Refund()
-	QueryRefundStatus()
-	RefundNotify()
+	Pay(e *Entity) (TradePay, error)
+	QueryPayStatus(e *Entity) (TradePayQuery, error)
+	TradeClose(e *Entity) error
+	Refund(e *Entity) error
+	QueryRefundStatus(e *Entity)
 }
 
 type TradeWay string
