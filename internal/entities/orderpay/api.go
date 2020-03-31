@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"time"
 
-	"yumi/internal/humble/tradeplatform"
 	"yumi/utils/internal_error"
 )
 
@@ -19,62 +18,42 @@ type PayResult struct {
 }
 
 //发起支付（只发起已提交订单）
-func Pay(code string) (res PayResult, err error) {
+func Pay(code string, tradeWay TradeWay) (interface{}, error) {
 	e := &Entity{Data: NewData()}
-	if err = e.load(code); err != nil {
-		return
+	if err := e.load(code); err != nil {
+		return nil, err
 	}
 	defer func() { _ = e.release() }()
 
-	//订单是否过期
+	//超时不能支付
 	if e.PayExpire.Unix() < time.Now().Unix() {
-		return res, fmt.Errorf("订单已过期，不能发起支付")
-	}
-
-	if err := e.SetPayWay(aliPagePay, mch.AppId, ret.SellerId); err != nil {
-		return nil, internal_error.With(err)
+		return nil, fmt.Errorf("订单已过期，不能发起支付")
 	}
 
 	switch e.Status {
 	case Submitted:
-		switch e.PayWay {
-		case PayWayAliPagePay:
-			if mch, err := getAliApp(e.AppId); err != nil {
-				return res, err
-			} else {
-				if htmlByte, err := tradeplatform.GetAliPagePay().Pay(mch, e); err != nil {
-					return res, err
-				} else {
-					res.AliPayHtml = htmlByte
-					return res, nil
-				}
-
-			}
-		case PayWayWxNative1Pay:
-			if mch, err := getWxApp(e.AppId); err != nil {
-				return res, err
-			} else {
-				if bizUrl, err := tradeplatform.GetWxNative1().Pay(mch, e); err != nil {
-					return res, err
-				} else {
-					res.WxPayBizUrl = bizUrl
-					return res, nil
-				}
-			}
-		default:
-			err := fmt.Errorf("不支持的支付方式")
-			return res, internal_error.Critical(err)
+		trade := getTrade(tradeWay)
+		if trade == nil {
+			return nil, internal_error.With(fmt.Errorf("该支付方式不支持"))
 		}
+		if tp, err := trade.Pay(e); err != nil {
+			return nil, err
+		} else {
+			if err := e.setPayWay(tradeWay, tp.AppId, tp.MchId); err != nil {
+				return nil, internal_error.With(err)
+			}
 
+			return tp.Data, nil
+		}
 	case WaitPay:
-		return res, fmt.Errorf("该订单待支付，不能重复发起支付")
+		return nil, fmt.Errorf("该订单待支付，不能重复发起支付")
 
 	case Paid, Refunding, Refunded, Cancelled:
-		return res, fmt.Errorf("不能发起支付")
+		return nil, fmt.Errorf("不能发起支付")
 
 	default:
 		err := fmt.Errorf("该订单状态错误")
-		return res, internal_error.Critical(err)
+		return nil, internal_error.Critical(err)
 	}
 }
 
@@ -91,22 +70,17 @@ func QueryPayStatus(code string) (res TradeStatus, err error) {
 		return "", fmt.Errorf("无效查询")
 
 	case WaitPay:
-		switch e.PayWay {
-		case PayWayAliPagePay:
-			if mch, err := getAliApp(e.AppId); err != nil {
+		trade := getTrade(e.TradeWay)
+		if trade == nil {
+			return "", internal_error.With(fmt.Errorf("该支付方式不支持"))
+		}
+		if tpq, err := trade.QueryPayStatus(e); err != nil {
+			return "", err
+		} else {
+			if err := e.setTransactionId(tpq.TransactionId, tpq.BuyerLogonId); err != nil {
 				return "", err
-			} else {
-				return tradeplatform.GetAliPagePay().QueryPayStatus(mch, e)
 			}
-		case PayWayWxNative1Pay:
-			if mch, err := getWxApp(e.AppId); err != nil {
-				return "", err
-			} else {
-				return tradeplatform.GetWxNative1().QueryPayStatus(mch, e)
-			}
-		default:
-			err := fmt.Errorf("不支持的支付方式")
-			return "", internal_error.Critical(err)
+			return tpq.TradeStatus, nil
 		}
 
 	case Paid:
@@ -134,8 +108,11 @@ func CloseTrade(code string) (err error) {
 		return fmt.Errorf("该订单未发起支付")
 
 	case WaitPay:
-		//TODO
-		return nil
+		trade := getTrade(e.TradeWay)
+		if trade == nil {
+			return internal_error.With(fmt.Errorf("该支付方式不支持"))
+		}
+		return trade.TradeClose(e)
 	case Paid, Cancelled, Refunding, Refunded:
 		return nil
 
@@ -146,7 +123,7 @@ func CloseTrade(code string) (err error) {
 }
 
 //TODO 退款（只退款已支付订单）
-func Refund() error {
+func Refund(code string) error {
 	return nil
 }
 

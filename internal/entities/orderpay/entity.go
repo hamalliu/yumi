@@ -23,8 +23,8 @@ type Entity struct {
  */
 
 //提交订单
-func (e *Entity) submitOrder(notifyUrl string, totalFee int, body, detail, accountGuid, code string, timeoutExpress time.Time) error {
-	return e.Data.SubmitOrder(getOutTradeNo(), notifyUrl, totalFee, body, detail, timeoutExpress, time.Now(), code, Submitted)
+func (e *Entity) submitOrder(sellerKey string, notifyUrl string, totalFee int, body, detail, accountGuid, code string, timeoutExpress time.Time) error {
+	return e.Data.SubmitOrder(sellerKey, getOutTradeNo(), notifyUrl, totalFee, body, detail, timeoutExpress, time.Now(), code, Submitted)
 }
 
 //支付成功，更新订单状态（待支付->已支付）

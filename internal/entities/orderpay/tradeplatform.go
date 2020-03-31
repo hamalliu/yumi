@@ -40,6 +40,10 @@ func RegisterTrade(way TradeWay, trade Trade) {
 	trades[way] = trade
 }
 
+func getTrade(tradeWay TradeWay) Trade {
+	return trades[tradeWay]
+}
+
 type Merchant interface {
 	BuildOutTradeNo()
 }
