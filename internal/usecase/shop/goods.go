@@ -1,4 +1,4 @@
-package goods
+package shop
 
 type GoodsInfo interface {
 	Produce() //

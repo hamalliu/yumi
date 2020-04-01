@@ -28,7 +28,7 @@ func (e *Entity) submitOrder(sellerKey string, notifyUrl string, totalFee int, b
 }
 
 //支付成功，更新订单状态（待支付->已支付）
-func (e *Entity) paySuccess(paytime string) error {
+func (e *Entity) paySuccess() error {
 	return e.Data.PaySuccess(time.Now(), Paid)
 }
 

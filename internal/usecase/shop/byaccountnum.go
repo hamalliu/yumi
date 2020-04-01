@@ -1,4 +1,4 @@
-package goods
+package shop
 
 //已卖的产品
 type SelledByUserNum struct {
