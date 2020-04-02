@@ -136,8 +136,8 @@ type ReqRefund struct {
 	TransactionId string `xml:"transaction_id"`  //微信支付订单号
 	OutTradeNo    string `xml:"out_trade_no"`    //商户订单号
 	OutRefundNo   string `xml:"out_refund_no"`   //商户退款单号
-	TotalFee      string `xml:"total_fee"`       //订单金额
-	RefundFee     string `xml:"refund_fee"`      //退款金额
+	TotalFee      int    `xml:"total_fee"`       //订单金额
+	RefundFee     int    `xml:"refund_fee"`      //退款金额
 	RefundFeeType string `xml:"refund_fee_type"` //退款货币种类
 	RefundDesc    string `xml:"refund_desc"`     //退款原因
 	RefundAccount string `xml:"refund_account"`  //退款资金来源
@@ -202,7 +202,7 @@ type RespRefundQuery struct {
 	NonceStr             string `xml:"nonce_str"`                //随机字符串
 	Sign                 string `xml:"sign"`                     //签名
 	TotalRefundCount     int    `xml:"total_refund_count"`       //订单总退款次数
-	TransactionId        string `xml:"transaction_id	"`       //微信订单号
+	TransactionId        string `xml:"transaction_id	"`          //微信订单号
 	OutTradeNo           string `xml:"out_trade_no"`             //商户订单号
 	TotalFee             int    `xml:"total_fee"`                //订单金额
 	SettlementTotalFee   int    `xml:"settlement_total_fee"`     //应结订单金额

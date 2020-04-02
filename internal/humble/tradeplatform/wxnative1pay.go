@@ -4,10 +4,12 @@ import (
 	"fmt"
 
 	"yumi/external/pay/wx_nativepay"
-	"yumi/internal/entities/orderpay"
+	"yumi/internal/entities/trade"
 	"yumi/internal/humble/db"
 	"yumi/utils/internal_error"
 )
+
+const wxNative1Pay = trade.TradeWay("wxnative1pay")
 
 type WxNative1 string
 
@@ -15,8 +17,8 @@ func GetWxNative1() WxNative1 {
 	return ""
 }
 
-func (wxpay WxNative1) Pay(e *orderpay.Entity) (orderpay.TradePay, error) {
-	ret := orderpay.TradePay{}
+func (wxpay WxNative1) Pay(e trade.OrderPay) (trade.TradePay, error) {
+	ret := trade.TradePay{}
 	//获取收款商户信息
 	mch, err := db.GetWxPayMerchantBySellerKey(e.SellerKey)
 	if err != nil {
@@ -38,8 +40,8 @@ func (wxpay WxNative1) Pay(e *orderpay.Entity) (orderpay.TradePay, error) {
 	}
 }
 
-func (wxpay WxNative1) QueryPayStatus(e *orderpay.Entity) (orderpay.TradePayQuery, error) {
-	ret := orderpay.TradePayQuery{}
+func (wxpay WxNative1) QueryPayStatus(e trade.OrderPay) (trade.TradePayQuery, error) {
+	ret := trade.TradePayQuery{}
 	//获取收款商户信息
 	mch, err := db.GetWxPayMerchantBySellerKey(e.SellerKey)
 	if err != nil {
@@ -65,12 +67,12 @@ func (wxpay WxNative1) QueryPayStatus(e *orderpay.Entity) (orderpay.TradePayQuer
 		ret.TransactionId = resp.TransactionId
 		switch resp.TradeState {
 		case wx_nativepay.TradeStateSuccess:
-			ret.TradeStatus = orderpay.TradeStatusSuccess
+			ret.TradeStatus = trade.Success
 		case wx_nativepay.TradeStateNotpay, wx_nativepay.TradeStateUserPaying, wx_nativepay.TradeStatePayError,
 			wx_nativepay.TradeStateRefund, wx_nativepay.TradeStateRevoked:
-			ret.TradeStatus = orderpay.TradeStatusNotPay
+			ret.TradeStatus = trade.NotPay
 		case wx_nativepay.TradeStateClosed:
-			ret.TradeStatus = orderpay.TradeStatusClosed
+			ret.TradeStatus = trade.Closed
 		default:
 			err := fmt.Errorf("微信支付状态发生变动，请管理员及时更改")
 			return ret, internal_error.Critical(err)
@@ -80,7 +82,7 @@ func (wxpay WxNative1) QueryPayStatus(e *orderpay.Entity) (orderpay.TradePayQuer
 	return ret, nil
 }
 
-func (wxpay WxNative1) TradeClose(e *orderpay.Entity) error {
+func (wxpay WxNative1) TradeClose(e trade.OrderPay) error {
 	//获取收款商户信息
 	mch, err := db.GetWxPayMerchantBySellerKey(e.SellerKey)
 	if err != nil {
@@ -99,12 +101,38 @@ func (wxpay WxNative1) TradeClose(e *orderpay.Entity) error {
 	return nil
 }
 
-func (wxpay WxNative1) Refund(e *orderpay.Entity) error {
+func (wxpay WxNative1) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 	//TODO
+	//获取收款商户信息
+	mch, err := db.GetWxPayMerchantBySellerKey(op.SellerKey)
+	if err != nil {
+		return err
+	}
+	wxMch := wx_nativepay.Merchant{
+		AppId:      mch.AppId,
+		MchId:      mch.MchId,
+		PrivateKey: mch.PrivateKey,
+	}
+
+	rfd := wx_nativepay.Refund{
+		TransactionId: op.TransactionId,
+		OutTradeNo:    op.OutTradeNo,
+		OutRefundNo:   "",
+		TotalFee:      op.TotalFee,
+		RefundFee:     op.TotalFee,
+		RefundDesc:    or.RefundDesc,
+		NotifyUrl:     or.NotifyUrl,
+	}
+	if resp, err := wx_nativepay.GetDefault().Refund(wxMch, rfd); err != nil {
+		return internal_error.With(err)
+	} else {
+
+	}
+
 	return nil
 }
 
-func (wxpay WxNative1) QueryRefundStatus(e *orderpay.Entity) {
+func (wxpay WxNative1) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefund) {
 	//TODO
 }
 
@@ -120,7 +148,7 @@ func (wxpay WxNative1) QueryRefundStatus(e *orderpay.Entity) {
 //		NonceStr:   pay.GetNonceStr(),
 //	}
 //
-//	order := orderpay.OrderPay{}
+//	order := trade.OrderPay{}
 //	if err := order.Load(req.ProductId); err != nil {
 //		resp.ResultCode = "FAIL"
 //		resp.ErrCodeDes = err.Error()

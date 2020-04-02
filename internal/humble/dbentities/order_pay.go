@@ -4,34 +4,30 @@ import (
 	"time"
 
 	"yumi/external/dbc"
-	"yumi/internal/entities/orderpay"
+	"yumi/internal/entities/trade"
 	"yumi/utils/internal_error"
 )
 
 //支付订单
-type Data struct {
+type OrderPay struct {
 	SeqId int64 `db:"seq_id"`
-	orderpay.OrderPay
+	trade.OrderPay
 }
 
-func Init() {
-	orderpay.RigsterData(&Data{})
+func (m OrderPay) Clone() trade.DataOrderPay {
+	return &OrderPay{}
 }
 
-func (m Data) Clone() orderpay.Data {
-	return &Data{}
-}
-
-func (m *Data) SubmitOrder(sellerKey, outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress, submitTime time.Time, code string, status orderpay.Status) error {
+func (m *OrderPay) Submit(accountGuid, sellerKey, outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress, submitTime time.Time, code string, status trade.OrderStatus) error {
 	sqlStr := `
 		INSERT 
 		INTO 
 			order_pay 
-			("seller_key", out_trade_no", "notify_url", "total_fee", "body", "detail", "timeout_express", "submit_time") 
+			("account_guid", "seller_key", out_trade_no", "notify_url", "total_fee", "body", "detail", "timeout_express", "submit_time") 
 		VALUES 
-			(?, ?, ?, ?, ?, ?,  ?, ?, ?)`
+			(?, ?, ?, ?, ?, ?, ?,  ?, ?, ?)`
 	if _, err := dbc.Get().Insert(sqlStr,
-		sellerKey, outTradeNo, notifyUrl, totalFee, body, detail, timeoutExpress, submitTime); err != nil {
+		accountGuid, sellerKey, outTradeNo, notifyUrl, totalFee, body, detail, timeoutExpress, submitTime); err != nil {
 		return internal_error.With(err)
 	} else {
 		sqlStr = `
@@ -51,7 +47,7 @@ func (m *Data) SubmitOrder(sellerKey, outTradeNo, notifyUrl string, totalFee int
 }
 
 //支付成功，更新订单状态（待支付->已支付）
-func (m *Data) PaySuccess(payTime time.Time, status orderpay.Status) error {
+func (m *OrderPay) PaySuccess(payTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -68,7 +64,7 @@ func (m *Data) PaySuccess(payTime time.Time, status orderpay.Status) error {
 }
 
 //关闭订单，更新订单状态（待支付->已提交）
-func (m *Data) SetSubmitted(status orderpay.Status) error {
+func (m *OrderPay) SetSubmitted(status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -84,7 +80,7 @@ func (m *Data) SetSubmitted(status orderpay.Status) error {
 }
 
 //设置订单错误
-func (m *Data) SetError(errorTime time.Time, status orderpay.Status) error {
+func (m *OrderPay) SetError(errorTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -101,7 +97,7 @@ func (m *Data) SetError(errorTime time.Time, status orderpay.Status) error {
 }
 
 //设置取消订单
-func (m *Data) SetCancelled(cancelTime time.Time, status orderpay.Status) error {
+func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -118,7 +114,7 @@ func (m *Data) SetCancelled(cancelTime time.Time, status orderpay.Status) error 
 }
 
 //设置支付方式
-func (m *Data) SetPayWay(payWay orderpay.TradeWay, appId, mchId string, status orderpay.Status) error {
+func (m *OrderPay) SetPayWay(payWay trade.TradeWay, appId, mchId string, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -136,7 +132,7 @@ func (m *Data) SetPayWay(payWay orderpay.TradeWay, appId, mchId string, status o
 }
 
 //设置订单号
-func (m *Data) SetTransactionId(transactionId, buyerLogonId string) error {
+func (m *OrderPay) SetTransactionId(transactionId, buyerLogonId string) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -152,7 +148,7 @@ func (m *Data) SetTransactionId(transactionId, buyerLogonId string) error {
 }
 
 //加载订单数据
-func (m *Data) Load(code string) (orderpay.OrderPay, error) {
+func (m *OrderPay) Load(code string) (trade.OrderPay, error) {
 	sqlStr := `
 			SELECT 
 				"seq_id" AS "seqid", 
@@ -187,7 +183,7 @@ func (m *Data) Load(code string) (orderpay.OrderPay, error) {
 }
 
 //根据开发者appId和商户订单号加载订单数据
-func (m *Data) LoadByOutTradeNo(appId, outTradeNo string) (orderpay.OrderPay, error) {
+func (m *OrderPay) LoadByOutTradeNo(appId, outTradeNo string) (trade.OrderPay, error) {
 	sqlStr := `
 			SELECT 
 				"seq_id" AS "seqid", 

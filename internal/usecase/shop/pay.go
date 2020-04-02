@@ -3,28 +3,29 @@ package shop
 import (
 	"time"
 
-	"yumi/internal/entities/orderpay"
+	"yumi/internal/entities/trade"
 )
 
 //提交订单
-func SubmitOrder(sellerKey string, notifyUrl string, totalFee int, body, detail, accountGuid, code string, timeoutExpress time.Time) error {
-	return orderpay.SubmitOrder(sellerKey, notifyUrl, totalFee, body, detail, accountGuid, code, timeoutExpress)
+func SubmitOrderPay(accountGuid, sellerKey string, notifyUrl string, totalFee int, body, detail string,
+	timeoutExpress time.Time) error {
+	return trade.SubmitOrderPay(accountGuid, sellerKey, notifyUrl, totalFee, body, detail, timeoutExpress)
 }
 
 //立即支付
-func Pay(code string, tradeWay orderpay.TradeWay) (interface{}, error) {
-	return orderpay.Pay(code, tradeWay)
+func Pay(code string, tradeWay trade.TradeWay) (interface{}, error) {
+	return trade.Pay(code, tradeWay)
 }
 
 //支付遇到问题
 func PayProblem(code string) error {
 	//查询支付是否支付成功，如果未支付，则关闭订单
-	status, err := orderpay.PaySuccess(code)
+	status, err := trade.PaySuccess(code)
 	if err != nil {
 		return err
 	}
-	if status == orderpay.TradeStatusNotPay {
-		return orderpay.CloseTrade(code)
+	if status == trade.NotPay {
+		return trade.CloseTrade(code)
 	}
 
 	return nil
@@ -33,20 +34,20 @@ func PayProblem(code string) error {
 //支付完成
 func PayCompleted(code string) error {
 	//查询支付是否支付成功，如果未支付，则关闭订单
-	status, err := orderpay.PaySuccess(code)
+	status, err := trade.PaySuccess(code)
 	if err != nil {
 		return err
 	}
-	if status == orderpay.TradeStatusNotPay {
-		return orderpay.CloseTrade(code)
+	if status == trade.NotPay {
+		return trade.CloseTrade(code)
 	}
 
 	return nil
 }
 
 //取消订单
-func CancellOrder(code string) error {
-	return orderpay.CancelleOrder(code)
+func CancelleOrderPay(code string) error {
+	return trade.CancelleOrderPay(code)
 }
 
 //提交退款

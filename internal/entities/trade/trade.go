@@ -1,12 +1,12 @@
-package orderpay
+package trade
 
-type TradeStatus string
+type Status string
 
 const (
-	TradeStatusSuccess  TradeStatus = "支付成功"
-	TradeStatusNotPay   TradeStatus = "未支付"
-	TradeStatusClosed   TradeStatus = "交易关闭"
-	TradeStatusFinished TradeStatus = "交易完成"
+	Success  Status = "支付成功"
+	NotPay   Status = "未支付"
+	Closed   Status = "交易关闭"
+	Finished Status = "交易完成"
 )
 
 type TradePay struct {
@@ -18,15 +18,15 @@ type TradePay struct {
 type TradePayQuery struct {
 	BuyerLogonId  string
 	TransactionId string
-	TradeStatus   TradeStatus
+	TradeStatus   Status
 }
 
 type Trade interface {
-	Pay(e *Entity) (TradePay, error)
-	QueryPayStatus(e *Entity) (TradePayQuery, error)
-	TradeClose(e *Entity) error
-	Refund(e *Entity) error
-	QueryRefundStatus(e *Entity)
+	Pay(op OrderPay) (TradePay, error)
+	QueryPayStatus(op OrderPay) (TradePayQuery, error)
+	TradeClose(op OrderPay) error
+	Refund(op OrderPay, or OrderRefund) error
+	QueryRefundStatus(op OrderPay, or OrderRefund)
 }
 
 type TradeWay string

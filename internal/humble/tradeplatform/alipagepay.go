@@ -4,12 +4,12 @@ import (
 	"fmt"
 
 	"yumi/external/pay/ali_pagepay"
-	"yumi/internal/entities/orderpay"
+	"yumi/internal/entities/trade"
 	"yumi/internal/humble/db"
 	"yumi/utils/internal_error"
 )
 
-const aliPagePay = orderpay.TradeWay("alipagepay")
+const aliPagePay = trade.TradeWay("alipagepay")
 
 type AliPagePay string
 
@@ -17,8 +17,8 @@ func GetAliPagePay() AliPagePay {
 	return ""
 }
 
-func (alipay AliPagePay) Pay(e *orderpay.Entity) (orderpay.TradePay, error) {
-	ret := orderpay.TradePay{}
+func (alipay AliPagePay) Pay(e trade.OrderPay) (trade.TradePay, error) {
+	ret := trade.TradePay{}
 
 	////订单是否过期
 	//if e.PayExpire.Unix() < time.Now().Unix() {
@@ -57,8 +57,8 @@ func (alipay AliPagePay) Pay(e *orderpay.Entity) (orderpay.TradePay, error) {
 	}
 }
 
-func (alipay AliPagePay) QueryPayStatus(e *orderpay.Entity) (orderpay.TradePayQuery, error) {
-	tradeInfo := orderpay.TradePayQuery{}
+func (alipay AliPagePay) QueryPayStatus(e trade.OrderPay) (trade.TradePayQuery, error) {
+	tradeInfo := trade.TradePayQuery{}
 
 	tradeQuery := ali_pagepay.TradeQuery{
 		TradeNo:    e.TransactionId,
@@ -90,13 +90,13 @@ func (alipay AliPagePay) QueryPayStatus(e *orderpay.Entity) (orderpay.TradePayQu
 
 		switch ret.TradeStatus {
 		case ali_pagepay.TradeStatusSuccess:
-			tradeInfo.TradeStatus = orderpay.TradeStatusSuccess
+			tradeInfo.TradeStatus = trade.Success
 		case ali_pagepay.TradeStatusWaitBuyerPay:
-			tradeInfo.TradeStatus = orderpay.TradeStatusNotPay
+			tradeInfo.TradeStatus = trade.NotPay
 		case ali_pagepay.TradeStatusCloseed:
-			tradeInfo.TradeStatus = orderpay.TradeStatusClosed
+			tradeInfo.TradeStatus = trade.Closed
 		case ali_pagepay.TradeStatusFinished:
-			tradeInfo.TradeStatus = orderpay.TradeStatusFinished
+			tradeInfo.TradeStatus = trade.Finished
 		default:
 			err := fmt.Errorf("支付宝状态发生变动，请管理员及时更改")
 			return tradeInfo, internal_error.Critical(err)
@@ -105,7 +105,7 @@ func (alipay AliPagePay) QueryPayStatus(e *orderpay.Entity) (orderpay.TradePayQu
 	}
 }
 
-func (alipay AliPagePay) TradeClose(e *orderpay.Entity) error {
+func (alipay AliPagePay) TradeClose(e trade.OrderPay) error {
 	tradeClose := ali_pagepay.TradeClose{
 		OutTradeNo: e.OutTradeNo,
 		TradeNo:    e.TransactionId,
@@ -135,12 +135,29 @@ func (alipay AliPagePay) TradeClose(e *orderpay.Entity) error {
 	return nil
 }
 
-func (alipay AliPagePay) Refund(e *orderpay.Entity) error {
+func (alipay AliPagePay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 	//TODO
+	//获取收款商户信息
+	mch, err := db.GetAliPayMerchantBySellerKey(op.SellerKey)
+	if err != nil {
+		return err
+	}
+	aliMch := ali_pagepay.Merchant{
+		AppId:      mch.AppId,
+		PrivateKey: mch.PrivateKey,
+		PublicKey:  mch.PublicKey,
+	}
+
+	rfd := ali_pagepay.Refund{}
+
+	if ret, err := ali_pagepay.GetDefault().Refund(aliMch, rfd); err != nil {
+		return internal_error.With(err)
+	}
+
 	return nil
 }
 
-func (alipay AliPagePay) QueryRefundStatus(e *orderpay.Entity) {
+func (alipay AliPagePay) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefund) {
 	//TODO
 }
 
@@ -149,13 +166,13 @@ func toPrice(amount int) string {
 }
 
 //可以添加对账服务，获取支付评价
-//func (alipay AliPagePay) PayNotify(mch ali_pagepay.Merchant, rawQuery string) (orderpay.TradeStatus, error) {
+//func (alipay AliPagePay) PayNotify(mch ali_pagepay.Merchant, rawQuery string) (trade.Status, error) {
 //	reqNotify, err := ali_pagepay.ParseQuery(rawQuery)
 //	if err != nil {
 //		return "", internal_error.With(err)
 //	}
 //
-//	e := orderpay.Entity{}
+//	e := trade.Entity{}
 //	if err := e.loadByOutTradeNo(reqNotify.AppId, reqNotify.OutTradeNo); err != nil {
 //		return "", internal_error.With(err)
 //	}
@@ -169,31 +186,31 @@ func toPrice(amount int) string {
 //		return "", internal_error.With(err)
 //	}
 //
-//	switch reqNotify.TradeStatus {
-//	case ali_pagepay.TradeStatusSuccess:
-//		return orderpay.TradeStatusSuccess, nil
+//	switch reqNotify.Status {
+//	case ali_pagepay.Success:
+//		return trade.Success, nil
 //	case ali_pagepay.TradeStatusWaitBuyerPay:
-//		return orderpay.TradeStatusNotPay, nil
+//		return trade.NotPay, nil
 //	case ali_pagepay.TradeStatusCloseed:
-//		return orderpay.TradeStatusClosed, nil
-//	case ali_pagepay.TradeStatusFinished:
-//		return orderpay.TradeStatusFinished, nil
+//		return trade.Closed, nil
+//	case ali_pagepay.Finished:
+//		return trade.Finished, nil
 //	default:
 //		err := fmt.Errorf("支付宝状态发生变动，请管理员及时更改")
 //		return "", internal_error.Critical(err)
 //	}
-//	//if reqNotify.TradeStatus == ali_pagepay.TradeStatusSuccess {
-//	//	if order.Status == Paid {
+//	//if reqNotify.Status == ali_pagepay.Success {
+//	//	if order.OrderStatus == Paid {
 //	//		return nil
 //	//	}
-//	//	if order.Status == WaitPay {
+//	//	if order.OrderStatus == WaitPay {
 //	//		if err := order.PaySuccess(reqNotify.GmtPayment); err != nil {
 //	//			return err
 //	//		}
 //	//		return nil
 //	//	}
-//	//	if order.Status == Submitted ||
-//	//		order.Status == Cancelled {
+//	//	if order.OrderStatus == Submitted ||
+//	//		order.OrderStatus == Cancelled {
 //	//		//支付宝没有处理好，关闭订单和支付执行顺序。
 //	//		//TODO 这种情况可能引发重复支付，应该记录紧急日志，并通知管理员处理。
 //	//	}

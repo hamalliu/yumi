@@ -73,15 +73,15 @@ type OrderQuery struct {
 
 //申请退款传入数据
 type Refund struct {
-	TransactionId string                  //微信支付订单号
-	OutTradeNo    string                  //商户订单号
+	TransactionId string //微信支付订单号
+	OutTradeNo    string //商户订单号
 	OutRefundNo   string `require:"true"` //商户退款单号
-	TotalFee      string `require:"true"` //订单金额
-	RefundFee     string `require:"true"` //退款金额
-	RefundFeeType string                  //退款货币种类
-	RefundDesc    string                  //退款原因
-	RefundAccount string                  //退款资金来源
-	NotifyUrl     string                  //退款结果通知url
+	TotalFee      int    `require:"true"` //订单金额
+	RefundFee     int    `require:"true"` //退款金额
+	RefundFeeType string //退款货币种类
+	RefundDesc    string //退款原因
+	RefundAccount string //退款资金来源
+	NotifyUrl     string //退款结果通知url
 }
 
 //申请退款返回数据
