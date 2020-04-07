@@ -55,13 +55,8 @@ func Pay(code string, tradeWay TradeWay) (interface{}, error) {
 
 			return tp.Data, nil
 		}
-	case WaitPay:
-		return nil, fmt.Errorf("该订单待支付，不能重复发起支付")
-	case Paid:
-		return nil, fmt.Errorf("不能发起支付")
 	default:
-		err := fmt.Errorf("该订单状态错误")
-		return nil, internal_error.Critical(err)
+		return nil, fmt.Errorf("不能发起支付")
 	}
 }
 
@@ -86,15 +81,12 @@ func CancelleOrderPay(code string) (err error) {
 		}
 
 		return e.dataOp.SetCancelled(time.Now(), Cancelled)
-	case Paid, Cancelled:
-		return nil
 	default:
-		err := fmt.Errorf("该订单状态错误")
-		return internal_error.Critical(err)
+		return fmt.Errorf("不能取消订单")
 	}
 }
 
-//查询支付状态（只查询待支付订单）
+//查询支付成功（只查询待支付订单）
 func PaySuccess(code string) (res Status, err error) {
 	e := &Entity{dataOp: NewDataOrderPay()}
 	if err = e.loadOrderPay(code); err != nil {
@@ -103,8 +95,6 @@ func PaySuccess(code string) (res Status, err error) {
 	defer func() { _ = e.releaseOrderPay() }()
 
 	switch e.op.Status {
-	case Submitted:
-		return "", fmt.Errorf("无效查询")
 	case WaitPay:
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
@@ -128,8 +118,7 @@ func PaySuccess(code string) (res Status, err error) {
 	case Cancelled:
 		return Closed, nil
 	default:
-		err := fmt.Errorf("该订单状态错误")
-		return "", internal_error.Critical(err)
+		return "", fmt.Errorf("无效查询")
 	}
 }
 
@@ -142,8 +131,6 @@ func CloseTrade(code string) (err error) {
 	defer func() { _ = e.releaseOrderPay() }()
 
 	switch e.op.Status {
-	case Submitted:
-		return fmt.Errorf("该订单未发起支付")
 	case WaitPay:
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
@@ -153,11 +140,8 @@ func CloseTrade(code string) (err error) {
 			return err
 		}
 		return trade.TradeClose(e.op)
-	case Paid, Cancelled:
-		return nil
 	default:
-		err := fmt.Errorf("该订单状态错误")
-		return internal_error.Critical(err)
+		return fmt.Errorf("不能关闭交易")
 	}
 }
 

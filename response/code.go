@@ -30,7 +30,7 @@ func Error(detail error) Status {
 		return internalError()
 	} else {
 		//用户输入错误
-		return illegalParameter(detail)
+		return externalPrompt(detail)
 	}
 }
 
@@ -68,9 +68,9 @@ func internalError() Status {
 	return Status{code: 2000, desc: desc, Detail: SolutionGeneral}
 }
 
-//用户输入错误（3000）（日志级别：Info，管理员应及时查看该日志，改进系统性能）
-func illegalParameter(detail error) Status {
-	desc := "参数不合法"
+//用户输入错误（3000）（日志级别：Info，用户直接可见该错误提示）
+func externalPrompt(detail error) Status {
+	desc := "外部提示"
 	log.Info2(fmt.Sprintf("%s:%v", desc, detail))
 	return Status{code: 3000, desc: desc, Detail: fmt.Sprintf("%v", detail)}
 }

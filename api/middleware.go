@@ -15,6 +15,7 @@ import (
 	"yumi/utils/log"
 )
 
+//解密
 func Decrypt(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 		if !controller.GetHandlerConfs().Get(mux.CurrentRoute(req).GetName()).GetReqEncrypt() {
@@ -52,6 +53,17 @@ func Decrypt(next http.Handler) http.Handler {
 	})
 }
 
+//
+func DefenseRepaly(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
+		//TODO
+		return
+	})
+}
+
+//验签
+
+//验权
 func PemissionAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
 		paternCode := mux.CurrentRoute(req).GetName()
