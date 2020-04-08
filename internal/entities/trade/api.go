@@ -107,7 +107,7 @@ func PaySuccess(code string) (res Status, err error) {
 				return "", err
 			}
 			if tpq.TradeStatus == Success {
-				if err := e.dataOp.PaySuccess(time.Now(), Paid); err != nil {
+				if err := e.dataOp.SetSuccess(time.Now(), Paid); err != nil {
 					return "", err
 				}
 			}

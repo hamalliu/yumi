@@ -46,8 +46,80 @@ func (m *OrderPay) Submit(accountGuid, sellerKey, outTradeNo, notifyUrl string, 
 	}
 }
 
+//加载订单数据
+func (m *OrderPay) Load(code string) (trade.OrderPay, error) {
+	sqlStr := `
+			SELECT 
+				"seq_id" AS "seqid", 
+				ifnull("code", '') AS "code", 
+				ifnull("pay_way", '') AS "payway", 
+				ifnull("app_id", '') AS "appid", 
+				ifnull("mch_id", '') AS "mchid", 
+				ifnull("transaction_id", '') AS "trasactionid", 
+				ifnull("buyer_logon_id", '') AS "buyerlogonid", 
+				ifnull("notify_url", '') AS "notifyurl",
+				ifnull("total_fee", 0) AS "totalfee",
+				ifnull("body", '') AS "body", 
+				ifnull("detail", '') AS "detail", 
+				ifnull("out_trade_no", '') AS "outtradeno", 
+				ifnull("timeout_express", '') AS "timeoutexpress", 
+				ifnull("pay_expire", '') AS "payexpire", 
+				ifnull("pay_date", '') AS "paydate", 
+				ifnull("cancel_time", '') AS "canceltime",
+				ifnull("err_time", '') AS "errtime",
+				ifnull("submit_time", '') AS "submittime",
+				ifnull("status", '') AS "status"
+			FROM 
+				order_pay 
+			WHERE 
+				"code" = ?
+			`
+	if err := dbc.Get().Get(&m, sqlStr, code); err != nil {
+		return m.OrderPay, internal_error.With(err)
+	}
+
+	return m.OrderPay, nil
+}
+
+//根据开发者appId和商户订单号加载订单数据
+func (m *OrderPay) LoadByOutTradeNo(appId, outTradeNo string) (trade.OrderPay, error) {
+	sqlStr := `
+			SELECT 
+				"seq_id" AS "seqid", 
+				ifnull("code", '') AS "code", 
+				ifnull("pay_way", '') AS "payway", 
+				ifnull("app_id", '') AS "appid", 
+				ifnull("mch_id", '') AS "mchid", 
+				ifnull("transaction_id", '') AS "trasactionid", 
+				ifnull("buyer_logon_id", '') AS "buyerlogonid", 
+				ifnull("notify_url", '') AS "notifyurl",
+				ifnull("total_fee", 0) AS "totalfee",
+				ifnull("body", '') AS "body", 
+				ifnull("detail", '') AS "detail", 
+				ifnull("out_trade_no", '') AS "outtradeno", 
+				ifnull("timeout_express", '') AS "timeoutexpress", 
+				ifnull("pay_expire", '') AS "payexpire", 
+				ifnull("pay_date", '') AS "paydate", 
+				ifnull("cancel_time", '') AS "canceltime",
+				ifnull("err_time", '') AS "errtime",
+				ifnull("submit_time", '') AS "submittime",
+				ifnull("status", '') AS "status"
+			FROM 
+				order_pay 
+			WHERE 
+				"app_id" = ? 
+			AND 
+			    "out_trade_no = ?"
+			`
+	if err := dbc.Get().Get(&m, sqlStr, appId, outTradeNo); err != nil {
+		return m.OrderPay, internal_error.With(err)
+	}
+
+	return m.OrderPay, nil
+}
+
 //支付成功，更新订单状态（待支付->已支付）
-func (m *OrderPay) PaySuccess(payTime time.Time, status trade.OrderStatus) error {
+func (m *OrderPay) SetSuccess(payTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -145,76 +217,4 @@ func (m *OrderPay) SetTransactionId(transactionId, buyerLogonId string) error {
 		return internal_error.With(err)
 	}
 	return nil
-}
-
-//加载订单数据
-func (m *OrderPay) Load(code string) (trade.OrderPay, error) {
-	sqlStr := `
-			SELECT 
-				"seq_id" AS "seqid", 
-				ifnull("code", '') AS "code", 
-				ifnull("pay_way", '') AS "payway", 
-				ifnull("app_id", '') AS "appid", 
-				ifnull("mch_id", '') AS "mchid", 
-				ifnull("transaction_id", '') AS "trasactionid", 
-				ifnull("buyer_logon_id", '') AS "buyerlogonid", 
-				ifnull("notify_url", '') AS "notifyurl",
-				ifnull("total_fee", 0) AS "totalfee",
-				ifnull("body", '') AS "body", 
-				ifnull("detail", '') AS "detail", 
-				ifnull("out_trade_no", '') AS "outtradeno", 
-				ifnull("timeout_express", '') AS "timeoutexpress", 
-				ifnull("pay_expire", '') AS "payexpire", 
-				ifnull("pay_date", '') AS "paydate", 
-				ifnull("cancel_time", '') AS "canceltime",
-				ifnull("err_time", '') AS "errtime",
-				ifnull("submit_time", '') AS "submittime",
-				ifnull("status", '') AS "status"
-			FROM 
-				order_pay 
-			WHERE 
-				"code" = ?
-			`
-	if err := dbc.Get().Get(&m, sqlStr, code); err != nil {
-		return m.OrderPay, internal_error.With(err)
-	}
-
-	return m.OrderPay, nil
-}
-
-//根据开发者appId和商户订单号加载订单数据
-func (m *OrderPay) LoadByOutTradeNo(appId, outTradeNo string) (trade.OrderPay, error) {
-	sqlStr := `
-			SELECT 
-				"seq_id" AS "seqid", 
-				ifnull("code", '') AS "code", 
-				ifnull("pay_way", '') AS "payway", 
-				ifnull("app_id", '') AS "appid", 
-				ifnull("mch_id", '') AS "mchid", 
-				ifnull("transaction_id", '') AS "trasactionid", 
-				ifnull("buyer_logon_id", '') AS "buyerlogonid", 
-				ifnull("notify_url", '') AS "notifyurl",
-				ifnull("total_fee", 0) AS "totalfee",
-				ifnull("body", '') AS "body", 
-				ifnull("detail", '') AS "detail", 
-				ifnull("out_trade_no", '') AS "outtradeno", 
-				ifnull("timeout_express", '') AS "timeoutexpress", 
-				ifnull("pay_expire", '') AS "payexpire", 
-				ifnull("pay_date", '') AS "paydate", 
-				ifnull("cancel_time", '') AS "canceltime",
-				ifnull("err_time", '') AS "errtime",
-				ifnull("submit_time", '') AS "submittime",
-				ifnull("status", '') AS "status"
-			FROM 
-				order_pay 
-			WHERE 
-				"app_id" = ? 
-			AND 
-			    "out_trade_no = ?"
-			`
-	if err := dbc.Get().Get(&m, sqlStr, appId, outTradeNo); err != nil {
-		return m.OrderPay, internal_error.With(err)
-	}
-
-	return m.OrderPay, nil
 }

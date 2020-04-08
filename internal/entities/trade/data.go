@@ -71,8 +71,14 @@ type DataOrderPay interface {
 	//提交订单
 	Submit(accountGuid, sellerKey, outTradeNo, notifyUrl string, totalFee int, body, detail string, timeoutExpress,
 		submitTime time.Time, code string, status OrderStatus) error
+
+	//加载订单数据
+	Load(code string) (OrderPay, error)
+	//根据开发者appId和商户订单号加载订单数据
+	LoadByOutTradeNo(appId, outTradeNo string) (OrderPay, error)
+
 	//支付成功，更新订单状态（待支付->已支付）
-	PaySuccess(payTime time.Time, status OrderStatus) error
+	SetSuccess(payTime time.Time, status OrderStatus) error
 	//关闭订单，更新订单状态（待支付->已提交）
 	SetSubmitted(status OrderStatus) error
 	//设置订单错误
@@ -83,10 +89,6 @@ type DataOrderPay interface {
 	SetPayWay(payWay TradeWay, appId, mchId string, status OrderStatus) error
 	//设置订单号
 	SetTransactionId(transactionId, buyerLogonId string) error
-	//加载订单数据
-	Load(code string) (OrderPay, error)
-	//根据开发者appId和商户订单号加载订单数据
-	LoadByOutTradeNo(appId, outTradeNo string) (OrderPay, error)
 }
 
 var op DataOrderPay
