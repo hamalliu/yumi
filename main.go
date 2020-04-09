@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"yumi/api"
 	"yumi/conf"
@@ -10,7 +13,9 @@ import (
 )
 
 func main() {
-	forover := make(chan int)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP)
+
 	log.Info("开始初始化服务")
 
 	log.Info("初始化数据库")
@@ -26,9 +31,18 @@ func main() {
 	go func() {
 		if err := controller.Run(); err != nil {
 			log.Info(fmt.Errorf("启动服务失败: %s", err.Error()))
-			forover <- 1
+			c <- syscall.SIGINT
 		}
 	}()
+	for {
+		s := <-c
+		switch s {
+		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM:
+			break
+		case syscall.SIGHUP:
 
-	<-forover
+		default:
+			break
+		}
+	}
 }

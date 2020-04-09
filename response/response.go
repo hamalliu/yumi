@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -17,7 +18,6 @@ import (
 type Data struct {
 	Code     int         `json:"code"`
 	Desc     string      `json:"desc"`
-	Detail   string      `json:"detail"`
 	Business interface{} `json:"business"`
 }
 
@@ -38,25 +38,39 @@ type PageItem struct {
 	Items interface{} `json:"items"`
 }
 
-func Response(resp http.ResponseWriter, req *http.Request, status Status, item interface{}) {
+func Response(resp http.ResponseWriter, req *http.Request, err error, item interface{}) {
+	data := &Data{}
+	status := Status{}
+
+	if err == nil {
+		status = Success()
+	} else {
+		if errors.As(err, Status{}) {
+			status = err.(Status)
+		} else {
+			status = UntrackedError(err)
+		}
+	}
+	data.Code = status.Code
+	data.Desc = status.Desc
+
 	timeStamp := time.Now().UnixNano()
 	resp.Header().Set("timestamp", fmt.Sprint(timeStamp))
-	data := &Data{status.code, status.desc, status.Detail, item}
 
 	if controller.GetHandlerConfs().Get(mux.CurrentRoute(req).GetName()).GetRespEncrypt() {
 		resp.Header().Set("encrypt", "true")
 
 		token := req.Header.Get("token")
 		if token == "" {
-			err := TokenIsNull(nil)
-			_, _ = resp.Write(Data{Code: err.code, Desc: err.desc, Detail: err.Detail}.Bytes())
+			status = TokenIsNull()
+			_, _ = resp.Write(Data{Code: status.Code, Desc: status.Desc}.Bytes())
 			return
 		}
 		key := utils.MD5([]byte(fmt.Sprint(timeStamp) + token))
 		encode, err := utils.AesEncrypt(data.String(), key)
 		if err != nil {
-			errStatus := Error(err)
-			_, _ = resp.Write(Data{Code: errStatus.code, Desc: errStatus.desc, Detail: errStatus.Detail}.Bytes())
+			status = InternalError(err)
+			_, _ = resp.Write(Data{Code: status.Code, Desc: status.Desc}.Bytes())
 		} else {
 			_, _ = resp.Write([]byte(encode))
 		}
