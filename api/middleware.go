@@ -34,20 +34,20 @@ func Decrypt(next http.Handler) http.Handler {
 		)
 
 		if s, ok = session.GetUser(user); !ok {
-			response.Response(resp, req, response.ExpiredSession(), nil)
+			response.Json(resp, req, response.ExpiredSession(), nil)
 		}
 
 		cryted, err := ioutil.ReadAll(req.Body)
 		if err != nil {
-			response.Response(resp, req, response.DecryptError(err), nil)
+			response.Json(resp, req, response.DecryptError(err), nil)
 		}
 		key := utils.GetKey(s.Token+timeStamp, 24)
 		body, err := utils.AesDecrypt(string(cryted), []byte(key))
 		if err != nil {
-			response.Response(resp, req, response.DecryptError(err), nil)
+			response.Json(resp, req, response.DecryptError(err), nil)
 		}
 		if err = req.Write(bytes.NewBufferString(body)); err != nil {
-			response.Response(resp, req, response.DecryptError(err), nil)
+			response.Json(resp, req, response.DecryptError(err), nil)
 		}
 
 		next.ServeHTTP(resp, req)
@@ -63,7 +63,7 @@ func PemissionAuth(next http.Handler) http.Handler {
 			return
 		}
 		if !controller.GetPemission().HavePower(req.Header.Get(consts.HeaderUser), paternCode) {
-			response.Response(resp, req, response.NoPower(nil), nil)
+			response.Json(resp, req, response.NoPower(nil), nil)
 			return
 		}
 		next.ServeHTTP(resp, req)

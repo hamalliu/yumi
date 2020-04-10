@@ -39,7 +39,7 @@ type PageItem struct {
 	Items interface{} `json:"items"`
 }
 
-func Response(resp http.ResponseWriter, req *http.Request, err error, item interface{}) {
+func Json(resp http.ResponseWriter, req *http.Request, err error, item interface{}) {
 	data := &Data{}
 	status := Status{}
 
