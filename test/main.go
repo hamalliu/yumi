@@ -1,23 +1,21 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
 )
 
-func db() error {
-	return fmt.Errorf("%+v", errors.WithStack(errors.New("seqid 不存在")))
+type Error1 struct {
+	Str string
 }
 
-func srv() error {
-	if err := db(); err != nil {
-		return err
-	}
-	return nil
+func (e Error1) Error() string {
+	return e.Str
 }
 
 func main() {
-	//err := srv()
-	//fmt.Printf("%s", err.Error())
-	fmt.Println(fmt.Sprintf(`%%%s%%`, "sdf"))
+	var err Error1
+	if errors.As(err, &Error1{""}) {
+		fmt.Println("hello")
+	}
 }

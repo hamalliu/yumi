@@ -2,7 +2,7 @@ package db
 
 import (
 	"yumi/external/dbc"
-	"yumi/utils/internal_error"
+	"yumi/response"
 )
 
 type WxPayMerchant struct {
@@ -26,7 +26,7 @@ func GetWxPayMerchantBySellerKey(sellerKey string) (mch WxPayMerchant, err error
 		WHERE 
 			seller_key = ?`
 	if err = dbc.Get().Get(&mch, sqlStr, sellerKey); err != nil {
-		return mch, internal_error.With(err)
+		return mch, response.InternalError(err)
 	}
 
 	return

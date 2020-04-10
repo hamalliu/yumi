@@ -2,7 +2,7 @@ package db
 
 import (
 	"yumi/external/dbc"
-	"yumi/utils/internal_error"
+	"yumi/response"
 )
 
 type DataMedia int
@@ -25,7 +25,7 @@ func (dm DataMedia) Add(suffix, name, realname, path, operator, operatorid strin
 		VALUES 
 		(?, ?, ?, ?, ?, ?, sysdate())`
 	if id, err = dbc.Get().Insert(sql, suffix, name, realname, path, operator, operatorid); err != nil {
-		return 0, internal_error.With(err)
+		return 0, response.InternalError(err)
 	}
 
 	return int(id), nil

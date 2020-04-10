@@ -15,6 +15,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"yumi/conf"
+	"yumi/consts"
 	"yumi/utils/log"
 )
 
@@ -59,7 +60,9 @@ func CORSMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		header := "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With"
+		header = fmt.Sprintf("%s, %s", header, consts.GetHeaders())
+		w.Header().Set("Access-Control-Allow-Headers", header)
 		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)

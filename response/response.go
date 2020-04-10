@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"yumi/conf"
+	"yumi/consts"
 	"yumi/controller"
 	"yumi/utils"
 	"yumi/utils/log"
@@ -45,7 +46,7 @@ func Response(resp http.ResponseWriter, req *http.Request, err error, item inter
 	if err == nil {
 		status = Success()
 	} else {
-		if errors.As(err, Status{}) {
+		if errors.As(err, &Status{}) {
 			status = err.(Status)
 		} else {
 			status = UntrackedError(err)
@@ -53,29 +54,38 @@ func Response(resp http.ResponseWriter, req *http.Request, err error, item inter
 	}
 	data.Code = status.Code
 	data.Desc = status.Desc
+	data.Business = item
 
 	timeStamp := time.Now().UnixNano()
-	resp.Header().Set("timestamp", fmt.Sprint(timeStamp))
+	resp.Header().Set(consts.HeaderTimestamp, fmt.Sprint(timeStamp))
 
 	if controller.GetHandlerConfs().Get(mux.CurrentRoute(req).GetName()).GetRespEncrypt() {
-		resp.Header().Set("encrypt", "true")
+		resp.Header().Set(consts.HeaderEncrypt, "true")
 
 		token := req.Header.Get("token")
 		if token == "" {
 			status = TokenIsNull()
-			_, _ = resp.Write(Data{Code: status.Code, Desc: status.Desc}.Bytes())
-			return
-		}
-		key := utils.MD5([]byte(fmt.Sprint(timeStamp) + token))
-		encode, err := utils.AesEncrypt(data.String(), key)
-		if err != nil {
-			status = InternalError(err)
-			_, _ = resp.Write(Data{Code: status.Code, Desc: status.Desc}.Bytes())
+			data.Code = status.Code
+			data.Desc = status.Desc
+			goto ERROR
+
 		} else {
-			_, _ = resp.Write([]byte(encode))
+			key := utils.MD5([]byte(fmt.Sprint(timeStamp) + token))
+			if encode, err := utils.AesEncrypt(data.String(), key); err != nil {
+				status = InternalError(err)
+				data.Code = status.Code
+				data.Desc = status.Desc
+				goto ERROR
+
+			} else {
+				_, _ = resp.Write([]byte(encode))
+			}
 		}
+
+	ERROR:
+		_, _ = resp.Write(data.Bytes())
 	} else {
-		resp.Header().Set("encrypt", "false")
+		resp.Header().Set(consts.HeaderEncrypt, "false")
 
 		_, _ = resp.Write(data.Bytes())
 	}

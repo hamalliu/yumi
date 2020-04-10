@@ -13,7 +13,7 @@ import (
 	"yumi/response"
 )
 
-func UrlUnmarshal(reqUrl *url.URL, reqJ interface{}) response.Status {
+func UrlUnmarshal(reqUrl *url.URL, reqJ interface{}) error {
 	var (
 		reqJv = reflect.ValueOf(reqJ)
 	)
@@ -33,28 +33,28 @@ func UrlUnmarshal(reqUrl *url.URL, reqJ interface{}) response.Status {
 		case reflect.Float32, reflect.Float64:
 			if fval, err := strconv.ParseFloat(val, 64); err != nil {
 				err := fmt.Errorf("参数：%s 格式错误", strings.ToLower(reqJv.Type().Field(i).Name))
-				return response.Error(err)
+				return response.PretreatmentError(err)
 			} else {
 				reqJv.Field(i).SetFloat(fval)
 			}
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			if uval, err := strconv.ParseUint(val, 0, 64); err != nil {
 				err := fmt.Errorf("参数：%s 格式错误", strings.ToLower(reqJv.Type().Field(i).Name))
-				return response.Error(err)
+				return response.PretreatmentError(err)
 			} else {
 				reqJv.Field(i).SetUint(uval)
 			}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			if ival, err := strconv.ParseInt(val, 0, 64); err != nil {
 				err := fmt.Errorf("参数：%s 格式错误", strings.ToLower(reqJv.Type().Field(i).Name))
-				return response.Error(err)
+				return response.PretreatmentError(err)
 			} else {
 				reqJv.Field(i).SetInt(ival)
 			}
 		case reflect.Bool:
 			if bval, err := strconv.ParseBool(val); err != nil {
 				err := fmt.Errorf("参数：%s 格式错误", strings.ToLower(reqJv.Type().Field(i).Name))
-				return response.Error(err)
+				return response.PretreatmentError(err)
 			} else {
 				reqJv.Field(i).SetBool(bval)
 			}
@@ -66,7 +66,7 @@ func UrlUnmarshal(reqUrl *url.URL, reqJ interface{}) response.Status {
 	//检查
 	for i := 0; i < fl; i++ {
 		if err := feildCheck(reqJv.Field(i), reqJv.Type().Field(i)); err != nil {
-			return response.Error(err)
+			return response.PretreatmentError(err)
 		}
 	}
 
@@ -80,13 +80,13 @@ func BodyUnmarshal(data io.ReadCloser, reqJ interface{}) response.Status {
 	}
 
 	if err := json.NewDecoder(data).Decode(reqJ); err != nil {
-		return response.Error(err)
+		return response.PretreatmentError(err)
 	}
 
 	//检查
 	reqJv = reflect.ValueOf(reqJ)
 	if err := checkStruct(reqJv); err != nil {
-		return response.Error(err)
+		return response.PretreatmentError(err)
 	}
 
 	return response.Success()

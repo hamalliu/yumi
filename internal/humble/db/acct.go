@@ -7,7 +7,7 @@ import (
 
 	"yumi/consts"
 	"yumi/external/dbc"
-	"yumi/utils/internal_error"
+	"yumi/response"
 	"yumi/utils/log"
 )
 
@@ -36,7 +36,7 @@ func (da DataAcct) Add(user, name, code, mobile, password, operator string) (id 
 		if strings.Index(err.Error(), "UNIQUE KEY") != -1 {
 			return 0, AcctRepeat
 		}
-		return 0, internal_error.With(err)
+		return 0, response.InternalError(err)
 	} else {
 		return id, nil
 	}
@@ -73,7 +73,7 @@ func (da DataAcct) Update(id int64, user, name, code, mobile, password, operator
 
 	sqlStr = fmt.Sprintf(`%s%s WHERE "id"=%d`, sqlStr, setStr, id)
 	if _, err := dbc.Get().Exec(sqlStr, setVals...); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -99,7 +99,7 @@ func (da DataAcct) Delete(ids []int) error {
 			WHERE
 				FIND_IN_SET(a.id, ?)`
 	if _, err := dbc.Get().Exec(sqlStr, idsstr); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -125,7 +125,7 @@ func (da DataAcct) Get(dest interface{}, id int64) error {
 			WHERE
 			    id=?`
 		if err := dbc.Get().Get(dest, sqlStr, id); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		}
 	}
 
@@ -171,7 +171,7 @@ func (da DataAcct) Search(dest interface{}, user, name, code, mobile, operator s
 	page, line = getDefaultPageLine(page, line)
 
 	if total, pageIndex, pageCount, err = dbc.Get().PageSelect(dest, cloumns, table, where, order, page, line, whereVals...); err != nil {
-		return 0, 0, 0, internal_error.With(err)
+		return 0, 0, 0, response.InternalError(err)
 	}
 
 	return total, pageIndex, pageCount, nil
@@ -187,22 +187,22 @@ func (da DataAcct) SaveRolesOfAcct(acctCode string, roleCodes []string) error {
 
 	sqlStr := `DELETE FROM power_acct_roles WHERE acct_code=?`
 	if _, err = tx.Exec(sqlStr, acctCode); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	stmt, err := tx.Prepare(`INSERT INTO power_acct_roles ("acct_code", "role_code") VALUES (?, ?)`)
 	if err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	defer stmt.Close()
 	for i := range roleCodes {
 		if _, err = stmt.Exec(acctCode, roleCodes[i]); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -222,7 +222,7 @@ func (da DataAcct) GetRolesOfAcct(dest interface{}, acctCode string) error {
 			WHERE 
 			    "status"=?`
 		if err := dbc.Get().Select(dest, sqlStr, consts.RoleStatusEnable); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		}
 	} else {
 		sqlStr := `
@@ -240,7 +240,7 @@ func (da DataAcct) GetRolesOfAcct(dest interface{}, acctCode string) error {
 			WHERE 
 			    ar."acct_code"=?`
 		if err := dbc.Get().Select(dest, sqlStr, acctCode); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		}
 	}
 
@@ -250,29 +250,29 @@ func (da DataAcct) GetRolesOfAcct(dest interface{}, acctCode string) error {
 func (da DataAcct) SaveMenusOfAcct(acctCode string, menuCodes []string) error {
 	tx, err := dbc.Get().Begin()
 	if err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	defer tx.Rollback()
 
 	sqlStr := `DELETE FROM power_acct_menus WHERE "acct_code"=?`
 	if _, err := dbc.Get().Exec(sqlStr, acctCode); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	sqlStr = `INSERT INTO power_acct_menus ("acct_code", "menu_code") VALUES (?, ?)`
 	stmt, err := tx.Prepare(sqlStr)
 	if err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	defer stmt.Close()
 	for i := range menuCodes {
 		if _, err := stmt.Exec(acctCode, menuCodes[i]); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -281,7 +281,7 @@ func (da DataAcct) SaveMenusOfAcct(acctCode string, menuCodes []string) error {
 func (da DataAcct) GetMenuCodesOfAcct(acctCode string) (menus []string, err error) {
 	sqlStr := `SELECT "menu_code" FROM power_acct_menus WHERE acct_code=?`
 	if err := dbc.Get().Select(&menus, sqlStr, acctCode); err != nil {
-		return nil, internal_error.With(err)
+		return nil, response.InternalError(err)
 	}
 
 	return menus, nil

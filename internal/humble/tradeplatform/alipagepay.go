@@ -2,11 +2,11 @@ package tradeplatform
 
 import (
 	"fmt"
+	"yumi/response"
 
 	"yumi/external/pay/ali_pagepay"
 	"yumi/internal/entities/trade"
 	"yumi/internal/humble/db"
-	"yumi/utils/internal_error"
 )
 
 const aliPagePay = trade.TradeWay("alipagepay")
@@ -48,7 +48,7 @@ func (alipay AliPagePay) Pay(e trade.OrderPay) (trade.TradePay, error) {
 	}
 
 	if resp, err := ali_pagepay.GetDefault().UnifiedOrder(aliMch, pagePay); err != nil {
-		return ret, internal_error.With(err)
+		return ret, response.InternalError(err)
 	} else {
 		ret.AppId = aliMch.AppId
 		ret.MchId = resp.SellerId
@@ -77,13 +77,13 @@ func (alipay AliPagePay) QueryPayStatus(e trade.OrderPay) (trade.TradePayQuery, 
 	}
 
 	if ret, err := ali_pagepay.GetDefault().TradeQuery(aliMch, tradeQuery); err != nil {
-		return tradeInfo, internal_error.With(err)
+		return tradeInfo, response.InternalError(err)
 	} else {
 		if ret.OutTradeNo != e.OutTradeNo {
 			return tradeInfo, fmt.Errorf("订单号不一致")
 		}
 		if ret.TotalAmount != toPrice(e.TotalFee) {
-			return tradeInfo, internal_error.Critical(fmt.Errorf("订单金额不一致"))
+			return tradeInfo, response.InternalError(fmt.Errorf("订单金额不一致"))
 		}
 		tradeInfo.TransactionId = ret.TradeNo
 		tradeInfo.BuyerLogonId = ret.BuyerlogonId

@@ -8,7 +8,7 @@ import (
 	"yumi/consts"
 	"yumi/external/dbc"
 	"yumi/model"
-	"yumi/utils/internal_error"
+	"yumi/response"
 )
 
 var (
@@ -36,7 +36,7 @@ func (m DataRole) Add(name, code, operator string) (id int64, err error) {
 			return 0, RoleRepeat
 		}
 
-		return 0, internal_error.With(err)
+		return 0, response.InternalError(err)
 	}
 
 	return id, nil
@@ -59,7 +59,7 @@ func (m DataRole) Update(id int, name, code, status, operator string) error {
 		WHERE
 			id=?`
 	if _, err := dbc.Get().Exec(sqlStr, name, code, status, operator, id); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -85,7 +85,7 @@ func (m DataRole) Delete(ids []int) error {
 		WHERE
 			FIND_IN_SET (r.id, ?)`
 	if _, err := dbc.Get().Exec(sqlStr, idsstr); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -105,7 +105,7 @@ func (m DataRole) Get(id int) (role model.Role, err error) {
 		WHERE
 			id=?`
 	if err = dbc.Get().Get(&role, sqlStr, id); err != nil {
-		return role, internal_error.With(err)
+		return role, response.InternalError(err)
 	}
 
 	return role, nil
@@ -143,7 +143,7 @@ func (m DataRole) Search(page, line int, name, code, status string) (
 	}
 	page, line = getDefaultPageLine(page, line)
 	if total, pageIndex, pageCount, err = dbc.Get().PageSelect(&roles, cloumns, table, where, order, page, line); err != nil {
-		return nil, 0, 0, 0, internal_error.With(err)
+		return nil, 0, 0, 0, response.InternalError(err)
 	}
 
 	return roles, total, pageIndex, pageCount, nil
@@ -152,28 +152,28 @@ func (m DataRole) Search(page, line int, name, code, status string) (
 func (m DataRole) SaveUsersOfRole(roleCode string, acctCodes []string) error {
 	tx, err := dbc.Get().Begin()
 	if err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	defer tx.Rollback()
 
 	sqlStr := `DELETE FROM power_acct_roles WHERE role_code=?`
 	if _, err = tx.Exec(sqlStr, roleCode); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	sqlStr = `INSERT INTO power_acct_roles ("acct_code", "role_code") VALUES (?, ?)`
 	if stmt, err := tx.Prepare(sqlStr); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	} else {
 		defer stmt.Close()
 		for i := range acctCodes {
 			if _, err = stmt.Exec(acctCodes[i], roleCode); err != nil {
-				return internal_error.With(err)
+				return response.InternalError(err)
 			}
 		}
 	}
 	if err := tx.Commit(); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -196,7 +196,7 @@ func (m DataRole) GetUsersOfRole(roleCode string) (accts []model.Account, err er
 		WHERE 
 			"status"=?`
 		if err = dbc.Get().Select(&accts, sqlStr, consts.AcctStatusEnable); err != nil {
-			return nil, internal_error.With(err)
+			return nil, response.InternalError(err)
 		}
 	} else {
 		sqlStr := `
@@ -218,7 +218,7 @@ func (m DataRole) GetUsersOfRole(roleCode string) (accts []model.Account, err er
 		    ar."role_code"=? 
 		  	AND acct."status"=?`
 		if err = dbc.Get().Select(&accts, sqlStr, roleCode, consts.AcctStatusEnable); err != nil {
-			return nil, internal_error.With(err)
+			return nil, response.InternalError(err)
 		}
 	}
 
@@ -228,29 +228,29 @@ func (m DataRole) GetUsersOfRole(roleCode string) (accts []model.Account, err er
 func (m DataRole) SaveMenusOfRole(roleCode string, menusCodes []string) error {
 	tx, err := dbc.Get().Begin()
 	if err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	defer tx.Rollback()
 
 	sqlStr := `DELETE FROM power_role_menus WHERE role_code=?`
 	if _, err := tx.Exec(sqlStr, roleCode); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	sqlStr = `INSERT INTO power_role_menus ("role_code", "menu_code") VALUES (?, ?)`
 	stmt, err := tx.Prepare(sqlStr)
 	if err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	for i := range menusCodes {
 		if _, err := stmt.Exec(roleCode, menusCodes[i]); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		}
 	}
 
 	if err := tx.Commit(); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -259,7 +259,7 @@ func (m DataRole) SaveMenusOfRole(roleCode string, menusCodes []string) error {
 func (m DataRole) GetMenuCodesOfRole(roleCode string) (menus []string, err error) {
 	sqlStr := `SELECT ifnull("menu_code", '') AS "code" FROM power_role_menus WHERE role_code=?`
 	if err = dbc.Get().Select(&menus, sqlStr, roleCode); err != nil {
-		return nil, internal_error.With(err)
+		return nil, response.InternalError(err)
 	}
 
 	return menus, nil

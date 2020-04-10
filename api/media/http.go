@@ -20,7 +20,7 @@ func UploadMultipart(resp http.ResponseWriter, req *http.Request) {
 	)
 
 	if err = req.ParseMultipartForm(conf.Get().MaxFileSize); err != nil {
-		response.Response(resp, req, response.Error(fmt.Errorf("文件过大")), nil)
+		response.Response(resp, req, response.FileSizeTooBig(), nil)
 		return
 	}
 
@@ -32,7 +32,7 @@ func UploadMultipart(resp http.ResponseWriter, req *http.Request) {
 			mulf multipart.File
 		)
 		if mulf, err = fds[i].Open(); err != nil {
-			response.Response(resp, req, response.Error(err), nil)
+			response.Response(resp, req, response.InternalError(err), nil)
 			return
 		}
 
@@ -47,12 +47,12 @@ func UploadMultipart(resp http.ResponseWriter, req *http.Request) {
 			}
 		}
 		if osf, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0744); err != nil {
-			response.Response(resp, req, response.Error(err), nil)
+			response.Response(resp, req, response.InternalError(err), nil)
 			return
 		}
 
 		if _, err := io.Copy(osf, mulf); err != nil {
-			response.Response(resp, req, response.Error(err), nil)
+			response.Response(resp, req, response.InternalError(err), nil)
 			return
 		}
 		_ = mulf.Close()
@@ -61,7 +61,7 @@ func UploadMultipart(resp http.ResponseWriter, req *http.Request) {
 		operatorid := req.Header.Get("xuid")
 		operator := req.Header.Get("username")
 		if _, err = db.Media().Add(suffix, name, fds[i].Filename, path, operator, operatorid); err != nil {
-			response.Response(resp, req, response.Error(err), nil)
+			response.Response(resp, req, response.InternalError(err), nil)
 			return
 		}
 	}
@@ -77,7 +77,7 @@ func Upload(resp http.ResponseWriter, req *http.Request) {
 	)
 
 	if mulf, mulfh, err = req.FormFile("file"); err != nil {
-		response.Response(resp, req, response.Error(err), nil)
+		response.Response(resp, req, response.InternalError(err), nil)
 		return
 	}
 
@@ -92,12 +92,12 @@ func Upload(resp http.ResponseWriter, req *http.Request) {
 		}
 	}
 	if osf, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0744); err != nil {
-		response.Response(resp, req, response.Error(err), nil)
+		response.Response(resp, req, response.InternalError(err), nil)
 		return
 	}
 
 	if _, err := io.Copy(osf, mulf); err != nil {
-		response.Response(resp, req, response.Error(err), nil)
+		response.Response(resp, req, response.InternalError(err), nil)
 		return
 	}
 	_ = mulf.Close()
@@ -106,7 +106,7 @@ func Upload(resp http.ResponseWriter, req *http.Request) {
 	operatorid := req.Header.Get("xuid")
 	operator := req.Header.Get("username")
 	if _, err = db.Media().Add(suffix, name, mulfh.Filename, path, operator, operatorid); err != nil {
-		response.Response(resp, req, response.Error(err), nil)
+		response.Response(resp, req, response.InternalError(err), nil)
 		return
 	}
 }

@@ -2,10 +2,10 @@ package dbentities
 
 import (
 	"time"
+	"yumi/response"
 
 	"yumi/external/dbc"
 	"yumi/internal/entities/trade"
-	"yumi/utils/internal_error"
 )
 
 //支付订单
@@ -28,7 +28,7 @@ func (m *OrderPay) Submit(accountGuid, sellerKey, outTradeNo, notifyUrl string, 
 			(?, ?, ?, ?, ?, ?, ?,  ?, ?, ?)`
 	if _, err := dbc.Get().Insert(sqlStr,
 		accountGuid, sellerKey, outTradeNo, notifyUrl, totalFee, body, detail, timeoutExpress, submitTime); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	} else {
 		sqlStr = `
 		UPDATE
@@ -39,7 +39,7 @@ func (m *OrderPay) Submit(accountGuid, sellerKey, outTradeNo, notifyUrl string, 
 		WHERE 
 			"seq_id" = ?`
 		if _, err := dbc.Get().Exec(sqlStr, code, status, m.SeqId); err != nil {
-			return internal_error.With(err)
+			return response.InternalError(err)
 		} else {
 			return nil
 		}
@@ -75,7 +75,7 @@ func (m *OrderPay) Load(code string) (trade.OrderPay, error) {
 				"code" = ?
 			`
 	if err := dbc.Get().Get(&m, sqlStr, code); err != nil {
-		return m.OrderPay, internal_error.With(err)
+		return m.OrderPay, response.InternalError(err)
 	}
 
 	return m.OrderPay, nil
@@ -112,7 +112,7 @@ func (m *OrderPay) LoadByOutTradeNo(appId, outTradeNo string) (trade.OrderPay, e
 			    "out_trade_no = ?"
 			`
 	if err := dbc.Get().Get(&m, sqlStr, appId, outTradeNo); err != nil {
-		return m.OrderPay, internal_error.With(err)
+		return m.OrderPay, response.InternalError(err)
 	}
 
 	return m.OrderPay, nil
@@ -130,7 +130,7 @@ func (m *OrderPay) SetSuccess(payTime time.Time, status trade.OrderStatus) error
 			"seq_id" = ?
 		`
 	if _, err := dbc.Get().Exec(sqlStr, payTime, status, m.SeqId); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	return nil
 }
@@ -146,7 +146,7 @@ func (m *OrderPay) SetSubmitted(status trade.OrderStatus) error {
 			"seq_id" = ?
 		`
 	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqId); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	return nil
 }
@@ -163,7 +163,7 @@ func (m *OrderPay) SetError(errorTime time.Time, status trade.OrderStatus) error
 			"seq_id" = ?
 		`
 	if _, err := dbc.Get().Exec(sqlStr, errorTime, status, m.SeqId); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	return nil
 }
@@ -180,7 +180,7 @@ func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.OrderStatus) 
 			"seq_id" = ?
 		`
 	if _, err := dbc.Get().Exec(sqlStr, cancelTime, status, m.SeqId); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	return nil
 }
@@ -198,7 +198,7 @@ func (m *OrderPay) SetPayWay(payWay trade.TradeWay, appId, mchId string, status 
 		WHERE 
 			"seq_id" = ?`
 	if _, err := dbc.Get().Exec(sqlStr, payWay, appId, mchId, status, m.SeqId); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	return nil
 }
@@ -214,7 +214,7 @@ func (m *OrderPay) SetTransactionId(transactionId, buyerLogonId string) error {
 		WHERE 
 			"seq_id" = ?`
 	if _, err := dbc.Get().Exec(sqlStr, transactionId, buyerLogonId, m.SeqId); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 	return nil
 }

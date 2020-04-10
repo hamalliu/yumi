@@ -6,7 +6,7 @@ import (
 	"yumi/consts"
 	"yumi/external/dbc"
 	"yumi/model"
-	"yumi/utils/internal_error"
+	"yumi/response"
 )
 
 type DataMenu int
@@ -29,7 +29,7 @@ func (DataMenu) Add(menu model.Menu) (int64, error) {
 		menu.ParentName, menu.ParentCode, menu.Name, menu.Code, menu.Route,
 		menu.Params, menu.Type, menu.DisplayOrder, menu.Status, menu.CurSubCode,
 		menu.CurFuncCode, menu.Operator); err != nil {
-		return 0, internal_error.With(err)
+		return 0, response.InternalError(err)
 	} else {
 		return id, nil
 	}
@@ -47,7 +47,7 @@ func (DataMenu) Delete(modids []int) error {
 
 	sqlStr := `DELETE FROM power_menus WHERE FIND_IN_SET(id, ?)`
 	if _, err := dbc.Get().Exec(sqlStr, idsstr); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -77,7 +77,7 @@ func (DataMenu) Update(menu model.Menu) error {
 		menu.ParentName, menu.ParentCode, menu.Name, menu.Code, menu.Route,
 		menu.Params, menu.Type, menu.DisplayOrder, menu.Status, menu.CurSubCode,
 		menu.CurFuncCode, menu.Operator, menu.Id); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -111,7 +111,7 @@ func (DataMenu) Get(id int64) (model.Menu, error) {
 		WHERE
 		     "id"=?`
 	if err := dbc.Get().Get(&menu, sqlStr, id); err != nil {
-		return menu, internal_error.With(err)
+		return menu, response.InternalError(err)
 	}
 
 	return menu, nil
@@ -143,7 +143,7 @@ func (DataMenu) GetEnableMenus() ([]model.Menu, error) {
 		ORDER BY
 		    "display_order"`
 	if err := dbc.Get().Select(&menus, sqlStr, consts.MenuStatusEnable); err != nil {
-		return nil, internal_error.With(err)
+		return nil, response.InternalError(err)
 	}
 
 	return menus, nil
@@ -173,7 +173,7 @@ func (DataMenu) GetAllMenus() ([]model.Menu, error) {
 		ORDER BY
 		    "display_order"`
 	if err := dbc.Get().Select(&menus, sqlStr); err != nil {
-		return nil, internal_error.With(err)
+		return nil, response.InternalError(err)
 	}
 
 	return menus, nil
@@ -182,7 +182,7 @@ func (DataMenu) GetAllMenus() ([]model.Menu, error) {
 func (DataMenu) UpdateCurSubCode(id int64, curSubCode uint) error {
 	sqlStr := `UPDATE power_menus SET cur_sub_code=? WHERE id=?`
 	if _, err := dbc.Get().Exec(sqlStr, curSubCode, id); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -191,7 +191,7 @@ func (DataMenu) UpdateCurSubCode(id int64, curSubCode uint) error {
 func (DataMenu) UpdateCurFuncCode(id int64, curFuncCode uint) error {
 	sqlStr := `UPDATE power_menus SET cur_func_code=? WHERE id=?`
 	if _, err := dbc.Get().Exec(sqlStr, curFuncCode, id); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil

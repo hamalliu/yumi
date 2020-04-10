@@ -2,10 +2,10 @@ package db
 
 import (
 	"fmt"
+	"yumi/response"
 
 	"yumi/external/dbc"
 	"yumi/model"
-	"yumi/utils/internal_error"
 )
 
 type DataRollBackor int
@@ -28,7 +28,7 @@ func (m DataRollBackor) AddUpdateRecord(table, request, requestbody, beforedata,
 			VALUES 
 				(?, ?, ?, ?, ?, ?, sysdate())`
 	if id, err = dbc.Get().Insert(sqlStr, table, request, requestbody, beforedata, userid, operator); err != nil {
-		return 0, internal_error.With(err)
+		return 0, response.InternalError(err)
 	}
 
 	return int(id), nil
@@ -47,7 +47,7 @@ func (m DataRollBackor) DeleteUpdateRecord(ids []int) error {
 
 	sqlStr := `DELETE FROM back_update_records WHERE FIND_IN_SET(id, ?)`
 	if _, err := dbc.Get().Exec(sqlStr, idsstr); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -95,7 +95,7 @@ func (m DataRollBackor) SearchUpdateRecord(page, line int, startTime, endTime, u
 	page, line = getDefaultPageLine(page, line)
 	order := `"operate_time" desc`
 	if total, pageCount, pageIndex, err = dbc.Get().PageSelect(&urjs, columns, table, where, order, page, line); err != nil {
-		return nil, 0, 0, 0, internal_error.With(err)
+		return nil, 0, 0, 0, response.InternalError(err)
 	}
 
 	return urjs, total, pageCount, pageIndex, nil
@@ -131,7 +131,7 @@ func (m DataRollBackor) GetUpdateRecords(ids []int) ([]model.UpdateRecordsJson, 
 			WHERE 
 			    FIND_IN_SET(id, ?)`
 	if err = dbc.Get().Select(&udjs, sqlStr, idsstr); err != nil {
-		return nil, internal_error.With(err)
+		return nil, response.InternalError(err)
 	}
 
 	return udjs, nil
@@ -152,7 +152,7 @@ func (m DataRollBackor) AddDeleteRecord(table, request, requestbody, beforedata,
 			VALUES 
 				(?, ?, ?, ?, ?, ?, sysdate())`
 	if id, err = dbc.Get().Insert(sqlStr, table, request, requestbody, beforedata, userid, operator); err != nil {
-		return 0, internal_error.With(err)
+		return 0, response.InternalError(err)
 	}
 
 	return int(id), nil
@@ -171,7 +171,7 @@ func (m DataRollBackor) DeleteDeleteRecord(ids []int) error {
 
 	sqlStr := `DELETE FROM back_delete_records WHERE FIND_IN_SET(id, ?)`
 	if _, err := dbc.Get().Exec(sqlStr, idsstr); err != nil {
-		return internal_error.With(err)
+		return response.InternalError(err)
 	}
 
 	return nil
@@ -219,7 +219,7 @@ func (m DataRollBackor) SearchDeleteRecord(page, line int, startTime, endTime, u
 	order := `"operate_time" desc`
 	page, line = getDefaultPageLine(page, line)
 	if total, pageCount, pageIndex, err = dbc.Get().PageSelect(&drjs, colmnus, table, where, order, page, line); err != nil {
-		return nil, 0, 0, 0, internal_error.With(err)
+		return nil, 0, 0, 0, response.InternalError(err)
 	}
 
 	return drjs, total, pageCount, pageIndex, nil
@@ -255,7 +255,7 @@ func (m DataRollBackor) GetDeleteRecords(ids []int) ([]model.DeleteRecordsJson, 
 			WHERE 
 			    FIND_IN_SET(id, ?)`
 	if err = dbc.Get().Select(&udjs, sqlStr, idsstr); err != nil {
-		return nil, internal_error.With(err)
+		return nil, response.InternalError(err)
 	}
 
 	return udjs, nil

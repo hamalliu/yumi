@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 
 	"yumi/conf"
+	"yumi/consts"
 	"yumi/controller"
 	"yumi/response"
 	"yumi/session"
@@ -24,8 +25,8 @@ func Decrypt(next http.Handler) http.Handler {
 		}
 
 		var (
-			timeStamp = req.Header.Get("timestamp")
-			user      = req.Header.Get("user")
+			timeStamp = req.Header.Get(consts.HeaderTimestamp)
+			user      = req.Header.Get(consts.HeaderUser)
 			s         session.Session
 
 			ok  bool
@@ -33,15 +34,15 @@ func Decrypt(next http.Handler) http.Handler {
 		)
 
 		if s, ok = session.GetUser(user); !ok {
-			response.Response(resp, req, response.ExpiredSession(nil), nil)
+			response.Response(resp, req, response.ExpiredSession(), nil)
 		}
 
 		cryted, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			response.Response(resp, req, response.DecryptError(err), nil)
 		}
-		key := utils.MD5([]byte(s.Token + timeStamp))
-		body, err := utils.AesDecrypt(string(cryted), key)
+		key := utils.GetKey(s.Token+timeStamp, 24)
+		body, err := utils.AesDecrypt(string(cryted), []byte(key))
 		if err != nil {
 			response.Response(resp, req, response.DecryptError(err), nil)
 		}
@@ -53,16 +54,6 @@ func Decrypt(next http.Handler) http.Handler {
 	})
 }
 
-//
-func DefenseRepaly(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
-		//TODO
-		return
-	})
-}
-
-//验签
-
 //验权
 func PemissionAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(resp http.ResponseWriter, req *http.Request) {
@@ -71,7 +62,7 @@ func PemissionAuth(next http.Handler) http.Handler {
 			next.ServeHTTP(resp, req)
 			return
 		}
-		if !controller.GetPemission().HavePower(req.Header.Get("user"), paternCode) {
+		if !controller.GetPemission().HavePower(req.Header.Get(consts.HeaderUser), paternCode) {
 			response.Response(resp, req, response.NoPower(nil), nil)
 			return
 		}

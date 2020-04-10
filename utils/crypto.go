@@ -14,6 +14,18 @@ import (
 
 const Key = "buwangchuxinfangdeshizhong,.+-*\\"
 
+func GetKey(key string, size int) string {
+	for {
+		if len(key) < size {
+			key += key
+		} else {
+			break
+		}
+	}
+	key = key[0:size]
+	return key
+}
+
 func AesEncrypt(orig string, key []byte) (string, error) {
 	// 转成字节数组
 	origData := []byte(orig)
@@ -86,25 +98,6 @@ func pKCS7UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
 	return origData[:(length - unpadding)]
-}
-
-func Get3DesKey(randStr, token string) string {
-	if token == "" {
-		return randStr
-	}
-	key := randStr
-	if len(key) > 12 {
-		key = key[0:12]
-	}
-	for {
-		if len(key) < 24 {
-			key += token
-		} else {
-			break
-		}
-	}
-	key = key[0:24]
-	return key
 }
 
 //desen

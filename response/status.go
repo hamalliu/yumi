@@ -1,9 +1,5 @@
 package response
 
-const (
-	SolutionGeneral = "请联系管理员或稍后再试"
-)
-
 type Status struct {
 	Code int    //状态码
 	Desc string //状态描述
