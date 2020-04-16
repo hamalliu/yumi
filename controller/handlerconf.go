@@ -33,7 +33,7 @@ type HandlerConfs struct {
 	handlers map[string] /*patternCode*/ HandlerConf
 }
 
-func (hndl *HandlerConfs) add(patternCode string, hdlCnf *HandlerConf) {
+func (hndl *HandlerConfs) add(pattern string, hdlCnf *HandlerConf) {
 	//设置默认值
 	if hdlCnf == nil {
 		hdlCnf = &HandlerConf{
@@ -42,9 +42,9 @@ func (hndl *HandlerConfs) add(patternCode string, hdlCnf *HandlerConf) {
 		}
 	}
 
-	hndl.handlers[patternCode] = *hdlCnf
+	hndl.handlers[pattern] = *hdlCnf
 }
 
-func (hndl *HandlerConfs) Get(patternCode string) HandlerConf {
-	return hndl.handlers[patternCode]
+func (hndl *HandlerConfs) Get(pattern string) HandlerConf {
+	return hndl.handlers[pattern]
 }
