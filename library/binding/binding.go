@@ -29,20 +29,6 @@ type Binding interface {
 	Bind(*http.Request, interface{}) error
 }
 
-// BindingBody adds BindBody method to Binding. BindBody is similar with Bind,
-// but it reads the body from supplied bytes instead of req.Body.
-type BindingBody interface {
-	Binding
-	BindBody([]byte, interface{}) error
-}
-
-// BindingUri adds BindUri method to Binding. BindUri is similar with Bind,
-// but it read the Params.
-type BindingUri interface {
-	Name() string
-	BindUri(map[string][]string, interface{}) error
-}
-
 // StructValidator is the minimal interface which needs to be implemented in
 // order for it to be used as the validator engine for ensuring the correctness
 // of the request. Gin provides a default implementation for this using
@@ -70,21 +56,20 @@ var Validator StructValidator = &defaultValidator{}
 var (
 	JSON          = jsonBinding{}
 	XML           = xmlBinding{}
-	Form          = formBinding{}
 	Query         = queryBinding{}
-	FormPost      = formPostBinding{}
-	FormMultipart = formMultipartBinding{}
 	ProtoBuf      = protobufBinding{}
 	MsgPack       = msgpackBinding{}
 	YAML          = yamlBinding{}
-	Uri           = uriBinding{}
+	Form          = formBinding{}
+	FormPost      = formPostBinding{}
+	FormMultipart = formMultipartBinding{}
 )
 
 // Default returns the appropriate Binding instance based on the HTTP method
 // and the content type.
 func Default(method, contentType string) Binding {
 	if method == "GET" {
-		return Form
+		return Query
 	}
 
 	switch contentType {

@@ -27,7 +27,7 @@ func (b protobufBinding) Bind(req *http.Request, obj interface{}) error {
 	return b.BindBody(buf, obj)
 }
 
-func (protobufBinding) BindBody(body []byte, obj interface{}) error {
+func (protobufBinding) BindBytes(body []byte, obj interface{}) error {
 	if err := proto.Unmarshal(body, obj.(proto.Message)); err != nil {
 		return ecodes.InternalError(err)
 	}

@@ -15,6 +15,9 @@ import (
 
 // JSON contains the given interface object.
 type JSON struct {
+	Code int
+	Msg  string
+	TTL  int `json:"ttl"`
 	Data interface{}
 }
 

@@ -23,7 +23,7 @@ func (xmlBinding) Bind(req *http.Request, obj interface{}) error {
 	return decodeXML(req.Body, obj)
 }
 
-func (xmlBinding) BindBody(body []byte, obj interface{}) error {
+func (xmlBinding) BindBytes(body []byte, obj interface{}) error {
 	return decodeXML(bytes.NewReader(body), obj)
 }
 func decodeXML(r io.Reader, obj interface{}) error {

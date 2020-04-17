@@ -24,7 +24,7 @@ func (msgpackBinding) Bind(req *http.Request, obj interface{}) error {
 	return decodeMsgPack(req.Body, obj)
 }
 
-func (msgpackBinding) BindBody(body []byte, obj interface{}) error {
+func (msgpackBinding) BindBytes(body []byte, obj interface{}) error {
 	return decodeMsgPack(bytes.NewReader(body), obj)
 }
 

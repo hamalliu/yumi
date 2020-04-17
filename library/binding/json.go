@@ -33,7 +33,7 @@ func (jsonBinding) Bind(req *http.Request, obj interface{}) error {
 	return decodeJSON(req.Body, obj)
 }
 
-func (jsonBinding) BindBody(body []byte, obj interface{}) error {
+func (jsonBinding) BindBytes(body []byte, obj interface{}) error {
 	return decodeJSON(bytes.NewReader(body), obj)
 }
 

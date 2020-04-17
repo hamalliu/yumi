@@ -522,11 +522,11 @@ func testQueryBindingBoolFail(t *testing.T, method, path, badPath, body, badBody
 }
 
 func testBodyBinding(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := FooStruct{}
 	req := requestWithBody("POST", path, body)
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.NoError(t, err)
 	assert.Equal(t, "bar", obj.Foo)
 
@@ -537,12 +537,12 @@ func testBodyBinding(t *testing.T, b Binding, name, path, badPath, body, badBody
 }
 
 func testBodyBindingUseNumber(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := FooStructUseNumber{}
 	req := requestWithBody("POST", path, body)
 	EnableDecoderUseNumber = true
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.NoError(t, err)
 	// we hope it is int64(123)
 	v, e := obj.Foo.(json.Number).Int64()
@@ -556,12 +556,12 @@ func testBodyBindingUseNumber(t *testing.T, b Binding, name, path, badPath, body
 }
 
 func testBodyBindingUseNumber2(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := FooStructUseNumber{}
 	req := requestWithBody("POST", path, body)
 	EnableDecoderUseNumber = false
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.NoError(t, err)
 	// it will return float64(123) if not use EnableDecoderUseNumber
 	// maybe it is not hoped
@@ -574,11 +574,11 @@ func testBodyBindingUseNumber2(t *testing.T, b Binding, name, path, badPath, bod
 }
 
 func testBodyBindingFail(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := FooStruct{}
 	req := requestWithBody("POST", path, body)
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.Error(t, err)
 	assert.Equal(t, "", obj.Foo)
 
@@ -589,12 +589,12 @@ func testBodyBindingFail(t *testing.T, b Binding, name, path, badPath, body, bad
 }
 
 func testProtoBodyBinding(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := protoexample.Test{}
 	req := requestWithBody("POST", path, body)
 	req.Header.Add("Content-Type", MIMEPROTOBUF)
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.NoError(t, err)
 	assert.Equal(t, "yes", *obj.Label)
 
@@ -612,14 +612,14 @@ func (h hook) Read([]byte) (int, error) {
 }
 
 func testProtoBodyBindingFail(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := protoexample.Test{}
 	req := requestWithBody("POST", path, body)
 
 	req.Body = ioutil.NopCloser(&hook{})
 	req.Header.Add("Content-Type", MIMEPROTOBUF)
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.Error(t, err)
 
 	obj = protoexample.Test{}
@@ -630,12 +630,12 @@ func testProtoBodyBindingFail(t *testing.T, b Binding, name, path, badPath, body
 }
 
 func testMsgPackBodyBinding(t *testing.T, b Binding, name, path, badPath, body, badBody string) {
-	assert.Equal(t, name, b.Name())
+	assert.Equal(t, name, Name())
 
 	obj := FooStruct{}
 	req := requestWithBody("POST", path, body)
 	req.Header.Add("Content-Type", MIMEMSGPACK)
-	err := b.Bind(req, &obj)
+	err := Bind(req, &obj)
 	assert.NoError(t, err)
 	assert.Equal(t, "bar", obj.Foo)
 

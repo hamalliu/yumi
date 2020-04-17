@@ -24,7 +24,7 @@ func (yamlBinding) Bind(req *http.Request, obj interface{}) error {
 	return decodeYAML(req.Body, obj)
 }
 
-func (yamlBinding) BindBody(body []byte, obj interface{}) error {
+func (yamlBinding) BindBytes(body []byte, obj interface{}) error {
 	return decodeYAML(bytes.NewReader(body), obj)
 }
 

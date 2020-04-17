@@ -408,7 +408,7 @@ func TestRenderHTMLTemplate(t *testing.T) {
 		"name": "alexandernyquist",
 	})
 
-	err := instance.Render(w)
+	err := Render(w)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello alexandernyquist", w.Body.String())
@@ -424,7 +424,7 @@ func TestRenderHTMLTemplateEmptyName(t *testing.T) {
 		"name": "alexandernyquist",
 	})
 
-	err := instance.Render(w)
+	err := Render(w)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "Hello alexandernyquist", w.Body.String())
@@ -442,7 +442,7 @@ func TestRenderHTMLDebugFiles(t *testing.T) {
 		"name": "thinkerou",
 	})
 
-	err := instance.Render(w)
+	err := Render(w)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "<h1>Hello thinkerou</h1>", w.Body.String())
@@ -460,7 +460,7 @@ func TestRenderHTMLDebugGlob(t *testing.T) {
 		"name": "thinkerou",
 	})
 
-	err := instance.Render(w)
+	err := Render(w)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "<h1>Hello thinkerou</h1>", w.Body.String())

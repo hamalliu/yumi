@@ -1,64 +1,123 @@
 package ecodes
 
-import "yumi/utils/log"
+import (
+	"fmt"
+	"strconv"
+	"sync/atomic"
 
-/**
- *框架级别错误码（-500-500）
- */
+	"github.com/pkg/errors"
+)
 
-func Success() Status {
-	desc := "操作成功"
-	return Status{Code: 101, Desc: desc}
+var (
+	_messages atomic.Value         // NOTE: stored map[string]map[int]string
+	_codes    = map[int]struct{}{} // register codes.
+)
+
+// Register register ecode message map.
+func Register(cm map[int]string) {
+	_messages.Store(cm)
 }
 
-func InternalError(err error) Status {
-	desc := "服务器错误"
-	log.Error2(err)
-	return Status{Code: -101, Desc: desc}
+// New new a ecode.Codes by int value.
+// NOTE: ecode must unique in global, the New will check repeat and then panic.
+func New(e int) Code {
+	if e <= 0 {
+		panic("business ecode must greater than zero")
+	}
+	return add(e)
 }
 
-func TokenIsNull() Status {
-	desc := "token为空"
-	log.Critical2(desc)
-	return Status{Code: -102, Desc: desc}
+func add(e int) Code {
+	if _, ok := _codes[e]; ok {
+		panic(fmt.Sprintf("ecode: %d already exist", e))
+	}
+	_codes[e] = struct{}{}
+	return Int(e)
 }
 
-func DecryptError(err error) Status {
-	desc := "解密失败"
-	log.Critical2(err)
-	return Status{Code: -102, Desc: desc}
+// Codes ecode error sinterface which has a code & message.
+type Codes interface {
+	// sometimes Error return Code in string form
+	// NOTE: don't use Error in monitor report even it also work for now
+	Error() string
+	// Code get error code.
+	Code() int
+	// Message get code message.
+	Message() string
+	//Detail get error detail,it may be nil.
+	Details() []interface{}
+	// Equal for compatible.
+	// Deprecated: please use ecode.EqualError.
+	Equal(error) bool
 }
 
-func SignError(err error) Status {
-	desc := "签名错误"
-	log.Critical2(err)
-	return Status{Code: -103, Desc: desc}
+// A Code is an int error code spec.
+type Code int
+
+func (e Code) Error() string {
+	return strconv.FormatInt(int64(e), 10)
 }
 
-func NoPower(err error) Status {
-	desc := "无权访问"
-	log.Critical2(err)
-	return Status{Code: -104, Desc: desc}
+// Code return error code
+func (e Code) Code() int { return int(e) }
+
+// Message return error message
+func (e Code) Message() string {
+	if cm, ok := _messages.Load().(map[int]string); ok {
+		if msg, ok := cm[e.Code()]; ok {
+			return msg
+		}
+	}
+	return e.Error()
 }
 
-func UntrackedError(err error) Status {
-	desc := "未追踪错误"
-	log.Critical2(err)
-	return Status{Code: -105, Desc: desc}
+// Details return details.
+func (e Code) Details() []interface{} { return nil }
+
+// Equal for compatible.
+// Deprecated: please use ecode.EqualError.
+func (e Code) Equal(err error) bool { return EqualError(e, err) }
+
+// Int parse code int to error.
+func Int(i int) Code { return Code(i) }
+
+// String parse code string to error.
+func String(e string) Code {
+	if e == "" {
+		return OK
+	}
+	// try error string
+	i, err := strconv.Atoi(e)
+	if err != nil {
+		return ServerErr
+	}
+	return Code(i)
 }
 
-func ExpiredSession() Status {
-	desc := "会话过期"
-	return Status{Code: -106, Desc: desc}
+// Cause cause from error to ecode.
+func Cause(e error) Codes {
+	if e == nil {
+		return OK
+	}
+	ec, ok := errors.Cause(e).(Codes)
+	if ok {
+		return ec
+	}
+	return String(e.Error())
 }
 
-//参数预处理错误
-func PretreatmentError(err error) Status {
-	return Status{Code: -107, Desc: err.Error()}
+// Equal equal a and b by code int.
+func Equal(a, b Codes) bool {
+	if a == nil {
+		a = OK
+	}
+	if b == nil {
+		b = OK
+	}
+	return a.Code() == b.Code()
 }
 
-func FormDataTooLarge(err error) Status {
-	desc := "form数据太大"
-	log.Error2(err)
-	return Status{Code: -108, Desc: desc}
+// EqualError equal error
+func EqualError(code Codes, err error) bool {
+	return Cause(err).Code() == code.Code()
 }

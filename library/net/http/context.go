@@ -5,22 +5,18 @@
 package http
 
 import (
-	"errors"
+	"context"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math"
-	"mime/multipart"
 	"net"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
 
-	"github.com/gin-contrib/sse"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/gin-gonic/gin/render"
+	"yumi/library/binding"
+	"yumi/library/render"
 )
 
 // Content-Type MIME of the most common data formats.
@@ -36,18 +32,18 @@ const (
 	BodyBytesKey          = "_gin-gonic/gin/bodybyteskey"
 )
 
-const abortIndex int8 = math.MaxInt8 / 2
+const _abortIndex int8 = math.MaxInt8 / 2
 
 // Context is the most important part of gin. It allows us to pass variables between middleware,
 // manage the flow, validate the JSON of a request and render a JSON response for example.
 type Context struct {
-	writermem responseWriter
-	Request   *http.Request
-	Writer    ResponseWriter
+	context.Context
 
-	Params   Params
-	handlers HandlersChain
+	Request *http.Request
+	Writer  http.ResponseWriter
+
 	index    int8
+	handlers []HandlerFunc
 
 	engine *Engine
 
@@ -55,60 +51,10 @@ type Context struct {
 	Keys map[string]interface{}
 
 	// Errors is a list of errors attached to all the handlers/middlewares who used this context.
-	Errors errorMsgs
+	Errors error
 
 	// Accepted defines a list of manually accepted formats for content negotiation.
 	Accepted []string
-}
-
-/************************************/
-/********** CONTEXT CREATION ********/
-/************************************/
-
-func (c *Context) reset() {
-	c.Writer = &c.writermem
-	c.Params = c.Params[0:0]
-	c.handlers = nil
-	c.index = -1
-	c.Keys = nil
-	c.Errors = c.Errors[0:0]
-	c.Accepted = nil
-}
-
-// Copy returns a copy of the current context that can be safely used outside the request's scope.
-// This has to be used when the context has to be passed to a goroutine.
-func (c *Context) Copy() *Context {
-	var cp = *c
-	cp.writermem.ResponseWriter = nil
-	cp.Writer = &cp.writermem
-	cp.index = abortIndex
-	cp.handlers = nil
-	cp.Keys = map[string]interface{}{}
-	for k, v := range c.Keys {
-		cp.Keys[k] = v
-	}
-	return &cp
-}
-
-// HandlerName returns the main handler's name. For example if the handler is "handleGetUsers()",
-// this function will return "main.handleGetUsers".
-func (c *Context) HandlerName() string {
-	return nameOfFunction(c.handlers.Last())
-}
-
-// HandlerNames returns a list of all registered handlers for this context in descending order,
-// following the semantics of HandlerName()
-func (c *Context) HandlerNames() []string {
-	hn := make([]string, 0, len(c.handlers))
-	for _, val := range c.handlers {
-		hn = append(hn, nameOfFunction(val))
-	}
-	return hn
-}
-
-// Handler returns the main handler.
-func (c *Context) Handler() HandlerFunc {
-	return c.handlers.Last()
 }
 
 /************************************/
@@ -128,7 +74,7 @@ func (c *Context) Next() {
 
 // IsAborted returns true if the current context was aborted.
 func (c *Context) IsAborted() bool {
-	return c.index >= abortIndex
+	return c.index >= _abortIndex
 }
 
 // Abort prevents pending handlers from being called. Note that this will not stop the current handler.
@@ -136,380 +82,19 @@ func (c *Context) IsAborted() bool {
 // If the authorization fails (ex: the password does not match), call Abort to ensure the remaining handlers
 // for this request are not called.
 func (c *Context) Abort() {
-	c.index = abortIndex
+	c.index = _abortIndex
 }
 
 // AbortWithStatus calls `Abort()` and writes the headers with the specified status code.
 // For example, a failed attempt to authenticate a request could use: context.AbortWithStatus(401).
 func (c *Context) AbortWithStatus(code int) {
 	c.Status(code)
-	c.Writer.WriteHeaderNow()
 	c.Abort()
 }
 
-// AbortWithStatusJSON calls `Abort()` and then `JSON` internally.
-// This method stops the chain, writes the status code and return a JSON body.
-// It also sets the Content-Type as "application/json".
-func (c *Context) AbortWithStatusJSON(code int, jsonObj interface{}) {
-	c.Abort()
-	c.JSON(code, jsonObj)
-}
-
-// AbortWithError calls `AbortWithStatus()` and `Error()` internally.
-// This method stops the chain, writes the status code and pushes the specified error to `c.Errors`.
-// See Context.Error() for more details.
-func (c *Context) AbortWithError(code int, err error) *Error {
-	c.AbortWithStatus(code)
-	return c.Error(err)
-}
-
 /************************************/
-/********* ERROR MANAGEMENT *********/
+/************** BINDING *************/
 /************************************/
-
-// Error attaches an error to the current context. The error is pushed to a list of errors.
-// It's a good idea to call Error for each error that occurred during the resolution of a request.
-// A middleware can be used to collect all the errors and push them to a database together,
-// print a log, or append it in the HTTP response.
-// Error will panic if err is nil.
-func (c *Context) Error(err error) *Error {
-	if err == nil {
-		panic("err is nil")
-	}
-
-	parsedError, ok := err.(*Error)
-	if !ok {
-		parsedError = &Error{
-			Err:  err,
-			Type: ErrorTypePrivate,
-		}
-	}
-
-	c.Errors = append(c.Errors, parsedError)
-	return parsedError
-}
-
-/************************************/
-/******** METADATA MANAGEMENT********/
-/************************************/
-
-// Set is used to store a new key/value pair exclusively for this context.
-// It also lazy initializes  c.Keys if it was not used previously.
-func (c *Context) Set(key string, value interface{}) {
-	if c.Keys == nil {
-		c.Keys = make(map[string]interface{})
-	}
-	c.Keys[key] = value
-}
-
-// Get returns the value for the given key, ie: (value, true).
-// If the value does not exists it returns (nil, false)
-func (c *Context) Get(key string) (value interface{}, exists bool) {
-	value, exists = c.Keys[key]
-	return
-}
-
-// MustGet returns the value for the given key if it exists, otherwise it panics.
-func (c *Context) MustGet(key string) interface{} {
-	if value, exists := c.Get(key); exists {
-		return value
-	}
-	panic("Key \"" + key + "\" does not exist")
-}
-
-// GetString returns the value associated with the key as a string.
-func (c *Context) GetString(key string) (s string) {
-	if val, ok := c.Get(key); ok && val != nil {
-		s, _ = val.(string)
-	}
-	return
-}
-
-// GetBool returns the value associated with the key as a boolean.
-func (c *Context) GetBool(key string) (b bool) {
-	if val, ok := c.Get(key); ok && val != nil {
-		b, _ = val.(bool)
-	}
-	return
-}
-
-// GetInt returns the value associated with the key as an integer.
-func (c *Context) GetInt(key string) (i int) {
-	if val, ok := c.Get(key); ok && val != nil {
-		i, _ = val.(int)
-	}
-	return
-}
-
-// GetInt64 returns the value associated with the key as an integer.
-func (c *Context) GetInt64(key string) (i64 int64) {
-	if val, ok := c.Get(key); ok && val != nil {
-		i64, _ = val.(int64)
-	}
-	return
-}
-
-// GetFloat64 returns the value associated with the key as a float64.
-func (c *Context) GetFloat64(key string) (f64 float64) {
-	if val, ok := c.Get(key); ok && val != nil {
-		f64, _ = val.(float64)
-	}
-	return
-}
-
-// GetTime returns the value associated with the key as time.
-func (c *Context) GetTime(key string) (t time.Time) {
-	if val, ok := c.Get(key); ok && val != nil {
-		t, _ = val.(time.Time)
-	}
-	return
-}
-
-// GetDuration returns the value associated with the key as a duration.
-func (c *Context) GetDuration(key string) (d time.Duration) {
-	if val, ok := c.Get(key); ok && val != nil {
-		d, _ = val.(time.Duration)
-	}
-	return
-}
-
-// GetStringSlice returns the value associated with the key as a slice of strings.
-func (c *Context) GetStringSlice(key string) (ss []string) {
-	if val, ok := c.Get(key); ok && val != nil {
-		ss, _ = val.([]string)
-	}
-	return
-}
-
-// GetStringMap returns the value associated with the key as a map of interfaces.
-func (c *Context) GetStringMap(key string) (sm map[string]interface{}) {
-	if val, ok := c.Get(key); ok && val != nil {
-		sm, _ = val.(map[string]interface{})
-	}
-	return
-}
-
-// GetStringMapString returns the value associated with the key as a map of strings.
-func (c *Context) GetStringMapString(key string) (sms map[string]string) {
-	if val, ok := c.Get(key); ok && val != nil {
-		sms, _ = val.(map[string]string)
-	}
-	return
-}
-
-// GetStringMapStringSlice returns the value associated with the key as a map to a slice of strings.
-func (c *Context) GetStringMapStringSlice(key string) (smss map[string][]string) {
-	if val, ok := c.Get(key); ok && val != nil {
-		smss, _ = val.(map[string][]string)
-	}
-	return
-}
-
-/************************************/
-/************ INPUT DATA ************/
-/************************************/
-
-// Param returns the value of the URL param.
-// It is a shortcut for c.Params.ByName(key)
-//     router.GET("/user/:id", func(c *gin.Context) {
-//         // a GET request to /user/john
-//         id := c.Param("id") // id == "john"
-//     })
-func (c *Context) Param(key string) string {
-	return c.Params.ByName(key)
-}
-
-// Query returns the keyed url query value if it exists,
-// otherwise it returns an empty string `("")`.
-// It is shortcut for `c.Request.URL.Query().Get(key)`
-//     GET /path?id=1234&name=Manu&value=
-// 	   c.Query("id") == "1234"
-// 	   c.Query("name") == "Manu"
-// 	   c.Query("value") == ""
-// 	   c.Query("wtf") == ""
-func (c *Context) Query(key string) string {
-	value, _ := c.GetQuery(key)
-	return value
-}
-
-// DefaultQuery returns the keyed url query value if it exists,
-// otherwise it returns the specified defaultValue string.
-// See: Query() and GetQuery() for further information.
-//     GET /?name=Manu&lastname=
-//     c.DefaultQuery("name", "unknown") == "Manu"
-//     c.DefaultQuery("id", "none") == "none"
-//     c.DefaultQuery("lastname", "none") == ""
-func (c *Context) DefaultQuery(key, defaultValue string) string {
-	if value, ok := c.GetQuery(key); ok {
-		return value
-	}
-	return defaultValue
-}
-
-// GetQuery is like Query(), it returns the keyed url query value
-// if it exists `(value, true)` (even when the value is an empty string),
-// otherwise it returns `("", false)`.
-// It is shortcut for `c.Request.URL.Query().Get(key)`
-//     GET /?name=Manu&lastname=
-//     ("Manu", true) == c.GetQuery("name")
-//     ("", false) == c.GetQuery("id")
-//     ("", true) == c.GetQuery("lastname")
-func (c *Context) GetQuery(key string) (string, bool) {
-	if values, ok := c.GetQueryArray(key); ok {
-		return values[0], ok
-	}
-	return "", false
-}
-
-// QueryArray returns a slice of strings for a given query key.
-// The length of the slice depends on the number of params with the given key.
-func (c *Context) QueryArray(key string) []string {
-	values, _ := c.GetQueryArray(key)
-	return values
-}
-
-// GetQueryArray returns a slice of strings for a given query key, plus
-// a boolean value whether at least one value exists for the given key.
-func (c *Context) GetQueryArray(key string) ([]string, bool) {
-	if values, ok := c.Request.URL.Query()[key]; ok && len(values) > 0 {
-		return values, true
-	}
-	return []string{}, false
-}
-
-// QueryMap returns a map for a given query key.
-func (c *Context) QueryMap(key string) map[string]string {
-	dicts, _ := c.GetQueryMap(key)
-	return dicts
-}
-
-// GetQueryMap returns a map for a given query key, plus a boolean value
-// whether at least one value exists for the given key.
-func (c *Context) GetQueryMap(key string) (map[string]string, bool) {
-	return c.get(c.Request.URL.Query(), key)
-}
-
-// PostForm returns the specified key from a POST urlencoded form or multipart form
-// when it exists, otherwise it returns an empty string `("")`.
-func (c *Context) PostForm(key string) string {
-	value, _ := c.GetPostForm(key)
-	return value
-}
-
-// DefaultPostForm returns the specified key from a POST urlencoded form or multipart form
-// when it exists, otherwise it returns the specified defaultValue string.
-// See: PostForm() and GetPostForm() for further information.
-func (c *Context) DefaultPostForm(key, defaultValue string) string {
-	if value, ok := c.GetPostForm(key); ok {
-		return value
-	}
-	return defaultValue
-}
-
-// GetPostForm is like PostForm(key). It returns the specified key from a POST urlencoded
-// form or multipart form when it exists `(value, true)` (even when the value is an empty string),
-// otherwise it returns ("", false).
-// For example, during a PATCH request to update the user's email:
-//     email=mail@example.com  -->  ("mail@example.com", true) := GetPostForm("email") // set email to "mail@example.com"
-// 	   email=                  -->  ("", true) := GetPostForm("email") // set email to ""
-//                             -->  ("", false) := GetPostForm("email") // do nothing with email
-func (c *Context) GetPostForm(key string) (string, bool) {
-	if values, ok := c.GetPostFormArray(key); ok {
-		return values[0], ok
-	}
-	return "", false
-}
-
-// PostFormArray returns a slice of strings for a given form key.
-// The length of the slice depends on the number of params with the given key.
-func (c *Context) PostFormArray(key string) []string {
-	values, _ := c.GetPostFormArray(key)
-	return values
-}
-
-// GetPostFormArray returns a slice of strings for a given form key, plus
-// a boolean value whether at least one value exists for the given key.
-func (c *Context) GetPostFormArray(key string) ([]string, bool) {
-	req := c.Request
-	if err := req.ParseMultipartForm(c.engine.MaxMultipartMemory); err != nil {
-		if err != http.ErrNotMultipart {
-			debugPrint("error on parse multipart form array: %v", err)
-		}
-	}
-	if values := req.PostForm[key]; len(values) > 0 {
-		return values, true
-	}
-	return []string{}, false
-}
-
-// PostFormMap returns a map for a given form key.
-func (c *Context) PostFormMap(key string) map[string]string {
-	dicts, _ := c.GetPostFormMap(key)
-	return dicts
-}
-
-// GetPostFormMap returns a map for a given form key, plus a boolean value
-// whether at least one value exists for the given key.
-func (c *Context) GetPostFormMap(key string) (map[string]string, bool) {
-	req := c.Request
-	if err := req.ParseMultipartForm(c.engine.MaxMultipartMemory); err != nil {
-		if err != http.ErrNotMultipart {
-			debugPrint("error on parse multipart form map: %v", err)
-		}
-	}
-	return c.get(req.PostForm, key)
-}
-
-// get is an internal method and returns a map which satisfy conditions.
-func (c *Context) get(m map[string][]string, key string) (map[string]string, bool) {
-	dicts := make(map[string]string)
-	exist := false
-	for k, v := range m {
-		if i := strings.IndexByte(k, '['); i >= 1 && k[0:i] == key {
-			if j := strings.IndexByte(k[i+1:], ']'); j >= 1 {
-				exist = true
-				dicts[k[i+1:][:j]] = v[0]
-			}
-		}
-	}
-	return dicts, exist
-}
-
-// FormFile returns the first file for the provided form key.
-func (c *Context) FormFile(name string) (*multipart.FileHeader, error) {
-	if c.Request.MultipartForm == nil {
-		if err := c.Request.ParseMultipartForm(c.engine.MaxMultipartMemory); err != nil {
-			return nil, err
-		}
-	}
-	_, fh, err := c.Request.FormFile(name)
-	return fh, err
-}
-
-// MultipartForm is the parsed multipart form, including file uploads.
-func (c *Context) MultipartForm() (*multipart.Form, error) {
-	err := c.Request.ParseMultipartForm(c.engine.MaxMultipartMemory)
-	return c.Request.MultipartForm, err
-}
-
-// SaveUploadedFile uploads the form file to specific dst.
-func (c *Context) SaveUploadedFile(file *multipart.FileHeader, dst string) error {
-	src, err := file.Open()
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-
-	out, err := os.Create(dst)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, src)
-	return err
-}
-
 // Bind checks the Content-Type to select a binding engine automatically,
 // Depending the "Content-Type" header different bindings are used:
 //     "application/json" --> JSON binding
@@ -520,118 +105,17 @@ func (c *Context) SaveUploadedFile(file *multipart.FileHeader, dst string) error
 // It writes a 400 error and sets Content-Type header "text/plain" in the response if input is not valid.
 func (c *Context) Bind(obj interface{}) error {
 	b := binding.Default(c.Request.Method, c.ContentType())
-	return c.MustBindWith(obj, b)
-}
-
-// BindJSON is a shortcut for c.MustBindWith(obj, binding.JSON).
-func (c *Context) BindJSON(obj interface{}) error {
-	return c.MustBindWith(obj, binding.JSON)
-}
-
-// BindXML is a shortcut for c.MustBindWith(obj, binding.BindXML).
-func (c *Context) BindXML(obj interface{}) error {
-	return c.MustBindWith(obj, binding.XML)
-}
-
-// BindQuery is a shortcut for c.MustBindWith(obj, binding.Query).
-func (c *Context) BindQuery(obj interface{}) error {
-	return c.MustBindWith(obj, binding.Query)
-}
-
-// BindYAML is a shortcut for c.MustBindWith(obj, binding.YAML).
-func (c *Context) BindYAML(obj interface{}) error {
-	return c.MustBindWith(obj, binding.YAML)
-}
-
-// BindUri binds the passed struct pointer using binding.Uri.
-// It will abort the request with HTTP 400 if any error occurs.
-func (c *Context) BindUri(obj interface{}) error {
-	if err := c.ShouldBindUri(obj); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err).SetType(ErrorTypeBind) // nolint: errcheck
-		return err
-	}
-	return nil
+	return c.BindWith(obj, b)
 }
 
 // MustBindWith binds the passed struct pointer using the specified binding engine.
 // It will abort the request with HTTP 400 if any error occurs.
 // See the binding package.
-func (c *Context) MustBindWith(obj interface{}, b binding.Binding) error {
-	if err := c.ShouldBindWith(obj, b); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err).SetType(ErrorTypeBind) // nolint: errcheck
+func (c *Context) BindWith(obj interface{}, b binding.Binding) error {
+	if err := b.Bind(c.Request, obj); err != nil {
 		return err
 	}
 	return nil
-}
-
-// ShouldBind checks the Content-Type to select a binding engine automatically,
-// Depending the "Content-Type" header different bindings are used:
-//     "application/json" --> JSON binding
-//     "application/xml"  --> XML binding
-// otherwise --> returns an error
-// It parses the request's body as JSON if Content-Type == "application/json" using JSON or XML as a JSON input.
-// It decodes the json payload into the struct specified as a pointer.
-// Like c.Bind() but this method does not set the response status code to 400 and abort if the json is not valid.
-func (c *Context) ShouldBind(obj interface{}) error {
-	b := binding.Default(c.Request.Method, c.ContentType())
-	return c.ShouldBindWith(obj, b)
-}
-
-// ShouldBindJSON is a shortcut for c.ShouldBindWith(obj, binding.JSON).
-func (c *Context) ShouldBindJSON(obj interface{}) error {
-	return c.ShouldBindWith(obj, binding.JSON)
-}
-
-// ShouldBindXML is a shortcut for c.ShouldBindWith(obj, binding.XML).
-func (c *Context) ShouldBindXML(obj interface{}) error {
-	return c.ShouldBindWith(obj, binding.XML)
-}
-
-// ShouldBindQuery is a shortcut for c.ShouldBindWith(obj, binding.Query).
-func (c *Context) ShouldBindQuery(obj interface{}) error {
-	return c.ShouldBindWith(obj, binding.Query)
-}
-
-// ShouldBindYAML is a shortcut for c.ShouldBindWith(obj, binding.YAML).
-func (c *Context) ShouldBindYAML(obj interface{}) error {
-	return c.ShouldBindWith(obj, binding.YAML)
-}
-
-// ShouldBindUri binds the passed struct pointer using the specified binding engine.
-func (c *Context) ShouldBindUri(obj interface{}) error {
-	m := make(map[string][]string)
-	for _, v := range c.Params {
-		m[v.Key] = []string{v.Value}
-	}
-	return binding.Uri.BindUri(m, obj)
-}
-
-// ShouldBindWith binds the passed struct pointer using the specified binding engine.
-// See the binding package.
-func (c *Context) ShouldBindWith(obj interface{}, b binding.Binding) error {
-	return b.Bind(c.Request, obj)
-}
-
-// ShouldBindBodyWith is similar with ShouldBindWith, but it stores the request
-// body into the context, and reuse when it is called again.
-//
-// NOTE: This method reads the body before binding. So you should use
-// ShouldBindWith for better performance if you need to call only once.
-func (c *Context) ShouldBindBodyWith(obj interface{}, bb binding.BindingBody) (err error) {
-	var body []byte
-	if cb, ok := c.Get(BodyBytesKey); ok {
-		if cbb, ok := cb.([]byte); ok {
-			body = cbb
-		}
-	}
-	if body == nil {
-		body, err = ioutil.ReadAll(c.Request.Body)
-		if err != nil {
-			return err
-		}
-		c.Set(BodyBytesKey, body)
-	}
-	return bb.BindBody(body, obj)
 }
 
 // ClientIP implements a best effort algorithm to return the real client IP, it parses
@@ -700,7 +184,7 @@ func bodyAllowedForStatus(status int) bool {
 
 // Status sets the HTTP response code.
 func (c *Context) Status(code int) {
-	c.writermem.WriteHeader(code)
+	c.Writer.WriteHeader(code)
 }
 
 // Header is a intelligent shortcut for c.Writer.Header().Set(key, value).
@@ -761,21 +245,12 @@ func (c *Context) Render(code int, r render.Render) {
 
 	if !bodyAllowedForStatus(code) {
 		r.WriteContentType(c.Writer)
-		c.Writer.WriteHeaderNow()
 		return
 	}
 
 	if err := r.Render(c.Writer); err != nil {
 		panic(err)
 	}
-}
-
-// HTML renders the HTTP template specified by its file name.
-// It also updates the HTTP code and sets the Content-Type as "text/html".
-// See http://golang.org/doc/articles/wiki/
-func (c *Context) HTML(code int, name string, obj interface{}) {
-	instance := c.engine.HTMLRender.Instance(name, obj)
-	c.Render(code, instance)
 }
 
 // IndentedJSON serializes the given struct as pretty JSON (indented + endlines) into the response body.
@@ -786,18 +261,11 @@ func (c *Context) IndentedJSON(code int, obj interface{}) {
 	c.Render(code, render.IndentedJSON{Data: obj})
 }
 
-// SecureJSON serializes the given struct as Secure JSON into the response body.
-// Default prepends "while(1)," to response body if the given struct is array values.
-// It also sets the Content-Type as "application/json".
-func (c *Context) SecureJSON(code int, obj interface{}) {
-	c.Render(code, render.SecureJSON{Prefix: c.engine.secureJsonPrefix, Data: obj})
-}
-
 // JSONP serializes the given struct as JSON into the response body.
 // It add padding to response body to request data from a server residing in a different domain than the client.
 // It also sets the Content-Type as "application/javascript".
 func (c *Context) JSONP(code int, obj interface{}) {
-	callback := c.DefaultQuery("callback", "")
+	callback := c.Request.URL.Query().Get("callback")
 	if callback == "" {
 		c.Render(code, render.JSON{Data: obj})
 		return
@@ -853,24 +321,6 @@ func (c *Context) Redirect(code int, location string) {
 	})
 }
 
-// Data writes some data into the body stream and updates the HTTP code.
-func (c *Context) Data(code int, contentType string, data []byte) {
-	c.Render(code, render.Data{
-		ContentType: contentType,
-		Data:        data,
-	})
-}
-
-// DataFromReader writes the specified reader into the body stream and updates the HTTP code.
-func (c *Context) DataFromReader(code int, contentLength int64, contentType string, reader io.Reader, extraHeaders map[string]string) {
-	c.Render(code, render.Reader{
-		Headers:       extraHeaders,
-		ContentType:   contentType,
-		ContentLength: contentLength,
-		Reader:        reader,
-	})
-}
-
 // File writes the specified file into the body stream in a efficient way.
 func (c *Context) File(filepath string) {
 	http.ServeFile(c.Writer, c.Request, filepath)
@@ -883,101 +333,12 @@ func (c *Context) FileAttachment(filepath, filename string) {
 	http.ServeFile(c.Writer, c.Request, filepath)
 }
 
-// SSEvent writes a Server-Sent Event into the body stream.
-func (c *Context) SSEvent(name string, message interface{}) {
-	c.Render(-1, sse.Event{
-		Event: name,
-		Data:  message,
+// Bytes writes some data into the body stream and updates the HTTP code.
+func (c *Context) Bytes(code int, contentType string, data []byte) {
+	c.Render(code, render.Data{
+		ContentType: contentType,
+		Data:        data,
 	})
-}
-
-// Stream sends a streaming response and returns a boolean
-// indicates "Is client disconnected in middle of stream"
-func (c *Context) Stream(step func(w io.Writer) bool) bool {
-	w := c.Writer
-	clientGone := w.CloseNotify()
-	for {
-		select {
-		case <-clientGone:
-			return true
-		default:
-			keepOpen := step(w)
-			w.Flush()
-			if !keepOpen {
-				return false
-			}
-		}
-	}
-}
-
-/************************************/
-/******** CONTENT NEGOTIATION *******/
-/************************************/
-
-// Negotiate contains all negotiations data.
-type Negotiate struct {
-	Offered  []string
-	HTMLName string
-	HTMLData interface{}
-	JSONData interface{}
-	XMLData  interface{}
-	Data     interface{}
-}
-
-// Negotiate calls different Render according acceptable Accept format.
-func (c *Context) Negotiate(code int, config Negotiate) {
-	switch c.NegotiateFormat(config.Offered...) {
-	case binding.MIMEJSON:
-		data := chooseData(config.JSONData, config.Data)
-		c.JSON(code, data)
-
-	case binding.MIMEHTML:
-		data := chooseData(config.HTMLData, config.Data)
-		c.HTML(code, config.HTMLName, data)
-
-	case binding.MIMEXML:
-		data := chooseData(config.XMLData, config.Data)
-		c.XML(code, data)
-
-	default:
-		c.AbortWithError(http.StatusNotAcceptable, errors.New("the accepted formats are not offered by the server")) // nolint: errcheck
-	}
-}
-
-// NegotiateFormat returns an acceptable Accept format.
-func (c *Context) NegotiateFormat(offered ...string) string {
-	assert1(len(offered) > 0, "you must provide at least one offer")
-
-	if c.Accepted == nil {
-		c.Accepted = parseAccept(c.requestHeader("Accept"))
-	}
-	if len(c.Accepted) == 0 {
-		return offered[0]
-	}
-	for _, accepted := range c.Accepted {
-		for _, offert := range offered {
-			// According to RFC 2616 and RFC 2396, non-ASCII characters are not allowed in headers,
-			// therefore we can just iterate over the string without casting it into []rune
-			i := 0
-			for ; i < len(accepted); i++ {
-				if accepted[i] == '*' || offert[i] == '*' {
-					return offert
-				}
-				if accepted[i] != offert[i] {
-					break
-				}
-			}
-			if i == len(accepted) {
-				return offert
-			}
-		}
-	}
-	return ""
-}
-
-// SetAccepted sets Accept header data.
-func (c *Context) SetAccepted(formats ...string) {
-	c.Accepted = formats
 }
 
 /************************************/
