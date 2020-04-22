@@ -181,6 +181,8 @@ func strfmtCheck(strfmt, str string) error {
 		return CheckPhone(str)
 	case "ip":
 		return CheckIp(str)
+	case "pwd":
+		return CheckPassword(str)
 	default:
 		return fmt.Errorf(`不支持的strfmt`)
 	}

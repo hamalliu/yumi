@@ -11,7 +11,7 @@
     DBName = ""
     MaxOpenConns = 10
     MaxIdleConns = 10
-    ConnMaxLifetime = 30
+    ConnMaxLifetime = 2 #hour
 [Cache]
 
 [Email]

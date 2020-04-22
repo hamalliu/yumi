@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+
+	"yumi/utils"
 )
 
 type Error1 struct {
@@ -18,4 +20,6 @@ func main() {
 	if errors.As(err, &Error1{""}) {
 		fmt.Println("hello")
 	}
+
+	fmt.Println(utils.CreateRandomStr(32, utils.ALPHANUM))
 }

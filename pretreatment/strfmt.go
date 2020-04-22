@@ -40,3 +40,36 @@ func CheckIp(str string) error {
 
 	return nil
 }
+
+func CheckPassword(str string) error {
+	if len(str) < 10 || len(str) > 30 {
+		return fmt.Errorf("密码字数在10~30之间")
+	}
+
+	specailChars := "[~`!@#\\$%\\^&\\*\\(\\)_\\+-=\\{}\\[]\\|\\\\:;\"'<>\\,\\./\\?]"
+	alphabet := "[A-Za-z]"
+	number := "[0-9]"
+
+	//包含特殊字符和字母
+	specialCharAndAlphabet := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", specailChars, alphabet, alphabet, specailChars)
+	re := regexp.MustCompile(specialCharAndAlphabet)
+	if string(re.Find([]byte(str))) == str {
+		return nil
+	}
+
+	//包含特殊字符和数字
+	specialCharAndNumber := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", specailChars, number, number, specailChars)
+	re = regexp.MustCompile(specialCharAndNumber)
+	if string(re.Find([]byte(str))) == str {
+		return nil
+	}
+
+	//包含数字和字母
+	alphabetAndNumber := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", alphabet, number, number, alphabet)
+	re = regexp.MustCompile(alphabetAndNumber)
+	if string(re.Find([]byte(str))) == str {
+		return nil
+	}
+
+	return fmt.Errorf("密码必须包含特殊字符，数字，字母中的两种以上")
+}
