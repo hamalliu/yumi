@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"yumi/utils"
 )
@@ -22,4 +23,5 @@ func main() {
 	}
 
 	fmt.Println(utils.CreateRandomStr(32, utils.ALPHANUM))
+	fmt.Println(time.Now().Format("06121545.999"))
 }

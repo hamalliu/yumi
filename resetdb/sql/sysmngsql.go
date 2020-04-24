@@ -115,4 +115,54 @@ func SysmmngCreateTable() {
 	if _, err := dbc.Get().Exec(deleteRecordSql); err != nil {
 		panic(err)
 	}
+
+	//支付订单表
+	_ = `CREATE TABLE "order_pay" 
+		(
+		"seq_id" int identity(1,1) primary key,
+		"code" varchar(64) default(''), 
+		"trade_way" varchar(30) default(''), 
+		"seller_key" varchar(255) default(''), 
+		"app_id" varchar(255) default(''), 
+		"mch_id" varchar(255) default(''), 
+		"transaction_id" varchar(255) default(''), 
+		"notify_url" varchar(255) default(''), 
+		"buyer_logon_id" varchar(255) default(''), 
+		"spbill_create_ip" varchar(50) default(''),
+
+		"buyer_account_guid" varchar(255) default(''), 
+		"total_fee" int default(0), 
+		"body" varchar(1000) default(''), 
+		"detail" varchar(1000) default(''), 
+		"out_trade_no" varchar(255) default(''), 
+		"timeout_express" datetime,
+		"pay_expire" datetime, 
+		"pay_time" datetime, 
+		"cancel_time" datetime, 
+		"error_time" datetime, 
+		"submit_time" datetime, 
+		"status" varchar(30) default(''), 
+		"remarks" varchar(500) default('')
+		)`
+
+	//支付宝支付商户表
+	_ = `CREATE TABLE "ali_pay_merchants" 
+		(
+		"seq_id" int identity(1,1) primary key, 
+		"seller_key" varchar(255) default(''), 
+		"app_id" varchar(255) default(''), 
+		"private_key" varchar(255) default(''), 
+		"public_key" varchar(255) default('')
+		)`
+
+	//微信支付商户表
+	_ = `CREATE TABLE "wx_pay_merchants" 
+		(
+		"seq_id" int identity(1,1) primary key, 
+		"seller_key" varchar(255) default(''), 
+		"app_id" varchar(255) default(''), 
+		"mch_id" varchar(255) default(''),
+		"private_key" varchar(255) default('')
+		)`
+
 }
