@@ -1,1 +1,0 @@
-2020-01-06 10:30:41.968 ERRO main.go:28 [启动服务失败: listen tcp 0.0.0.0:8080: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.]

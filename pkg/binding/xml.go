@@ -10,7 +10,7 @@ import (
 	"io"
 	"net/http"
 
-	"yumi/library/ecodes"
+	"yumi/pkg/ecodes"
 )
 
 type xmlBinding struct{}

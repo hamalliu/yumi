@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"yumi/library/ecodes"
+	"yumi/pkg/ecodes"
 
 	"github.com/golang/protobuf/proto"
 )

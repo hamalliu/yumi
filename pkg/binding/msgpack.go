@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 
-	"yumi/library/ecodes"
+	"yumi/pkg/ecodes"
 
 	"github.com/ugorji/go/codec"
 )

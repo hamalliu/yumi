@@ -1,8 +1,4 @@
-// Copyright 2014 Manu Martinez-Almeida.  All rights reserved.
-// Use of this source code is governed by a MIT style
-// license that can be found in the LICENSE file.
-
-package http
+package httpsrv
 
 import (
 	"context"
@@ -15,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"yumi/library/binding"
-	"yumi/library/render"
+	"yumi/pkg/binding"
+	"yumi/pkg/render"
 )
 
 // Content-Type MIME of the most common data formats.
@@ -45,7 +41,7 @@ type Context struct {
 	index    int8
 	handlers []HandlerFunc
 
-	engine *Engine
+	srv *Server
 
 	// Keys is a key/value pair exclusively for the context of each request.
 	Keys map[string]interface{}
@@ -55,6 +51,8 @@ type Context struct {
 
 	// Accepted defines a list of manually accepted formats for content negotiation.
 	Accepted []string
+
+	Params Params
 }
 
 /************************************/

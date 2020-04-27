@@ -7,7 +7,7 @@ package binding
 import (
 	"net/http"
 
-	"yumi/library/ecodes"
+	"yumi/pkg/ecodes"
 )
 
 type queryBinding struct{}

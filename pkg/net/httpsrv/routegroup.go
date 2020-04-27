@@ -1,4 +1,4 @@
-package http
+package httpsrv
 
 import (
 	"regexp"
@@ -28,7 +28,7 @@ type IRoutes interface {
 type RouterGroup struct {
 	Handlers   []HandlerFunc
 	basePath   string
-	engine     *Engine
+	mux        *Mux
 	root       bool
 	baseConfig *MethodConfig
 }
@@ -55,7 +55,7 @@ func (group *RouterGroup) Group(relativePath string, handlers ...HandlerFunc) *R
 	return &RouterGroup{
 		Handlers: group.combineHandlers(handlers),
 		basePath: group.calculateAbsolutePath(relativePath),
-		engine:   group.engine,
+		mux:      group.mux,
 		root:     false,
 	}
 }
@@ -75,9 +75,9 @@ func (group *RouterGroup) handle(httpMethod, relativePath string, handlers ...Ha
 	absolutePath := group.calculateAbsolutePath(relativePath)
 	injections := group.injections(relativePath)
 	handlers = group.combineHandlers(injections, handlers)
-	group.engine.addRoute(httpMethod, absolutePath, handlers...)
+	group.mux.addRoute(httpMethod, absolutePath, handlers...)
 	if group.baseConfig != nil {
-		group.engine.SetMethodConfig(absolutePath, group.baseConfig)
+		group.mux.SetMethodConfig(absolutePath, group.baseConfig)
 	}
 	return group.returnObj()
 }
@@ -158,7 +158,7 @@ func (group *RouterGroup) calculateAbsolutePath(relativePath string) string {
 
 func (group *RouterGroup) returnObj() IRoutes {
 	if group.root {
-		return group.engine
+		return group.mux
 	}
 	return group
 }
@@ -166,7 +166,7 @@ func (group *RouterGroup) returnObj() IRoutes {
 // injections is
 func (group *RouterGroup) injections(relativePath string) []HandlerFunc {
 	absPath := group.calculateAbsolutePath(relativePath)
-	for _, injection := range group.engine.injections {
+	for _, injection := range group.mux.injections {
 		if !injection.pattern.MatchString(absPath) {
 			continue
 		}
