@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"yumi/pkg/binding"
+	"yumi/pkg/ecodes"
 	"yumi/pkg/render"
 )
 
@@ -50,8 +51,7 @@ type Context struct {
 	Keys      map[string]interface{}
 	KeysMutex *sync.RWMutex
 
-	// Errors is a list of errors attached to all the handlers/middlewares who used this context.
-	Errors error
+	Error error
 
 	Params Params
 }
@@ -270,19 +270,38 @@ func (c *Context) IndentedJSON(code int, obj interface{}) {
 // JSONP serializes the given struct as JSON into the response body.
 // It add padding to response body to request data from a server residing in a different domain than the client.
 // It also sets the Content-Type as "application/javascript".
-func (c *Context) JSONP(code int, obj interface{}) {
+func (c *Context) JSONP(data interface{}, err error) {
+	code := http.StatusOK
+	c.Error = err
+	bcode := ecodes.Must(err)
+
 	callback := c.Request.URL.Query().Get("callback")
 	if callback == "" {
-		c.Render(code, render.JSON{Data: obj})
+		c.Render(code, render.JSON{
+			Code:    bcode.Code(),
+			Message: bcode.Message(),
+			Data:    data,
+		})
 		return
 	}
-	c.Render(code, render.JsonpJSON{Callback: callback, Data: obj})
+	c.Render(code, render.JsonpJSON{
+		Callback: callback,
+		Code:     bcode.Code(),
+		Message:  bcode.Message(),
+		Data:     data})
 }
 
 // JSON serializes the given struct as JSON into the response body.
 // It also sets the Content-Type as "application/json".
-func (c *Context) JSON(code int, obj interface{}) {
-	c.Render(code, render.JSON{Data: obj})
+func (c *Context) JSON(data interface{}, err error) {
+	code := http.StatusOK
+	c.Error = err
+	bcode := ecodes.Must(err)
+	c.Render(code, render.JSON{
+		Code:    bcode.Code(),
+		Message: bcode.Message(),
+		Data:    data,
+	})
 }
 
 // AsciiJSON serializes the given struct as JSON into the response body with unicode to ASCII string.

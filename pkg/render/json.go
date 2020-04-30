@@ -15,10 +15,10 @@ import (
 
 // JSON contains the given interface object.
 type JSON struct {
-	Code int
-	Msg  string
-	TTL  int `json:"ttl"`
-	Data interface{}
+	Code    int
+	Message string
+	TTL     int `json:"ttl"`
+	Data    interface{}
 }
 
 // IndentedJSON contains the given interface object.
@@ -35,6 +35,9 @@ type SecureJSON struct {
 // JsonpJSON contains the given interface object its callback.
 type JsonpJSON struct {
 	Callback string
+	Code     int
+	Message  string
+	TTL      int `json:"ttl"`
 	Data     interface{}
 }
 

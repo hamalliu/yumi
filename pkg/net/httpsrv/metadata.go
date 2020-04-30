@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"yumi/pkg/conf/env"
 	"yumi/pkg/net/criticality"
 	"yumi/pkg/net/metadata"

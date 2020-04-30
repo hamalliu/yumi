@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"sync/atomic"
 
-	"github.com/pkg/errors"
+	"yumi/utils/log"
 )
 
 var (
@@ -74,10 +74,6 @@ func (e Code) Message() string {
 // Details return details.
 func (e Code) Details() []interface{} { return nil }
 
-// Equal for compatible.
-// Deprecated: please use ecode.EqualError.
-func (e Code) Equal(err error) bool { return EqualError(e, err) }
-
 // Int parse code int to error.
 func Int(i int) Code { return Code(i) }
 
@@ -89,35 +85,24 @@ func String(e string) Code {
 	// try error string
 	i, err := strconv.Atoi(e)
 	if err != nil {
-		return ServerErr
+		return serverErr
 	}
 	return Code(i)
 }
 
-// Cause cause from error to ecode.
-func Cause(e error) Codes {
-	if e == nil {
-		return OK
+func Must(err error) Code {
+	if c, ok := err.(Code); ok {
+		return c
+	} else {
+		panic(err)
 	}
-	ec, ok := errors.Cause(e).(Codes)
-	if ok {
-		return ec
-	}
-	return String(e.Error())
 }
 
-// Equal equal a and b by code int.
-func Equal(a, b Codes) bool {
-	if a == nil {
-		a = OK
+func ServerErr(err error) Code {
+	if c, ok := err.(Code); ok {
+		return c
+	} else {
+		log.Error2(err)
+		return serverErr
 	}
-	if b == nil {
-		b = OK
-	}
-	return a.Code() == b.Code()
-}
-
-// EqualError equal error
-func EqualError(code Codes, err error) bool {
-	return Cause(err).Code() == code.Code()
 }

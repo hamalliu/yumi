@@ -1,12 +1,11 @@
 package httpsrv
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/pkg/errors"
 
 	"yumi/utils/log"
 )

@@ -2,12 +2,11 @@ package httpsrv
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 	"os"
 	"sync"
-
-	"github.com/pkg/errors"
 )
 
 var (
@@ -44,10 +43,10 @@ func startPerf(mux *Mux) {
 		go func() {
 			d, err := dsn.Parse(_perfDSN)
 			if err != nil {
-				panic(errors.Errorf("blademaster: http perf dsn must be tcp://$host:port, %s:error(%v)", _perfDSN, err))
+				panic(fmt.Errorf("blademaster: http perf dsn must be tcp://$host:port, %s:error(%v)", _perfDSN, err))
 			}
 			if err := http.ListenAndServe(d.Host, nil); err != nil {
-				panic(errors.Errorf("blademaster: listen %s: error(%v)", d.Host, err))
+				panic(fmt.Errorf("blademaster: listen %s: error(%v)", d.Host, err))
 			}
 		}()
 	})
