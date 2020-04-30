@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/go-kratos/kratos/pkg/log"
+	"yumi/utils/log"
 )
 
 func matchHostSuffix(suffix string) func(*url.URL) bool {
@@ -42,7 +42,7 @@ func CSRF(allowHosts []string, allowPattern []string) HandlerFunc {
 	return func(c *Context) {
 		referer := c.Request.Header.Get("Referer")
 		if referer == "" {
-			log.V(5).Info("The request's Referer or Origin header is empty.")
+			log.Info("The request's Referer or Origin header is empty.")
 			c.AbortWithStatus(403)
 			return
 		}
@@ -56,7 +56,7 @@ func CSRF(allowHosts []string, allowPattern []string) HandlerFunc {
 			}
 		}
 		if illegal {
-			log.V(5).Info("The request's Referer header `%s` does not match any of allowed referers.", referer)
+			log.Info("The request's Referer header `%s` does not match any of allowed referers.", referer)
 			c.AbortWithStatus(403)
 			return
 		}

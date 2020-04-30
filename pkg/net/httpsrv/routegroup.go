@@ -1,7 +1,10 @@
 package httpsrv
 
 import (
+	"fmt"
 	"regexp"
+
+	"yumi/utils/log"
 )
 
 // IRouter http router framework interface.
@@ -15,22 +18,21 @@ type IRoutes interface {
 	UseFunc(...HandlerFunc) IRoutes
 	Use(...Handler) IRoutes
 
-	Handle(string, string, ...HandlerFunc) IRoutes
-	HEAD(string, ...HandlerFunc) IRoutes
-	GET(string, ...HandlerFunc) IRoutes
-	POST(string, ...HandlerFunc) IRoutes
-	PUT(string, ...HandlerFunc) IRoutes
-	DELETE(string, ...HandlerFunc) IRoutes
+	Handle(string, string, string, ...HandlerFunc) IRoutes
+	HEAD(string, string, ...HandlerFunc) IRoutes
+	GET(string, string, ...HandlerFunc) IRoutes
+	POST(string, string, ...HandlerFunc) IRoutes
+	PUT(string, string, ...HandlerFunc) IRoutes
+	DELETE(string, string, ...HandlerFunc) IRoutes
 }
 
 // RouterGroup is used internally to configure router, a RouterGroup is associated with a prefix
 // and an array of handlers (middleware).
 type RouterGroup struct {
-	Handlers   []HandlerFunc
-	basePath   string
-	mux        *Mux
-	root       bool
-	baseConfig *MethodConfig
+	Handlers []HandlerFunc
+	basePath string
+	mux      *Mux
+	root     bool
 }
 
 var _ IRouter = &RouterGroup{}
@@ -60,25 +62,17 @@ func (group *RouterGroup) Group(relativePath string, handlers ...HandlerFunc) *R
 	}
 }
 
-// SetMethodConfig is used to set config on specified method
-func (group *RouterGroup) SetMethodConfig(config *MethodConfig) *RouterGroup {
-	group.baseConfig = config
-	return group
-}
-
 // BasePath router group base path.
 func (group *RouterGroup) BasePath() string {
 	return group.basePath
 }
 
-func (group *RouterGroup) handle(httpMethod, relativePath string, handlers ...HandlerFunc) IRoutes {
+func (group *RouterGroup) handle(httpMethod, code, relativePath string, handlers ...HandlerFunc) IRoutes {
 	absolutePath := group.calculateAbsolutePath(relativePath)
 	injections := group.injections(relativePath)
 	handlers = group.combineHandlers(injections, handlers)
-	group.mux.addRoute(httpMethod, absolutePath, handlers...)
-	if group.baseConfig != nil {
-		group.mux.SetMethodConfig(absolutePath, group.baseConfig)
-	}
+	group.mux.addRoute(httpMethod, code, absolutePath, handlers...)
+	log.Info(fmt.Sprintf("method:%s, code:%s, path:%s", httpMethod, code, absolutePath))
 	return group.returnObj()
 }
 
@@ -92,46 +86,46 @@ func (group *RouterGroup) handle(httpMethod, relativePath string, handlers ...Ha
 // This function is intended for bulk loading and to allow the usage of less
 // frequently used, non-standardized or custom methods (e.g. for internal
 // communication with a proxy).
-func (group *RouterGroup) Handle(httpMethod, relativePath string, handlers ...HandlerFunc) IRoutes {
+func (group *RouterGroup) Handle(httpMethod, code, relativePath string, handlers ...HandlerFunc) IRoutes {
 	if matches, err := regexp.MatchString("^[A-Z]+$", httpMethod); !matches || err != nil {
 		panic("http method " + httpMethod + " is not valid")
 	}
-	return group.handle(httpMethod, relativePath, handlers...)
+	return group.handle(httpMethod, code, relativePath, handlers...)
 }
 
 // GET is a shortcut for router.Handle("GET", path, handle).
-func (group *RouterGroup) GET(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("GET", relativePath, handlers...)
+func (group *RouterGroup) GET(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("GET", code, relativePath, handlers...)
 }
 
 // POST is a shortcut for router.Handle("POST", path, handle).
-func (group *RouterGroup) POST(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("POST", relativePath, handlers...)
+func (group *RouterGroup) POST(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("POST", code, relativePath, handlers...)
 }
 
 // PUT is a shortcut for router.Handle("PUT", path, handle).
-func (group *RouterGroup) PUT(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("PUT", relativePath, handlers...)
+func (group *RouterGroup) PUT(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("PUT", code, relativePath, handlers...)
 }
 
 // DELETE is a shortcut for router.Handle("DELETE", path, handle).
-func (group *RouterGroup) DELETE(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("DELETE", relativePath, handlers...)
+func (group *RouterGroup) DELETE(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("DELETE", code, relativePath, handlers...)
 }
 
 // PATCH is a shortcut for router.Handle("PATCH", path, handle).
-func (group *RouterGroup) PATCH(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("PATCH", relativePath, handlers...)
+func (group *RouterGroup) PATCH(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("PATCH", code, relativePath, handlers...)
 }
 
 // OPTIONS is a shortcut for router.Handle("OPTIONS", path, handle).
-func (group *RouterGroup) OPTIONS(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("OPTIONS", relativePath, handlers...)
+func (group *RouterGroup) OPTIONS(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("OPTIONS", code, relativePath, handlers...)
 }
 
 // HEAD is a shortcut for router.Handle("HEAD", path, handle).
-func (group *RouterGroup) HEAD(relativePath string, handlers ...HandlerFunc) IRoutes {
-	return group.handle("HEAD", relativePath, handlers...)
+func (group *RouterGroup) HEAD(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	return group.handle("HEAD", code, relativePath, handlers...)
 }
 
 func (group *RouterGroup) combineHandlers(handlerGroups ...[]HandlerFunc) []HandlerFunc {
@@ -177,15 +171,15 @@ func (group *RouterGroup) injections(relativePath string) []HandlerFunc {
 
 // Any registers a route that matches all the HTTP methods.
 // GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE, CONNECT, TRACE.
-func (group *RouterGroup) Any(relativePath string, handlers ...HandlerFunc) IRoutes {
-	group.handle("GET", relativePath, handlers...)
-	group.handle("POST", relativePath, handlers...)
-	group.handle("PUT", relativePath, handlers...)
-	group.handle("PATCH", relativePath, handlers...)
-	group.handle("HEAD", relativePath, handlers...)
-	group.handle("OPTIONS", relativePath, handlers...)
-	group.handle("DELETE", relativePath, handlers...)
-	group.handle("CONNECT", relativePath, handlers...)
-	group.handle("TRACE", relativePath, handlers...)
+func (group *RouterGroup) Any(code, relativePath string, handlers ...HandlerFunc) IRoutes {
+	group.handle("GET", code, relativePath, handlers...)
+	group.handle("POST", code, relativePath, handlers...)
+	group.handle("PUT", code, relativePath, handlers...)
+	group.handle("PATCH", code, relativePath, handlers...)
+	group.handle("HEAD", code, relativePath, handlers...)
+	group.handle("OPTIONS", code, relativePath, handlers...)
+	group.handle("DELETE", code, relativePath, handlers...)
+	group.handle("CONNECT", code, relativePath, handlers...)
+	group.handle("TRACE", code, relativePath, handlers...)
 	return group.returnObj()
 }

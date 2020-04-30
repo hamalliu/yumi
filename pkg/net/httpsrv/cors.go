@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-kratos/kratos/pkg/log"
-
 	"github.com/pkg/errors"
+
+	"yumi/utils/log"
 )
 
 // CORSConfig represents all available options for the middleware.

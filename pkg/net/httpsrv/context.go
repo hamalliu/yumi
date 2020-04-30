@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 
 	"yumi/pkg/binding"
@@ -38,21 +38,30 @@ type Context struct {
 	Request *http.Request
 	Writer  http.ResponseWriter
 
+	fullPath string
+	code     string
+
 	index    int8
 	handlers []HandlerFunc
 
 	srv *Server
 
 	// Keys is a key/value pair exclusively for the context of each request.
-	Keys map[string]interface{}
+	Keys      map[string]interface{}
+	KeysMutex *sync.RWMutex
 
 	// Errors is a list of errors attached to all the handlers/middlewares who used this context.
 	Errors error
 
-	// Accepted defines a list of manually accepted formats for content negotiation.
-	Accepted []string
-
 	Params Params
+}
+
+func (c *Context) Code() string {
+	return c.code
+}
+
+func (c *Context) FullPath() string {
+	return c.fullPath
 }
 
 /************************************/
@@ -90,6 +99,33 @@ func (c *Context) AbortWithStatus(code int) {
 	c.Abort()
 }
 
+func (c *Context) Set(key string, value interface{}) {
+	if c.KeysMutex == nil {
+		c.KeysMutex = &sync.RWMutex{}
+	}
+
+	c.KeysMutex.Lock()
+	if c.Keys == nil {
+		c.Keys = make(map[string]interface{})
+	}
+
+	c.Keys[key] = value
+	c.KeysMutex.Unlock()
+}
+
+// Get returns the value for the given key, ie: (value, true).
+// If the value does not exists it returns (nil, false)
+func (c *Context) Get(key string) (value interface{}, exists bool) {
+	if c.KeysMutex == nil {
+		c.KeysMutex = &sync.RWMutex{}
+	}
+
+	c.KeysMutex.RLock()
+	value, exists = c.Keys[key]
+	c.KeysMutex.RUnlock()
+	return
+}
+
 /************************************/
 /************** BINDING *************/
 /************************************/
@@ -114,34 +150,6 @@ func (c *Context) BindWith(obj interface{}, b binding.Binding) error {
 		return err
 	}
 	return nil
-}
-
-// ClientIP implements a best effort algorithm to return the real client IP, it parses
-// X-Real-IP and X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
-// Use X-Forwarded-For before X-Real-Ip as nginx uses X-Real-Ip with the proxy's IP.
-func (c *Context) ClientIP() string {
-	if c.engine.ForwardedByClientIP {
-		clientIP := c.requestHeader("X-Forwarded-For")
-		clientIP = strings.TrimSpace(strings.Split(clientIP, ",")[0])
-		if clientIP == "" {
-			clientIP = strings.TrimSpace(c.requestHeader("X-Real-Ip"))
-		}
-		if clientIP != "" {
-			return clientIP
-		}
-	}
-
-	if c.engine.AppEngine {
-		if addr := c.requestHeader("X-Appengine-Remote-Addr"); addr != "" {
-			return addr
-		}
-	}
-
-	if ip, _, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr)); err == nil {
-		return ip
-	}
-
-	return ""
 }
 
 // ContentType returns the Content-Type header of the request.

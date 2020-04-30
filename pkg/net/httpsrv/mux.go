@@ -2,6 +2,7 @@ package httpsrv
 
 import (
 	"net/http"
+	"path"
 	"regexp"
 )
 
@@ -9,6 +10,24 @@ type Mux struct {
 	RouterGroup
 
 	trees methodTrees
+
+	// Enables automatic redirection if the current route can't be matched but a
+	// handler for the path with (without) the trailing slash exists.
+	// For example if /foo/ is requested but a route only exists for /foo, the
+	// client is redirected to /foo with http status code 301 for GET requests
+	// and 307 for all other request methods.
+	RedirectTrailingSlash bool
+
+	// If enabled, the router tries to fix the current request path, if no
+	// handle is registered for it.
+	// First superfluous path elements like ../ or // are removed.
+	// Afterwards the router does a case-insensitive lookup of the cleaned path.
+	// If a handle can be found for this route, the router makes a redirection
+	// to the corrected path with status code 301 for GET requests and 307 for
+	// all other request methods.
+	// For example /FOO and /..//Foo could be redirected to /foo.
+	// RedirectTrailingSlash is independent of this option.
+	RedirectFixedPath bool
 
 	// If enabled, the url.RawPath will be used to find parameters.
 	UseRawPath bool
@@ -82,11 +101,24 @@ func (mux *Mux) handleHTTPRequest(c *Context) {
 		}
 		root := t[i].root
 		// Find route in tree
-		handlers, params, _ := root.getValue(rPath, c.Params, unescape)
-		if handlers != nil {
-			c.handlers = handlers
-			c.Params = params
+		value := root.getValue(rPath, c.Params, unescape)
+		if value.handlers != nil {
+			c.handlers = value.handlers
+			c.fullPath = value.fullPath
+			c.code = value.code
+			c.Params = value.params
+			c.Next()
 			return
+		}
+
+		if httpMethod != "CONNECT" && rPath != "/" {
+			if value.tsr && mux.RedirectTrailingSlash {
+				redirectTrailingSlash(c)
+				return
+			}
+			if mux.RedirectFixedPath && redirectFixedPath(c, root, mux.RedirectFixedPath) {
+				return
+			}
 		}
 		break
 	}
@@ -96,17 +128,19 @@ func (mux *Mux) handleHTTPRequest(c *Context) {
 			if tree.method == httpMethod {
 				continue
 			}
-			if handlers, _, _ := tree.root.getValue(rPath, nil, unescape); handlers != nil {
+			if value := tree.root.getValue(rPath, nil, unescape); value.handlers != nil {
 				c.handlers = mux.allNoMethod
+				c.Next()
 				return
 			}
 		}
 	}
 	c.handlers = mux.allNoRoute
+	c.Next()
 	return
 }
 
-func (mux *Mux) addRoute(method, path string, handlers ...HandlerFunc) {
+func (mux *Mux) addRoute(method, code, path string, handlers ...HandlerFunc) {
 	if path[0] != '/' {
 		panic("path must begin with '/'")
 	}
@@ -116,22 +150,13 @@ func (mux *Mux) addRoute(method, path string, handlers ...HandlerFunc) {
 	if len(handlers) == 0 {
 		panic("there must be at least one handler")
 	}
-	//if _, ok := mux.metastore[path]; !ok {
-	//	mux.metastore[path] = make(map[string]interface{})
-	//}
-	//mux.metastore[path]["method"] = method
 	root := mux.trees.get(method)
 	if root == nil {
 		root = new(node)
 		mux.trees = append(mux.trees, methodTree{method: method, root: root})
 	}
 
-	//prelude := func(c *Context) {
-	//	c.method = method
-	//	c.RoutePath = path
-	//}
-	//handlers = append([]HandlerFunc{prelude}, handlers...)
-	root.addRoute(path, handlers)
+	root.addRoute(path, code, handlers)
 }
 
 // UseFunc attachs a global middleware to the router. ie. the middleware attached though UseFunc() will be
@@ -176,4 +201,40 @@ func (mux *Mux) rebuild404Handlers() {
 
 func (mux *Mux) rebuild405Handlers() {
 	mux.allNoMethod = mux.combineHandlers(mux.noMethod)
+}
+
+func redirectTrailingSlash(c *Context) {
+	req := c.Request
+	p := req.URL.Path
+	if prefix := path.Clean(c.Request.Header.Get("X-Forwarded-Prefix")); prefix != "." {
+		p = prefix + "/" + req.URL.Path
+	}
+	req.URL.Path = p + "/"
+	if length := len(p); length > 1 && p[length-1] == '/' {
+		req.URL.Path = p[:length-1]
+	}
+	redirectRequest(c)
+}
+
+func redirectFixedPath(c *Context, root *node, trailingSlash bool) bool {
+	req := c.Request
+	rPath := req.URL.Path
+
+	if fixedPath, ok := root.findCaseInsensitivePath(cleanPath(rPath), trailingSlash); ok {
+		req.URL.Path = string(fixedPath)
+		redirectRequest(c)
+		return true
+	}
+	return false
+}
+
+func redirectRequest(c *Context) {
+	req := c.Request
+	rURL := req.URL.String()
+
+	code := http.StatusMovedPermanently // Permanent redirect, request with GET method
+	if req.Method != http.MethodGet {
+		code = http.StatusTemporaryRedirect
+	}
+	http.Redirect(c.Writer, req, rURL, code)
 }

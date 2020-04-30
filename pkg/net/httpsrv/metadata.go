@@ -7,11 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-kratos/kratos/pkg/conf/env"
-	"github.com/go-kratos/kratos/pkg/log"
-	"github.com/go-kratos/kratos/pkg/net/criticality"
-	"github.com/go-kratos/kratos/pkg/net/metadata"
 	"github.com/pkg/errors"
+	"yumi/pkg/conf/env"
+	"yumi/pkg/net/criticality"
+	"yumi/pkg/net/metadata"
+	"yumi/utils/log"
 )
 
 const (

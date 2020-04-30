@@ -1,8 +1,8 @@
 package httpsrv
 
 import (
-	"github.com/go-kratos/kratos/pkg/net/metadata"
 	criticalityPkg "yumi/pkg/net/criticality"
+	"yumi/pkg/net/metadata"
 
 	"github.com/pkg/errors"
 )
