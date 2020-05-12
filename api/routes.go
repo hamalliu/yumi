@@ -4,10 +4,10 @@ import (
 	"yumi/api/admin"
 	"yumi/api/media"
 	"yumi/api/sysmng"
-	"yumi/controller"
+	"yumi/pkg/net/ymhttp"
 )
 
-func Mount(r controller.Route) {
+func Mount(r *ymhttp.RouterGroup) {
 	ar := r.Group("api", Decrypt, PemissionAuth, DebugLog)
 
 	admin.Mount(ar)

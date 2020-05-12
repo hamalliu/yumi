@@ -3,12 +3,12 @@ package admin
 import (
 	"net/http"
 
-	"yumi/controller"
+	"yumi/pkg/net/ymhttp"
 )
 
-func Mount(r controller.Route) {
+func Mount(r *ymhttp.RouterGroup) {
 	ar := r.Group("admin")
 
-	ar.Handle(http.MethodPost, "login", login, "0011", nil)
-	ar.Handle(http.MethodPost, "logout", logout, "0011", nil)
+	ar.Handle(http.MethodPost, "", "/login", login)
+	ar.Handle(http.MethodPost, "", "/logout", logout)
 }

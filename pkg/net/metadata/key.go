@@ -50,13 +50,13 @@ var incomingKey = map[string]struct{}{
 	Caller: struct{}{},
 }
 
-// IsOutgoingKey represent this key should propagate by rpc.
+// IsOutgoingKey represent this key should propagate by ymrpc.
 func IsOutgoingKey(key string) bool {
 	_, ok := outgoingKey[key]
 	return ok
 }
 
-// IsIncomingKey represent this key should extract from rpc metadata.
+// IsIncomingKey represent this key should extract from ymrpc metadata.
 func IsIncomingKey(key string) (ok bool) {
 	_, ok = outgoingKey[key]
 	if ok {

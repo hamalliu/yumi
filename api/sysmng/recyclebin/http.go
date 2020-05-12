@@ -1,25 +1,25 @@
 package recyclebin
 
 import (
-	"net/http"
+	"yumi/pkg/net/ymhttp"
 )
 
 //获取我的更新
-func SearchMyUpdate(resp http.ResponseWriter, req *http.Request) {
+func SearchMyUpdate(ctx *ymhttp.Context) {
 
 }
 
 //获取我的删除
-func SearchMyDelete(resp http.ResponseWriter, req *http.Request) {
+func SearchMyDelete(ctx *ymhttp.Context) {
 
 }
 
 //回滚我的更新
-func RbMyUpdate(resp http.ResponseWriter, req *http.Request) {
+func RbMyUpdate(ctx *ymhttp.Context) {
 
 }
 
 //回滚我的删除
-func RbMydelete(resp http.ResponseWriter, req *http.Request) {
+func RbMydelete(ctx *ymhttp.Context) {
 
 }

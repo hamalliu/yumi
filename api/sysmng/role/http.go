@@ -1,45 +1,45 @@
 package role
 
 import (
-	"net/http"
+	"yumi/pkg/net/ymhttp"
 )
 
 //新增角色
-func Add(resp http.ResponseWriter, req *http.Request) {
+func Add(ctx *ymhttp.Context) {
 
 }
 
 //删除角色
-func Delete(resp http.ResponseWriter, req *http.Request) {
+func Delete(ctx *ymhttp.Context) {
 
 }
 
 //查询角色
-func Search(resp http.ResponseWriter, req *http.Request) {
+func Search(ctx *ymhttp.Context) {
 
 }
 
 //获取角色
-func GetItem(resp http.ResponseWriter, req *http.Request) {
+func GetItem(ctx *ymhttp.Context) {
 
 }
 
 //更新角色
-func Update(resp http.ResponseWriter, req *http.Request) {
+func Update(ctx *ymhttp.Context) {
 
 }
 
 //保存角色权限，保存角色用户，修改角色信息
-func SavePowerUserOfRole(resp http.ResponseWriter, req *http.Request) {
+func SavePowerUserOfRole(ctx *ymhttp.Context) {
 
 }
 
 //新增角色权限，保存角色用户，修改角色信息
-func AddPowerUserOfRole(resp http.ResponseWriter, req *http.Request) {
+func AddPowerUserOfRole(ctx *ymhttp.Context) {
 
 }
 
 //获取角色权限，保存角色用户，修改角色信息
-func GetPowerUserOfRole(resp http.ResponseWriter, req *http.Request) {
+func GetPowerUserOfRole(ctx *ymhttp.Context) {
 
 }

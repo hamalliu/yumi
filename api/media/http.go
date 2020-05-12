@@ -4,17 +4,19 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
-	"net/http"
 	"os"
 	"strings"
 	"time"
 
 	"yumi/conf"
-	"yumi/internal/humble/db"
+	"yumi/internal/db"
+	"yumi/pkg/net/ymhttp"
 	"yumi/response"
 )
 
-func UploadMultipart(resp http.ResponseWriter, req *http.Request) {
+func UploadMultipart(ctx *ymhttp.Context) {
+	req := ctx.Request
+	resp := ctx.Writer
 	var (
 		err error
 	)
@@ -67,7 +69,9 @@ func UploadMultipart(resp http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func Upload(resp http.ResponseWriter, req *http.Request) {
+func Upload(ctx *ymhttp.Context) {
+	req := ctx.Request
+	resp := ctx.Writer
 	var (
 		mulf  multipart.File
 		mulfh *multipart.FileHeader

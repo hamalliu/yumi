@@ -5,10 +5,10 @@ import (
 	"yumi/api/sysmng/recyclebin"
 	"yumi/api/sysmng/role"
 	"yumi/api/sysmng/user"
-	"yumi/controller"
+	"yumi/pkg/net/ymhttp"
 )
 
-func Mount(r controller.Route) {
+func Mount(r *ymhttp.RouterGroup) {
 	ar := r.Group("sysmng")
 
 	menu.Mount(ar)

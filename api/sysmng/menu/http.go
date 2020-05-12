@@ -1,30 +1,30 @@
 package menu
 
 import (
-	"net/http"
+	"yumi/pkg/net/ymhttp"
 )
 
 //新增菜单
-func add(resp http.ResponseWriter, req *http.Request) {
+func add(ctx *ymhttp.Context) {
 
 }
 
 //更新菜单
-func update(resp http.ResponseWriter, req *http.Request) {
+func update(ctx *ymhttp.Context) {
 
 }
 
 //删除菜单
-func delete(resp http.ResponseWriter, req *http.Request) {
+func delete(ctx *ymhttp.Context) {
 
 }
 
 //获取菜单
-func get(resp http.ResponseWriter, req *http.Request) {
+func get(ctx *ymhttp.Context) {
 
 }
 
 //搜索所有菜单
-func search(resp http.ResponseWriter, req *http.Request) {
+func search(ctx *ymhttp.Context) {
 
 }

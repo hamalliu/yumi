@@ -1,11 +1,13 @@
 package admin
 
-import "net/http"
+import (
+	"yumi/pkg/net/ymhttp"
+)
 
-func login(resp http.ResponseWriter, req *http.Request) {
+func login(ctx *ymhttp.Context) {
 
 }
 
-func logout(resp http.ResponseWriter, req *http.Request) {
+func logout(ctx *ymhttp.Context) {
 
 }

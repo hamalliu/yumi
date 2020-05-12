@@ -2,19 +2,20 @@ package user
 
 import (
 	"net/http"
-	"yumi/controller"
+
+	"yumi/pkg/net/ymhttp"
 )
 
-func Mount(r controller.Route) {
+func Mount(r *ymhttp.RouterGroup) {
 	rr := r.Group("role")
 
-	rr.Handle(http.MethodPost, "add", Add, "0011", nil)
-	rr.Handle(http.MethodPost, "delete", Delete, "0011", nil)
-	rr.Handle(http.MethodPut, "update", Update, "0011", nil)
-	rr.Handle(http.MethodGet, "getmodules", GetItem, "0011", nil)
-	rr.Handle(http.MethodGet, "getmodules", Search, "0011", nil)
-	rr.Handle(http.MethodPost, "getmodules", AddPowerRoleOfUser, "0011", nil)
-	rr.Handle(http.MethodPost, "getmodules", SavePowerRoleOfUser, "0011", nil)
-	rr.Handle(http.MethodGet, "getmodules", GetPowerRoleOfUser, "0011", nil)
-	rr.Handle(http.MethodGet, "getmodules", GetAllPowerOfUser, "0011", nil)
+	rr.Handle(http.MethodPost, "", "/add", Add)
+	rr.Handle(http.MethodPost, "", "/delete", Delete)
+	rr.Handle(http.MethodPut, "", "/update", Update)
+	rr.Handle(http.MethodGet, "", "/getmodules", GetItem)
+	rr.Handle(http.MethodGet, "", "/getmodules", Search)
+	rr.Handle(http.MethodPost, "", "/getmodules", AddPowerRoleOfUser)
+	rr.Handle(http.MethodPost, "", "/getmodules", SavePowerRoleOfUser)
+	rr.Handle(http.MethodGet, "", "/getmodules", GetPowerRoleOfUser)
+	rr.Handle(http.MethodGet, "", "/getmodules", GetAllPowerOfUser)
 }

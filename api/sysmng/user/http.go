@@ -1,50 +1,50 @@
 package user
 
 import (
-	"net/http"
+	"yumi/pkg/net/ymhttp"
 )
 
 //新增用户
-func Add(resp http.ResponseWriter, req *http.Request) {
+func Add(ctx *ymhttp.Context) {
 
 }
 
 //删除用户
-func Delete(resp http.ResponseWriter, req *http.Request) {
+func Delete(ctx *ymhttp.Context) {
 
 }
 
 //查询用户
-func Search(resp http.ResponseWriter, req *http.Request) {
+func Search(ctx *ymhttp.Context) {
 
 }
 
 //修改用户
-func Update(resp http.ResponseWriter, req *http.Request) {
+func Update(ctx *ymhttp.Context) {
 
 }
 
 //获取用户
-func GetItem(resp http.ResponseWriter, req *http.Request) {
+func GetItem(ctx *ymhttp.Context) {
 
 }
 
 //获取用户所有权限
-func GetAllPowerOfUser(resp http.ResponseWriter, req *http.Request) {
+func GetAllPowerOfUser(ctx *ymhttp.Context) {
 
 }
 
 //保存用户权限，保存用户角色，修改用户信息
-func SavePowerRoleOfUser(resp http.ResponseWriter, req *http.Request) {
+func SavePowerRoleOfUser(ctx *ymhttp.Context) {
 
 }
 
 //新增用户权限，保存用户角色，新增用户信息
-func AddPowerRoleOfUser(resp http.ResponseWriter, req *http.Request) {
+func AddPowerRoleOfUser(ctx *ymhttp.Context) {
 
 }
 
 //获取用户信息，角色，权限
-func GetPowerRoleOfUser(resp http.ResponseWriter, req *http.Request) {
+func GetPowerRoleOfUser(ctx *ymhttp.Context) {
 
 }
