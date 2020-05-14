@@ -3,7 +3,7 @@ package db
 import (
 	"testing"
 
-	"yumi/external/dbc"
+	"yumi/pkg/external/dbc"
 )
 
 func init() {

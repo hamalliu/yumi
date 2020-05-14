@@ -6,9 +6,9 @@ import (
 	"strings"
 
 	"yumi/consts"
-	"yumi/external/dbc"
 	"yumi/model"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/dbc"
 )
 
 var (

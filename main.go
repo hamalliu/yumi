@@ -8,7 +8,7 @@ import (
 
 	"yumi/api"
 	"yumi/conf"
-	"yumi/external/dbc"
+	"yumi/pkg/external/dbc"
 	"yumi/pkg/net/ymhttp"
 	"yumi/utils/log"
 )

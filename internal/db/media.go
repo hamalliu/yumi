@@ -1,8 +1,8 @@
 package db
 
 import (
-	"yumi/external/dbc"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/dbc"
 )
 
 type DataMedia int

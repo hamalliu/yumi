@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"os"
 
-	"yumi/external/pay/wxpay"
 	"yumi/internal/pay/entities/trade"
 	"yumi/internal/pay/humble/dbentities"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/pay/wxpay"
 )
 
 type InternalWxPay struct{}

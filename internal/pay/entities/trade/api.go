@@ -1,19 +1,15 @@
 package trade
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"yumi/pkg/ecode"
 	"yumi/utils/log"
 )
 
 const timeFormat = "2006-01-02 15:04:05.999"
-
-var (
-	InternalError = errors.New("服务器内部错误")
-)
 
 /**
  * 业务对象接口
@@ -48,7 +44,7 @@ func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIp, notifyUrl s
 
 	trade := getTrade(tradeWay)
 	if trade == nil {
-		return "", fmt.Errorf("该支付方式不支持")
+		return "", ecode.NotSupportTradeWay
 	}
 
 	e.op.PayExpire = payExpire
@@ -75,7 +71,7 @@ func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.T
 
 	//订单超时不能发起支付
 	if e.op.TimeoutExpress.Format(timeFormat) < time.Now().Format(timeFormat) {
-		return "", fmt.Errorf("订单已过期，不能发起支付")
+		return "", ecode.OrderPayTimeout
 	}
 
 	switch e.op.Status {
@@ -85,7 +81,7 @@ func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.T
 		//查询当前支付状态
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
-			return "", fmt.Errorf("该支付方式不支持")
+			return "", ecode.NotSupportTradeWay
 		}
 		//查询之前支付状态
 		if tpq, err := trade.QueryPayStatus(e.op); err != nil {
@@ -101,10 +97,10 @@ func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.T
 			//发起支付
 			return sendPay(tradeWay, e, payExpire, clientIp, notifyUrl)
 		} else {
-			return "", fmt.Errorf("不能发起支付")
+			return "", ecode.InvalidSendPay
 		}
 	default:
-		return "", fmt.Errorf("不能发起支付")
+		return "", ecode.InvalidSendPay
 	}
 }
 
@@ -122,7 +118,7 @@ func CancelOrderPay(code string) (err error) {
 	case WaitPay:
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
-			return fmt.Errorf("该支付方式不支持")
+			return ecode.NotSupportTradeWay
 		}
 		if err := trade.TradeClose(e.op); err != nil {
 			return err
@@ -130,7 +126,7 @@ func CancelOrderPay(code string) (err error) {
 
 		return e.dataOp.SetCancelled(time.Now(), Cancelled)
 	default:
-		return fmt.Errorf("不能取消订单")
+		return ecode.InvalidCancelOrderPay
 	}
 }
 
@@ -146,7 +142,7 @@ func PaySuccess(code string) (res Status, err error) {
 	case WaitPay:
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
-			return "", fmt.Errorf("该支付方式不支持")
+			return "", ecode.NotSupportTradeWay
 		}
 		if tpq, err := trade.QueryPayStatus(e.op); err != nil {
 			return "", err
@@ -163,7 +159,7 @@ func PaySuccess(code string) (res Status, err error) {
 	case Cancelled:
 		return Closed, nil
 	default:
-		return "", fmt.Errorf("无效查询")
+		return "", ecode.InvalidQueryPay
 	}
 }
 
@@ -177,7 +173,7 @@ func PayStatus(code string) (res Status, err error) {
 
 	trade := getTrade(e.op.TradeWay)
 	if trade == nil {
-		return "", fmt.Errorf("该支付方式不支持")
+		return "", ecode.NotSupportTradeWay
 	}
 	if tpq, err := trade.QueryPayStatus(e.op); err != nil {
 		return "", err
@@ -198,14 +194,14 @@ func CloseTrade(code string) (err error) {
 	case WaitPay:
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
-			return fmt.Errorf("该支付方式不支持")
+			return ecode.NotSupportTradeWay
 		}
 		if err := e.dataOp.SetSubmitted(Submitted); err != nil {
 			return err
 		}
 		return trade.TradeClose(e.op)
 	default:
-		return fmt.Errorf("不能关闭交易")
+		return ecode.InvalidCloseTrade
 	}
 }
 
@@ -266,7 +262,7 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time) (string, error) {
 	e, err := NewEntityByPayCode(orderPayCode)
 	if err != nil {
-		return "", InternalError
+		return "", err
 	}
 
 	switch e.op.Status {
@@ -274,40 +270,38 @@ func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee 
 	case Paid:
 		//是否存在已提交或退款中的退款订单
 		if exist, err := e.dataOr.ExistRefundingOrSubmitted(e.op.Code); err != nil {
-			return "", InternalError
+			return "", err
 		} else if exist {
-			return "", fmt.Errorf("已有退款订单处理中，不能发起订单")
+			return "", ecode.CannotRepeatSendRefund
 		}
 
 		//退款金额是否超额
 		count, countFee := 0, 0
 		if count, countFee, err = e.dataOr.GetRefundFee(e.op.Code); err != nil {
-			return "", InternalError
+			return "", err
 		} else if countFee+refundFee > e.op.TotalFee {
-			return "", fmt.Errorf("退款总额超过支付金额")
+			err = fmt.Errorf("退款总额超过支付金额")
+			return "", ecode.ServerErr(err)
 		}
 
 		code := getCode(OrderRefundCode)
 		outRefundNo := code
 		if err := e.dataOr.Submit(code, orderPayCode, count, notifyUrl, refundAccountGuid, e.op.TradeWay, outRefundNo, refundFee,
 			refundDesc, submitTime, timeoutExpress, Submitted); err != nil {
-			return "", InternalError
+			return "", err
 		}
 
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
-			if err := e.dataOr.SetError(time.Now(), "tradeway（交易方式）不存在", Error); err != nil {
-				log.Error(err)
-				log.Error(fmt.Sprintf("refundcode: %s，tradeway（交易方式）不存在", e.or.Code))
-				return "", InternalError
-			}
-			return "", fmt.Errorf("订单错误")
+			_ = e.dataOr.SetError(time.Now(), "tradeway（交易方式）不存在", Error)
+			err = fmt.Errorf("refundcode: %s，tradeway（交易方式）不存在", e.or.Code)
+			return "", ecode.ServerErr(err)
 		}
 
 		_ = e.ReleaseOrderPay()
 		e, err := NewEntityByRefundCode(code)
 		if err != nil {
-			return "", InternalError
+			return "", err
 		}
 		defer func() { _ = e.ReleaseOrderRefund() }()
 		if err := trade.Refund(e.op, e.or); err != nil {
@@ -315,11 +309,11 @@ func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee 
 		}
 
 		if err := e.dataOr.SetRefunding(Refunding); err != nil {
-			return "", InternalError
+			return "", err
 		}
 		return code, nil
 	default:
-		return "", fmt.Errorf("该支付订单不能发起退款")
+		return "", ecode.InvalidSendRefund
 	}
 }
 
@@ -327,7 +321,7 @@ func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee 
 func RefundSuccess(code string) (res Status, err error) {
 	e, err := NewEntityByRefundCode(code)
 	if err != nil {
-		return "", InternalError
+		return "", err
 	}
 	defer func() { _ = e.ReleaseOrderRefund() }()
 
@@ -335,12 +329,9 @@ func RefundSuccess(code string) (res Status, err error) {
 	case Refunding:
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
-			err := fmt.Errorf("refundcode: %s，tradeway（交易方式）不存在", e.or.Code)
-			if err := e.dataOr.SetError(time.Now(), err.Error(), Error); err != nil {
-				log.Error(err)
-				return "", InternalError
-			}
-			return "", err
+			_ = e.dataOr.SetError(time.Now(), "tradeway（交易方式）不存在", Error)
+			err = fmt.Errorf("refundcode: %s，tradeway（交易方式）不存在", e.or.Code)
+			return "", ecode.ServerErr(err)
 		}
 
 		ret, err := trade.QueryRefundStatus(e.op, e.or)
@@ -357,7 +348,7 @@ func RefundSuccess(code string) (res Status, err error) {
 	case Refunded:
 		return "", nil
 	default:
-		return "", fmt.Errorf("无效查询")
+		return "", ecode.InvalidQueryRefund
 	}
 }
 

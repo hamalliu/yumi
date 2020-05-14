@@ -7,7 +7,7 @@ import (
 	"yumi/pkg/ecode"
 
 	"yumi/consts"
-	"yumi/external/dbc"
+	"yumi/pkg/external/dbc"
 )
 
 var (

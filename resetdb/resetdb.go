@@ -1,8 +1,8 @@
 package main
 
 import (
-	"yumi/external/dbc"
-	"yumi/external/dbc/mysqlx"
+	"yumi/pkg/external/dbc"
+	"yumi/pkg/external/dbc/mysqlx"
 	"yumi/resetdb/sql"
 )
 

@@ -5,10 +5,10 @@ import (
 	"net/http"
 	"net/url"
 
-	"yumi/external/pay/alipay"
 	"yumi/internal/pay/entities/trade"
 	"yumi/internal/pay/humble/dbentities"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/pay/alipay"
 )
 
 const AliPay_Page = trade.Way("alipay_page")

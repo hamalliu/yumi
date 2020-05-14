@@ -1,6 +1,8 @@
 package dbc
 
-import "yumi/external/dbc/mysqlx"
+import (
+	"yumi/pkg/external/dbc/mysqlx"
+)
 
 var mysqlDb *mysqlx.Model
 

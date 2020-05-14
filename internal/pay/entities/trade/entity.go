@@ -6,9 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ylingo/logs"
-
 	"yumi/utils"
+	"yumi/utils/log"
 )
 
 var (
@@ -80,7 +79,7 @@ func (e *Entity) ReleaseOrderPay() error {
 
 	if orderPaySync[e.op.Code] == nil {
 		err := fmt.Errorf("无法释放锁，可能造成死锁")
-		logs.Error(err)
+		log.Error(err)
 		return err
 	}
 	orderPaySync[e.op.Code].Unlock()
@@ -132,14 +131,14 @@ func (e *Entity) ReleaseOrderRefund() error {
 
 	if orderRefundSync[e.or.Code] == nil {
 		err := fmt.Errorf("无法释放锁，可能造成死锁")
-		logs.Error(orderRefundSync, err)
+		log.Error(orderRefundSync, err)
 		return err
 	}
 	orderRefundSync[e.or.Code].Unlock()
 
 	if orderPaySync[e.or.OrderPayCode] == nil {
 		err := fmt.Errorf("无法释放锁，可能造成死锁")
-		logs.Error(orderPaySync, err)
+		log.Error(orderPaySync, err)
 		return err
 	}
 	orderPaySync[e.or.OrderPayCode].Unlock()

@@ -15,7 +15,7 @@ import (
 
 	"golang.org/x/crypto/pkcs12"
 
-	"yumi/external/pay/internal"
+	"yumi/pkg/external/pay/internal"
 )
 
 /**

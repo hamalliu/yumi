@@ -3,9 +3,9 @@ package db
 import (
 	"fmt"
 
-	"yumi/external/dbc"
 	"yumi/model"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/dbc"
 )
 
 type DataRollBackor int

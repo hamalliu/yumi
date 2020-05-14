@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"strings"
 
-	"yumi/external/pay/internal"
+	"yumi/pkg/external/pay/internal"
 )
 
 func CheckPrePayNotify(mch Merchant, req ReqPrepayNotify) error {

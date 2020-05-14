@@ -3,9 +3,9 @@ package dbentities
 import (
 	"time"
 
-	"yumi/external/dbc"
 	"yumi/internal/pay/entities/trade"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/dbc"
 )
 
 //支付订单

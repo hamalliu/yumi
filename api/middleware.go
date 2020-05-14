@@ -9,7 +9,6 @@ import (
 
 	"yumi/conf"
 	"yumi/consts"
-	"yumi/controller"
 	"yumi/response"
 	"yumi/session"
 	"yumi/utils"

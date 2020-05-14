@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"yumi/consts"
-	"yumi/external/dbc"
 	"yumi/model"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/dbc"
 )
 
 type DataMenu int

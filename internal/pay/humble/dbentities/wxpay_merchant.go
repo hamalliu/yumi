@@ -1,8 +1,8 @@
 package dbentities
 
 import (
-	"yumi/external/dbc"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/dbc"
 )
 
 type WxPayMerchant struct {

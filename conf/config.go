@@ -3,7 +3,7 @@ package conf
 import (
 	"github.com/BurntSushi/toml"
 
-	"yumi/external/dbc/mysqlx"
+	"yumi/pkg/external/dbc/mysqlx"
 )
 
 const (

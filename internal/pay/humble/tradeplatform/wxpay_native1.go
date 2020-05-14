@@ -1,9 +1,9 @@
 package tradeplatform
 
 import (
-	"yumi/external/pay/wxpay"
 	"yumi/internal/pay/entities/trade"
 	"yumi/pkg/ecode"
+	"yumi/pkg/external/pay/wxpay"
 )
 
 const WxPay_NATIVE1 = trade.Way("wxpay_native1")

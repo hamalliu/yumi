@@ -4,13 +4,11 @@ import (
 	"testing"
 	"time"
 
-	"yumi/internal/config"
 	"yumi/internal/pay/entities/trade"
 	"yumi/internal/pay/humble/tradeplatform"
 )
 
 func TestSubmitOrderPay(t *testing.T) {
-
 	accountGuid := "liuxin@guid"
 	sellerKey := "zzyq_account_001"
 	totalFee := 1

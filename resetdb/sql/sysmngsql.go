@@ -1,7 +1,7 @@
 package sql
 
 import (
-	"yumi/external/dbc"
+	"yumi/pkg/external/dbc"
 )
 
 func SysmmngCreateTable() {
