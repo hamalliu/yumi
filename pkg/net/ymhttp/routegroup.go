@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"regexp"
 
-	"yumi/utils/log"
+	"yumi/pkg/log"
 )
 
 // IRouter http router framework interface.
@@ -72,7 +72,7 @@ func (group *RouterGroup) handle(httpMethod, code, relativePath string, handlers
 	injections := group.injections(relativePath)
 	handlers = group.combineHandlers(injections, handlers)
 	group.mux.addRoute(httpMethod, code, absolutePath, handlers...)
-	log.Info(fmt.Sprintf("method:%s, code:%s, path:%s", httpMethod, code, absolutePath))
+	log.Info3(fmt.Sprintf("method:%s, code:%s, path:%s", httpMethod, code, absolutePath))
 	return group.returnObj()
 }
 

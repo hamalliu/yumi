@@ -21,6 +21,7 @@ func GetWxPayMerchantBySellerKey(sellerKey string) (mch WxPayMerchant, err error
 			seller_key, 
 			app_id, 
 			mch_id,
+			secret,
 			private_key 
 		FROM 
 			wx_pay_merchants 
@@ -39,6 +40,7 @@ func GetWxPayMerchantByMchId(mchId string) (mch WxPayMerchant, err error) {
 			seller_key, 
 			app_id, 
 			mch_id,
+			secret,
 			private_key 
 		FROM 
 			wx_pay_merchants 

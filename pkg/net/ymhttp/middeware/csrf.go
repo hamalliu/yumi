@@ -4,9 +4,9 @@ import (
 	"net/url"
 	"regexp"
 	"strings"
-	"yumi/pkg/net/ymhttp"
 
-	"yumi/utils/log"
+	"yumi/pkg/log"
+	"yumi/pkg/net/ymhttp"
 )
 
 func matchHostSuffix(suffix string) func(*url.URL) bool {

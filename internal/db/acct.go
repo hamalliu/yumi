@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"yumi/pkg/ecode"
 
 	"yumi/consts"
+	"yumi/pkg/ecode"
 	"yumi/pkg/external/dbc"
 )
 

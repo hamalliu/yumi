@@ -5,21 +5,21 @@ import (
 )
 
 //获取我的更新
-func SearchMyUpdate(ctx *ymhttp.Context) {
+func SearchMyUpdate(c *ymhttp.Context) {
 
 }
 
 //获取我的删除
-func SearchMyDelete(ctx *ymhttp.Context) {
+func SearchMyDelete(c *ymhttp.Context) {
 
 }
 
 //回滚我的更新
-func RbMyUpdate(ctx *ymhttp.Context) {
+func RbMyUpdate(c *ymhttp.Context) {
 
 }
 
 //回滚我的删除
-func RbMydelete(ctx *ymhttp.Context) {
+func RbMydelete(c *ymhttp.Context) {
 
 }

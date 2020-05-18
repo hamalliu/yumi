@@ -30,14 +30,10 @@ func New(prefix string, maxsize int64, day bool) *File {
 }
 
 func (m *File) Write(b []byte) (int, error) {
-	var (
-		err error
-	)
-
 	m.mux.Lock()
 	defer m.mux.Unlock()
 
-	if err = m.initFile(); err != nil {
+	if err := m.initFile(); err != nil {
 		return 0, err
 	}
 

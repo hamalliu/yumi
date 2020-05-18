@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"yumi/pkg/ecode"
-	"yumi/utils/log"
+	"yumi/pkg/log"
 )
 
 const timeFormat = "2006-01-02 15:04:05.999"

@@ -11,10 +11,10 @@ func Mount(r *ymhttp.RouterGroup) {
 
 	rr.Handle(http.MethodPost, "", "add", Add)
 	rr.Handle(http.MethodPost, "", "delete", Delete)
-	rr.Handle(http.MethodPut, "", "update", Update)
-	rr.Handle(http.MethodGet, "", "getmodules", GetItem)
-	rr.Handle(http.MethodGet, "", "getmodules", Search)
-	rr.Handle(http.MethodGet, "", "getmodules", SavePowerUserOfRole)
-	rr.Handle(http.MethodGet, "", "getmodules", AddPowerUserOfRole)
-	rr.Handle(http.MethodGet, "", "getmodules", GetPowerUserOfRole)
+	rr.Handle(http.MethodPost, "", "update", Update)
+	rr.Handle(http.MethodGet, "", "getitem", GetItem)
+	rr.Handle(http.MethodGet, "", "search", Search)
+	rr.Handle(http.MethodGet, "", "savepoweruserofrole", SavePowerUserOfRole)
+	rr.Handle(http.MethodGet, "", "addpoweruserofrole", AddPowerUserOfRole)
+	rr.Handle(http.MethodGet, "", "getpoweruserofrole", GetPowerUserOfRole)
 }

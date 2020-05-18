@@ -5,41 +5,41 @@ import (
 )
 
 //新增角色
-func Add(ctx *ymhttp.Context) {
+func Add(c *ymhttp.Context) {
 
 }
 
 //删除角色
-func Delete(ctx *ymhttp.Context) {
+func Delete(c *ymhttp.Context) {
 
 }
 
 //查询角色
-func Search(ctx *ymhttp.Context) {
+func Search(c *ymhttp.Context) {
 
 }
 
 //获取角色
-func GetItem(ctx *ymhttp.Context) {
+func GetItem(c *ymhttp.Context) {
 
 }
 
 //更新角色
-func Update(ctx *ymhttp.Context) {
+func Update(c *ymhttp.Context) {
 
 }
 
 //保存角色权限，保存角色用户，修改角色信息
-func SavePowerUserOfRole(ctx *ymhttp.Context) {
+func SavePowerUserOfRole(c *ymhttp.Context) {
 
 }
 
 //新增角色权限，保存角色用户，修改角色信息
-func AddPowerUserOfRole(ctx *ymhttp.Context) {
+func AddPowerUserOfRole(c *ymhttp.Context) {
 
 }
 
 //获取角色权限，保存角色用户，修改角色信息
-func GetPowerUserOfRole(ctx *ymhttp.Context) {
+func GetPowerUserOfRole(c *ymhttp.Context) {
 
 }

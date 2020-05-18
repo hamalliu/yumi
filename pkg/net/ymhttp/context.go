@@ -252,6 +252,9 @@ func (c *Context) JSON(data interface{}, err error) {
 	code := http.StatusOK
 	c.Error = err
 	bcode := ecode.Must(err)
+	if data == nil {
+		data = struct{}{}
+	}
 	c.Render(code, render.JSON{
 		Code:      bcode.Code(),
 		Message:   bcode.Message(),

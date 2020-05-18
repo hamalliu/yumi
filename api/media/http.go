@@ -8,21 +8,20 @@ import (
 	"strings"
 	"time"
 
-	"yumi/conf"
 	"yumi/internal/db"
+	"yumi/pkg/conf"
+	"yumi/pkg/ecode"
 	"yumi/pkg/net/ymhttp"
-	"yumi/response"
 )
 
-func UploadMultipart(ctx *ymhttp.Context) {
-	req := ctx.Request
-	resp := ctx.Writer
+func UploadMultipart(c *ymhttp.Context) {
+	req := c.Request
 	var (
 		err error
 	)
 
 	if err = req.ParseMultipartForm(conf.Get().MaxFileSize); err != nil {
-		response.Json(resp, req, response.FileSizeTooBig(), nil)
+		c.JSON(nil, ecode.FileSizeTooBig)
 		return
 	}
 
@@ -34,7 +33,7 @@ func UploadMultipart(ctx *ymhttp.Context) {
 			mulf multipart.File
 		)
 		if mulf, err = fds[i].Open(); err != nil {
-			response.Json(resp, req, response.InternalError(err), nil)
+			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
 
@@ -49,12 +48,12 @@ func UploadMultipart(ctx *ymhttp.Context) {
 			}
 		}
 		if osf, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0744); err != nil {
-			response.Json(resp, req, response.InternalError(err), nil)
+			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
 
 		if _, err := io.Copy(osf, mulf); err != nil {
-			response.Json(resp, req, response.InternalError(err), nil)
+			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
 		_ = mulf.Close()
@@ -63,15 +62,14 @@ func UploadMultipart(ctx *ymhttp.Context) {
 		operatorid := req.Header.Get("xuid")
 		operator := req.Header.Get("username")
 		if _, err = db.Media().Add(suffix, name, fds[i].Filename, path, operator, operatorid); err != nil {
-			response.Json(resp, req, response.InternalError(err), nil)
+			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
 	}
 }
 
-func Upload(ctx *ymhttp.Context) {
-	req := ctx.Request
-	resp := ctx.Writer
+func Upload(c *ymhttp.Context) {
+	req := c.Request
 	var (
 		mulf  multipart.File
 		mulfh *multipart.FileHeader
@@ -81,7 +79,7 @@ func Upload(ctx *ymhttp.Context) {
 	)
 
 	if mulf, mulfh, err = req.FormFile("file"); err != nil {
-		response.Json(resp, req, response.InternalError(err), nil)
+		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 
@@ -96,12 +94,12 @@ func Upload(ctx *ymhttp.Context) {
 		}
 	}
 	if osf, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0744); err != nil {
-		response.Json(resp, req, response.InternalError(err), nil)
+		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 
 	if _, err := io.Copy(osf, mulf); err != nil {
-		response.Json(resp, req, response.InternalError(err), nil)
+		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 	_ = mulf.Close()
@@ -110,7 +108,7 @@ func Upload(ctx *ymhttp.Context) {
 	operatorid := req.Header.Get("xuid")
 	operator := req.Header.Get("username")
 	if _, err = db.Media().Add(suffix, name, mulfh.Filename, path, operator, operatorid); err != nil {
-		response.Json(resp, req, response.InternalError(err), nil)
+		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 }

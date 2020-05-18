@@ -12,25 +12,18 @@ import (
 
 	"github.com/jmoiron/sqlx"
 
-	"yumi/utils/log"
+	"yumi/pkg/conf"
+	"yumi/pkg/log"
 )
 
 const dirverName = "mysql"
 
-type Config struct {
-	Dsn             string
-	DBName          string
-	MaxOpenConns    int
-	MaxIdleConns    int
-	ConnMaxLifetime int64
-}
-
 type Model struct {
 	*sqlx.DB
-	conf Config
+	conf conf.DBConfig
 }
 
-func New(conf Config) (*Model, error) {
+func New(conf conf.DBConfig) (*Model, error) {
 	var (
 		m   = new(Model)
 		err error

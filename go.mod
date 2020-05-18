@@ -13,6 +13,8 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.3.3
 	github.com/gomodule/redigo v2.0.0+incompatible
+	github.com/gorilla/csrf v1.7.0 // indirect
+	github.com/gorilla/handlers v1.4.2 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/jhillyerd/enmime v0.6.0
 	github.com/jinzhu/gorm v1.9.10
@@ -21,8 +23,9 @@ require (
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/phachon/go-logger v0.0.0-20180912060440-89ff8a2898f6 // indirect
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/robfig/cron/v3 v3.0.0
+	github.com/rs/cors v1.7.0 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/ugorji/go/codec v1.1.7

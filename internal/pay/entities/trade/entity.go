@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"yumi/pkg/log"
 	"yumi/utils"
-	"yumi/utils/log"
 )
 
 var (

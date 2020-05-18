@@ -2,8 +2,6 @@ package conf
 
 import (
 	"github.com/BurntSushi/toml"
-
-	"yumi/pkg/external/dbc/mysqlx"
 )
 
 const (
@@ -13,7 +11,7 @@ const (
 
 type Config struct {
 	Server Server
-	DB     mysqlx.Config
+	DB     DBConfig
 }
 
 type Server struct {
@@ -26,9 +24,17 @@ type Server struct {
 	MaxFileSize  int64  //附件最大限制
 }
 
+type DBConfig struct {
+	Dsn             string
+	DBName          string
+	MaxOpenConns    int
+	MaxIdleConns    int
+	ConnMaxLifetime int64
+}
+
 var conf Config
 
-func init() {
+func Load() {
 	if _, err := toml.DecodeFile("config.toml", &conf); err != nil {
 		panic(err)
 	}
@@ -38,6 +44,6 @@ func Get() Server {
 	return conf.Server
 }
 
-func GetDB() mysqlx.Config {
+func GetDB() DBConfig {
 	return conf.DB
 }

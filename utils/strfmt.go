@@ -1,4 +1,4 @@
-package pretreatment
+package utils
 
 import (
 	"fmt"
@@ -32,7 +32,7 @@ func CheckPhone(str string) error {
 	return nil
 }
 
-func CheckIp(str string) error {
+func CheckIp4(str string) error {
 	re := regexp.MustCompile(`(^[2][0-5][0-5]|^[1][0-9][0-9]|^[1-9][0-9]|^[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]$|[1][0-9][0-9]$|[1-9][0-9]$|[0-9]$)`)
 	if string(re.Find([]byte(str))) != str {
 		return fmt.Errorf("错误的ip地址")

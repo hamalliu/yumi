@@ -8,7 +8,7 @@ import (
 	"time"
 	"yumi/pkg/net/ymhttp"
 
-	"yumi/utils/log"
+	"yumi/pkg/log"
 )
 
 // CORSConfig represents all available options for the middleware.

@@ -8,7 +8,7 @@ import (
 )
 
 func Mount(r *ymhttp.RouterGroup) {
-	ar := r.Group("api", Decrypt, PemissionAuth, DebugLog)
+	ar := r.Group("api", DebugLog)
 
 	admin.Mount(ar)
 	media.Mount(ar)

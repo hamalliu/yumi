@@ -1,12 +1,13 @@
 package dbc
 
 import (
+	"yumi/pkg/conf"
 	"yumi/pkg/external/dbc/mysqlx"
 )
 
 var mysqlDb *mysqlx.Model
 
-func Init(conf mysqlx.Config) {
+func Init(conf conf.DBConfig) {
 	var err error
 	if mysqlDb, err = mysqlx.New(conf); err != nil {
 		panic(err)
@@ -14,7 +15,7 @@ func Init(conf mysqlx.Config) {
 }
 
 func InitDefault() {
-	testConf := mysqlx.Config{
+	testConf := conf.DBConfig{
 		Dsn:             "",
 		DBName:          "",
 		MaxOpenConns:    10,

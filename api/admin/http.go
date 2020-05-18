@@ -4,10 +4,10 @@ import (
 	"yumi/pkg/net/ymhttp"
 )
 
-func login(ctx *ymhttp.Context) {
+func login(c *ymhttp.Context) {
 
 }
 
-func logout(ctx *ymhttp.Context) {
+func logout(c *ymhttp.Context) {
 
 }

@@ -5,9 +5,9 @@ import (
 	"strconv"
 	"sync"
 
-	"yumi/conf"
 	"yumi/internal/db"
 	"yumi/model"
+	"yumi/pkg/conf"
 )
 
 const (

@@ -5,7 +5,7 @@ import (
 
 	"github.com/op/go-logging"
 
-	"yumi/conf"
+	"yumi/pkg/conf"
 )
 
 var infolog = logging.MustGetLogger("info")
@@ -13,9 +13,9 @@ var errorlog = logging.MustGetLogger("error")
 var criticallog = logging.MustGetLogger("critical")
 var log = logging.MustGetLogger("log")
 
-func init() {
+func Init() {
 	var format = logging.MustStringFormatter(
-		`%{time:2006-01-02 15:04:05.000} %{level:.4s} %{shortfile} %{message}`,
+		`%{time:2006-01-02 15:04:05.000} %{level:.4s} %{longfile} %{message}`,
 	)
 	logging.SetFormatter(format)
 
@@ -24,7 +24,7 @@ func init() {
 
 	infoBackend := logging.NewLogBackend(New("[INFO]", 2<<26, true), "", 0)
 	lvlInfoBackend := logging.AddModuleLevel(infoBackend)
-	lvlInfoBackend.SetLevel(logging.ERROR, "")
+	lvlInfoBackend.SetLevel(logging.INFO, "")
 
 	errBackend := logging.NewLogBackend(New("[ERROR]", 2<<26, true), "", 0)
 	lvlErrBackend := logging.AddModuleLevel(errBackend)
@@ -60,7 +60,7 @@ func Error(args ...interface{}) {
 
 func Info(args ...interface{}) {
 	infolog.ExtraCalldepth = 1
-	infolog.Error(args)
+	infolog.Info(args)
 	if conf.Get().Environment == conf.EnvDebug {
 		log.ExtraCalldepth = 1
 		log.Debug(args)
@@ -92,9 +92,18 @@ func Error2(args ...interface{}) {
 
 func Info2(args ...interface{}) {
 	infolog.ExtraCalldepth = 2
-	infolog.Error(args)
+	infolog.Info(args)
 	if conf.Get().Environment == conf.EnvDebug {
 		log.ExtraCalldepth = 2
+		log.Debug(args)
+	}
+}
+
+func Info3(args ...interface{}) {
+	infolog.ExtraCalldepth = 3
+	infolog.Info(args)
+	if conf.Get().Environment == conf.EnvDebug {
+		log.ExtraCalldepth = 3
 		log.Debug(args)
 	}
 }

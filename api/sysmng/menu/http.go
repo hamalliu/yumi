@@ -5,26 +5,26 @@ import (
 )
 
 //新增菜单
-func add(ctx *ymhttp.Context) {
+func add(c *ymhttp.Context) {
 
 }
 
 //更新菜单
-func update(ctx *ymhttp.Context) {
+func update(c *ymhttp.Context) {
 
 }
 
 //删除菜单
-func delete(ctx *ymhttp.Context) {
+func delete(c *ymhttp.Context) {
 
 }
 
 //获取菜单
-func get(ctx *ymhttp.Context) {
+func get(c *ymhttp.Context) {
 
 }
 
 //搜索所有菜单
-func search(ctx *ymhttp.Context) {
+func search(c *ymhttp.Context) {
 
 }
