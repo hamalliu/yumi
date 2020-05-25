@@ -12,6 +12,7 @@ const (
 type Config struct {
 	Server Server
 	DB     DBConfig
+	CORS   CORSConfig
 }
 
 type Server struct {
@@ -32,6 +33,11 @@ type DBConfig struct {
 	ConnMaxLifetime int64
 }
 
+type CORSConfig struct {
+	AllowedOrigins []string
+	MaxAge         int //秒
+}
+
 var conf Config
 
 func Load() {
@@ -46,4 +52,8 @@ func Get() Server {
 
 func GetDB() DBConfig {
 	return conf.DB
+}
+
+func GetCORS() CORSConfig {
+	return conf.CORS
 }

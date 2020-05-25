@@ -6,20 +6,19 @@ package render
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
-
-	"encoding/json"
 )
 
 // JSON contains the given interface object.
 type JSON struct {
-	Code      int
-	Message   string
-	ParamsErr string
-	TTL       int `json:"ttl"`
-	Data      interface{}
+	Code      int         `json:"code"`
+	Message   string      `json:"message"`
+	ParamsErr string      `json:"params_err"`
+	TTL       int         `json:"ttl"`
+	Data      interface{} `json:"data"`
 }
 
 // IndentedJSON contains the given interface object.
@@ -80,6 +79,7 @@ func WriteJSON(w http.ResponseWriter, obj interface{}) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = w.Write(jsonBytes)
 	return err
 }

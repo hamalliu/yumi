@@ -255,6 +255,7 @@ func (c *Context) JSON(data interface{}, err error) {
 	if data == nil {
 		data = struct{}{}
 	}
+
 	c.Render(code, render.JSON{
 		Code:      bcode.Code(),
 		Message:   bcode.Message(),
