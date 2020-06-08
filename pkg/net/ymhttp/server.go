@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"sync/atomic"
 	"time"
-
-	"yumi/pkg/net/ymhttp/middeware"
 )
 
 type Handler interface {
@@ -43,7 +41,7 @@ func DefalutServer() *Server {
 			WriteTimeout: time.Second * 15,
 		},
 	}
-	srv.Use(middeware.Cors(), middeware.Recovery(), middeware.PrintRequest())
+	//srv.Use(middeware.Cors(), middeware.Recovery(), middeware.PrintRequest())
 	return srv
 }
 
@@ -53,7 +51,7 @@ func NewServer(conf Config) *Server {
 		conf: conf,
 	}
 
-	srv.Use(middeware.Cors(), middeware.Recovery(), middeware.PrintRequest())
+	//srv.Use(middeware.Cors(), middeware.Recovery(), middeware.PrintRequest())
 	return srv
 }
 
