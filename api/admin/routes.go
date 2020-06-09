@@ -9,6 +9,6 @@ import (
 func Mount(r *ymhttp.RouterGroup) {
 	ar := r.Group("admin")
 
-	ar.Handle(http.MethodPost, "", "/login", login)
-	ar.Handle(http.MethodPost, "", "/logout", logout)
+	ar.Handle(http.MethodPost, "", "login", login)
+	ar.Handle(http.MethodPost, "", "logout", logout)
 }

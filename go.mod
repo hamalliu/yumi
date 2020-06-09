@@ -9,8 +9,10 @@ require (
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/emersion/go-imap v1.0.0
+	github.com/getkin/kin-openapi v0.9.0
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-kratos/kratos v0.4.2
+	github.com/go-openapi/spec v0.19.8 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.3.3
 	github.com/gomodule/redigo v2.0.0+incompatible
@@ -21,6 +23,7 @@ require (
 	github.com/jinzhu/gorm v1.9.10
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kr/pretty v0.2.0 // indirect
+	github.com/lmenezes/json-tree v0.2.2 // indirect
 	github.com/mailru/easyjson v0.7.0 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/pborman/uuid v1.2.0 // indirect
@@ -29,7 +32,8 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/shiena/ansicolor v0.0.0-20151119151921-a422bbe96644 // indirect
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
-	github.com/stretchr/testify v1.4.0
+	github.com/stretchr/testify v1.5.1
+	github.com/swaggo/gin-swagger v1.2.0 // indirect
 	github.com/tealeg/xlsx v1.0.5 // indirect
 	github.com/ugorji/go/codec v1.1.7
 	github.com/ylingo/db_sqlserver v1.0.2 // indirect

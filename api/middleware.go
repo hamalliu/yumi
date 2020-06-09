@@ -15,3 +15,7 @@ func DebugLog(c *ymhttp.Context) {
 	log.Debug("req:", c.Request.URL.String())
 	log.Debug("body:", c.Request.Body)
 }
+
+func Binding(c *ymhttp.Context) {
+
+}
