@@ -36,7 +36,7 @@ func DefalutServer() *Server {
 	srv := &Server{
 		Mux: *NewMux(),
 		conf: Config{
-			Addr:         "0.0.0.0:8080",
+			Addr:         ":8888",
 			ReadTimeout:  time.Second * 15,
 			WriteTimeout: time.Second * 15,
 		},

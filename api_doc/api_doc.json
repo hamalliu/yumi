@@ -904,7 +904,8 @@
             "type": "string"
           },
           "phone": {
-            "type": "string"
+            "type": "string",
+            "description": "手机号码"
           },
           "userStatus": {
             "type": "integer",

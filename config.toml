@@ -1,6 +1,6 @@
 [Server]
     SysName = "erpsys"
-    Addr = "0.0.0.0:8080"
+    Addr = "0.0.0.0:8888"
     WriteTimeout = 30
     ReadTimeout = 30
     Environment = "debug"

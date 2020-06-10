@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"yumi/api_doc"
 
 	"yumi/api"
 	"yumi/pkg/conf"
-	"yumi/pkg/external/dbc"
 	"yumi/pkg/log"
 	"yumi/pkg/net/ymhttp"
 )
@@ -22,12 +22,15 @@ func main() {
 	log.Init()
 
 	log.Info("初始化数据库")
-	dbc.Init(conf.GetDB())
+	//dbc.Init(conf.GetDB())
 
 	log.Info("构建服务")
 	srv := ymhttp.DefalutServer()
+
 	log.Info("加载路由")
-	api.Mount(srv.Group(""))
+	router := srv.Group("")
+	api.Mount(router)
+	api_doc.Mount(router)
 
 	//启动服务
 	log.Info("开始启动服务，侦听地址：" + conf.Get().Addr)

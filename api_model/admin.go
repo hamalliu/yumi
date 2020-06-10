@@ -1,15 +1,15 @@
 package api_model
 
-import "yumi/doc"
+import "yumi/api_doc"
 
-var login = doc.Component{
+var login = api_doc.Component{
 	RequestBody: ReqBodyLogin{},
 }
 
 type ReqBodyLogin struct {
 }
 
-var logout = doc.Component{
+var logout = api_doc.Component{
 	RequestBody: ReqBodyLogout{},
 }
 
