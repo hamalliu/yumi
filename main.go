@@ -6,9 +6,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"yumi/api_doc"
 
 	"yumi/api"
+	"yumi/api_doc"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
 	"yumi/pkg/net/ymhttp"
@@ -28,9 +28,13 @@ func main() {
 	srv := ymhttp.DefalutServer()
 
 	log.Info("加载路由")
-	router := srv.Group("")
+	router := srv.Group("/")
 	api.Mount(router)
-	api_doc.Mount(router)
+
+	//debug模式下，开启接口文档
+	if conf.Get().Environment == conf.EnvDebug {
+		api_doc.Mount(router)
+	}
 
 	//启动服务
 	log.Info("开始启动服务，侦听地址：" + conf.Get().Addr)
@@ -46,7 +50,12 @@ end:
 		s := <-c
 		switch s {
 		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM:
-			log.Info(srv.Shutdown(context.Background()))
+			err := srv.Shutdown(context.Background())
+			if err != nil {
+				log.Info("server shutdown error:", err.Error())
+			} else {
+				log.Info("server shutdown success")
+			}
 			break end
 		case syscall.SIGHUP:
 			break

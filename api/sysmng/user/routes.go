@@ -7,15 +7,15 @@ import (
 )
 
 func Mount(r *ymhttp.RouterGroup) {
-	rr := r.Group("role")
+	rr := r.Group("user")
 
 	rr.Handle(http.MethodPost, "", "/add", Add)
 	rr.Handle(http.MethodPost, "", "/delete", Delete)
 	rr.Handle(http.MethodPut, "", "/update", Update)
-	rr.Handle(http.MethodGet, "", "/getmodules", GetItem)
-	rr.Handle(http.MethodGet, "", "/getmodules", Search)
-	rr.Handle(http.MethodPost, "", "/getmodules", AddPowerRoleOfUser)
-	rr.Handle(http.MethodPost, "", "/getmodules", SavePowerRoleOfUser)
-	rr.Handle(http.MethodGet, "", "/getmodules", GetPowerRoleOfUser)
-	rr.Handle(http.MethodGet, "", "/getmodules", GetAllPowerOfUser)
+	rr.Handle(http.MethodGet, "", "/GetItem", GetItem)
+	rr.Handle(http.MethodGet, "", "/Search", Search)
+	rr.Handle(http.MethodPost, "", "/AddPowerRoleOfUser", AddPowerRoleOfUser)
+	rr.Handle(http.MethodPost, "", "/SavePowerRoleOfUser", SavePowerRoleOfUser)
+	rr.Handle(http.MethodGet, "", "/GetPowerRoleOfUser", GetPowerRoleOfUser)
+	rr.Handle(http.MethodGet, "", "/GetAllPowerOfUser", GetAllPowerOfUser)
 }

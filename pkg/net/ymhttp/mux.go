@@ -1,7 +1,6 @@
 package ymhttp
 
 import (
-	"fmt"
 	"net/http"
 	"path"
 	"regexp"
@@ -112,13 +111,11 @@ func (mux *Mux) handleHTTPRequest(c *Context) {
 		root := t[i].root
 		// Find route in tree
 		value := root.getValue(rPath, c.Params, unescape)
-		fmt.Println(*root, rPath, value)
 		if value.handlers != nil {
 			c.handlers = value.handlers
 			c.fullPath = value.fullPath
 			c.code = value.code
 			c.Params = value.params
-			fmt.Println("success")
 			c.Next()
 			return
 		}
@@ -138,19 +135,16 @@ func (mux *Mux) handleHTTPRequest(c *Context) {
 	if mux.HandleMethodNotAllowed {
 		for _, tree := range mux.trees {
 			if tree.method == httpMethod {
-				fmt.Println("success1")
 				continue
 			}
 			if value := tree.root.getValue(rPath, nil, unescape); value.handlers != nil {
 				c.handlers = mux.allNoMethod
-				fmt.Println("success2")
 				c.Next()
 				return
 			}
 		}
 	}
 	c.handlers = mux.allNoRoute
-
 	c.Next()
 	return
 }
@@ -171,7 +165,7 @@ func (mux *Mux) addRoute(method, code, path string, handlers ...HandlerFunc) {
 		mux.trees = append(mux.trees, methodTree{method: method, root: root})
 	}
 
-	root.addRoute(path, code, handlers)
+	root.addRoute(code, path, handlers)
 }
 
 // UseFunc attachs a global middleware to the router. ie. the middleware attached though UseFunc() will be

@@ -86,10 +86,7 @@ func (srv *Server) Run(addr string) error {
 		WriteTimeout: srv.conf.WriteTimeout,
 	}
 	srv.server.Store(server)
-	if err := server.ListenAndServe(); err != nil {
-		panic(err)
-	}
-
+	_ = server.ListenAndServe()
 	return nil
 }
 
