@@ -7,7 +7,7 @@ import (
 )
 
 func DebugLog(c *ymhttp.Context) {
-	if conf.Get().Environment != conf.EnvDebug {
+	if conf.IsDebug() {
 		c.Next()
 		return
 	}

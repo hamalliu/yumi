@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/jmoiron/sqlx"
 
@@ -20,10 +19,10 @@ const dirverName = "mysql"
 
 type Model struct {
 	*sqlx.DB
-	conf conf.DBConfig
+	conf conf.DB
 }
 
-func New(conf conf.DBConfig) (*Model, error) {
+func New(conf conf.DB) (*Model, error) {
 	var (
 		m   = new(Model)
 		err error
@@ -36,7 +35,7 @@ func New(conf conf.DBConfig) (*Model, error) {
 
 	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
 	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(time.Duration(conf.ConnMaxLifetime) * time.Hour)
+	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration)
 
 	//创建存储过程
 	if f, err := os.Open("./page_select.sql"); err != nil {

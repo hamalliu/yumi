@@ -5,7 +5,8 @@ import (
 	"errors"
 	"net/http"
 	"sync/atomic"
-	"time"
+
+	"yumi/pkg/conf"
 )
 
 type Handler interface {
@@ -22,36 +23,13 @@ type Server struct {
 	Mux
 
 	server atomic.Value
-
-	conf Config
 }
 
-type Config struct {
-	Addr         string
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-}
-
-func DefalutServer() *Server {
+func NewServer() *Server {
 	srv := &Server{
 		Mux: *NewMux(),
-		conf: Config{
-			Addr:         ":8888",
-			ReadTimeout:  time.Second * 15,
-			WriteTimeout: time.Second * 15,
-		},
-	}
-	//srv.Use(middeware.Cors(), middeware.Recovery(), middeware.PrintRequest())
-	return srv
-}
-
-func NewServer(conf Config) *Server {
-	srv := &Server{
-		Mux:  *NewMux(),
-		conf: conf,
 	}
 
-	//srv.Use(middeware.Cors(), middeware.Recovery(), middeware.PrintRequest())
 	return srv
 }
 
@@ -75,27 +53,24 @@ func (srv *Server) handleContext(c *Context) {
 	c.Next()
 }
 
-func (srv *Server) Run(addr string) error {
-	if addr != "" {
-		srv.conf.Addr = addr
-	}
+func (srv *Server) Run(srvConf conf.Server) error {
 	server := &http.Server{
 		Handler:      srv,
-		Addr:         srv.conf.Addr,
-		ReadTimeout:  srv.conf.ReadTimeout,
-		WriteTimeout: srv.conf.WriteTimeout,
+		Addr:         srvConf.Addr,
+		ReadTimeout:  srvConf.ReadTimeout.Duration,
+		WriteTimeout: srvConf.WriteTimeout.Duration,
 	}
 	srv.server.Store(server)
 	_ = server.ListenAndServe()
 	return nil
 }
 
-func (srv *Server) RunTLS() error {
+func (srv *Server) RunTLS(srvConf conf.Server) error {
 	//TODO
 	return nil
 }
 
-func (srv *Server) RunUnix() error {
+func (srv *Server) RunUnix(srvConf conf.Server) error {
 	//TODO
 	return nil
 }

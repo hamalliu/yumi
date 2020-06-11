@@ -2,6 +2,7 @@ package middeware
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/rs/cors"
 
@@ -10,16 +11,16 @@ import (
 	"yumi/pkg/net/ymhttp/header"
 )
 
-func Cors() ymhttp.HandlerFunc {
+func Cors(corsConf conf.CORS) ymhttp.HandlerFunc {
 	return func(c *ymhttp.Context) {
 		opts := cors.Options{
-			AllowedOrigins:         conf.GetCORS().AllowedOrigins,
+			AllowedOrigins:         corsConf.AllowedOrigins,
 			AllowOriginFunc:        nil,
 			AllowOriginRequestFunc: nil,
 			AllowedMethods:         []string{http.MethodGet, http.MethodPost},
 			AllowedHeaders:         header.ReqHeaders(),
 			ExposedHeaders:         header.RespHeaders(),
-			MaxAge:                 conf.GetCORS().MaxAge,
+			MaxAge:                 int(corsConf.MaxAge.Duration / time.Second),
 			AllowCredentials:       true,
 			OptionsPassthrough:     false,
 			Debug:                  false,

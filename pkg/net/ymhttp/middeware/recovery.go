@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http/httputil"
 	"runtime"
+	"yumi/pkg/ecode"
 
 	"yumi/pkg/log"
 	"yumi/pkg/net/ymhttp"
@@ -23,7 +24,7 @@ func Recovery() ymhttp.HandlerFunc {
 				}
 				pl := fmt.Sprintf("http call panic: %s\n%v\n%s\n", string(rawReq), err, buf)
 				log.Error(pl)
-				c.AbortWithStatus(500)
+				c.JSON(nil, ecode.ServerErr(nil))
 			}
 		}()
 		c.Next()

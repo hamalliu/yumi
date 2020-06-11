@@ -12,6 +12,7 @@ import (
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
 	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/ymhttp/middeware"
 )
 
 func main() {
@@ -22,24 +23,25 @@ func main() {
 	log.Init()
 
 	log.Info("初始化数据库")
-	//dbc.Init(conf.GetDB())
+	//dbc.Init(conf.Get().DB)
 
 	log.Info("构建服务")
-	srv := ymhttp.DefalutServer()
+	srv := ymhttp.NewServer()
+	srv.Use(middeware.Recovery(), middeware.Cors(conf.Get().CORS), middeware.PrintRequest())
 
 	log.Info("加载路由")
 	router := srv.Group("/")
 	api.Mount(router)
 
 	//debug模式下，开启接口文档
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		api_doc.Mount(router)
 	}
 
 	//启动服务
-	log.Info("开始启动服务，侦听地址：" + conf.Get().Addr)
+	log.Info("开始启动服务，侦听地址：" + conf.Get().Server.Addr)
 	go func() {
-		if err := srv.Run(""); err != nil {
+		if err := srv.Run(conf.Get().Server); err != nil {
 			log.Info(fmt.Errorf("启动服务失败: %s", err.Error()))
 			c <- syscall.SIGINT
 		}

@@ -8,7 +8,7 @@ type Doc struct {
 
 var _doc = Doc{
 	openapi3.Swagger{
-		OpenAPI: "",
+		OpenAPI: "3.0",
 		Info: &openapi3.Info{
 			Title:          "yumi",
 			Description:    "",

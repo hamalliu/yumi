@@ -5,37 +5,46 @@ import (
 )
 
 const (
-	EnvDebug   = "debug"
-	EnvRelease = "release"
+	envDebug   = "debug"
+	envRelease = "release"
 )
 
 type Config struct {
-	Server Server
-	DB     DBConfig
-	CORS   CORSConfig
+	Program Program
+	Server  Server
+	Media   Media
+	DB      DB
+	CORS    CORS
+}
+
+type Program struct {
+	SysName     string //系统名称
+	Environment string //运行环境
 }
 
 type Server struct {
-	SysName      string //系统名称
-	Addr         string //启动地址
-	WriteTimeout int    //http写超时（second）
-	ReadTimeout  int    //http读超时（second）
-	Environment  string //运行环境
-	StoragePath  string //附件路径
-	MaxFileSize  int64  //附件最大限制
+	Addr         string       //启动地址
+	WriteTimeout TimeDuration //http写超时
+	ReadTimeout  TimeDuration //http读超时
 }
 
-type DBConfig struct {
+type Media struct {
+	StoragePath                string    //附件路径
+	MultipleFileUploadsMaxSize SpaceSize //多媒体上传最大限制
+	SingleFileUploadsMaxSize   SpaceSize //单媒体上传最大限制
+}
+
+type DB struct {
 	Dsn             string
 	DBName          string
 	MaxOpenConns    int
 	MaxIdleConns    int
-	ConnMaxLifetime int64
+	ConnMaxLifetime TimeDuration
 }
 
-type CORSConfig struct {
+type CORS struct {
 	AllowedOrigins []string
-	MaxAge         int //秒
+	MaxAge         TimeDuration
 }
 
 var conf Config
@@ -46,14 +55,10 @@ func Load() {
 	}
 }
 
-func Get() Server {
-	return conf.Server
+func Get() Config {
+	return conf
 }
 
-func GetDB() DBConfig {
-	return conf.DB
-}
-
-func GetCORS() CORSConfig {
-	return conf.CORS
+func IsDebug() bool {
+	return conf.Program.Environment == envDebug
 }

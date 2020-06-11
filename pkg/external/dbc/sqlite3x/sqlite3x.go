@@ -1,25 +1,18 @@
 package sqlite3x
 
 import (
-	"time"
+	"yumi/pkg/conf"
 
 	"github.com/jmoiron/sqlx"
 )
 
 const dirverName string = "sqlite3"
 
-type Config struct {
-	Dsn             string
-	MaxOpenConns    int
-	MaxIdleConns    int
-	ConnMaxLifetime int64
-}
-
 type Model struct {
 	*sqlx.DB
 }
 
-func New(conf Config) (*Model, error) {
+func New(conf conf.DB) (*Model, error) {
 	var (
 		m   = new(Model)
 		err error
@@ -31,7 +24,7 @@ func New(conf Config) (*Model, error) {
 
 	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
 	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(time.Duration(conf.ConnMaxLifetime))
+	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration)
 
 	return m, nil
 }

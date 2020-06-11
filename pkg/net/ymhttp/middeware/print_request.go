@@ -11,7 +11,7 @@ import (
 
 func PrintRequest() ymhttp.HandlerFunc {
 	return func(c *ymhttp.Context) {
-		if conf.Get().Environment == conf.EnvDebug {
+		if conf.IsDebug() {
 			fmt.Printf("url: %s\n", c.Request.URL.String())
 			fmt.Printf("header: %s\n", c.Request.Header)
 			body := []byte{}

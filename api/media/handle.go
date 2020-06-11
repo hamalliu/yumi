@@ -20,13 +20,20 @@ func UploadMultipart(c *ymhttp.Context) {
 		err error
 	)
 
-	if err = req.ParseMultipartForm(conf.Get().MaxFileSize); err != nil {
+	if err = req.ParseMultipartForm(conf.Get().Media.MultipleFileUploadsMaxSize.Size); err != nil {
 		c.JSON(nil, ecode.FileSizeTooBig)
 		return
 	}
 
 	fds := req.MultipartForm.File["file[]"]
 	l := len(fds)
+	for i := 0; i < l; i++ {
+		if fds[i].Size > conf.Get().Media.SingleFileUploadsMaxSize.Size {
+			c.JSON(nil, ecode.FileSizeTooBig)
+			return
+		}
+	}
+
 	for i := 0; i < l; i++ {
 		var (
 			osf  *os.File
@@ -39,10 +46,10 @@ func UploadMultipart(c *ymhttp.Context) {
 
 		suffix := fds[i].Filename[strings.LastIndex(fds[i].Filename, ".")+1:]
 		name := fmt.Sprintf("%d.%s", time.Now().UnixNano(), suffix)
-		path := fmt.Sprintf("%s/%s", conf.Get().StoragePath, name)
+		path := fmt.Sprintf("%s/%s", conf.Get().Media.StoragePath, name)
 		for {
 			if _, err := os.Stat(path); os.IsExist(err) {
-				path = fmt.Sprintf("%s/%d.%s", conf.Get().StoragePath, time.Now().UnixNano(), suffix)
+				path = fmt.Sprintf("%s/%d.%s", conf.Get().Media.StoragePath, time.Now().UnixNano(), suffix)
 			} else if os.IsNotExist(err) {
 				break
 			}
@@ -83,12 +90,17 @@ func Upload(c *ymhttp.Context) {
 		return
 	}
 
+	if mulfh.Size > conf.Get().Media.SingleFileUploadsMaxSize.Size {
+		c.JSON(nil, ecode.FileSizeTooBig)
+		return
+	}
+
 	suffix := mulfh.Filename[strings.LastIndex(mulfh.Filename, ".")+1:]
 	name := fmt.Sprintf("%d.%s", time.Now().UnixNano(), suffix)
-	path := fmt.Sprintf("%s/%s", conf.Get().StoragePath, name)
+	path := fmt.Sprintf("%s/%s", conf.Get().Media.StoragePath, name)
 	for {
 		if _, err := os.Stat(path); os.IsExist(err) {
-			path = fmt.Sprintf("%s/%d.%s", conf.Get().StoragePath, time.Now().UnixNano(), suffix)
+			path = fmt.Sprintf("%s/%d.%s", conf.Get().Media.StoragePath, time.Now().UnixNano(), suffix)
 		} else if os.IsNotExist(err) {
 			break
 		}

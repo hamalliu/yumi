@@ -109,10 +109,14 @@ func String(e string) Code {
 }
 
 func Must(err error) Code {
+	if err == nil {
+		return OK
+	}
+
 	if c, ok := err.(Code); ok {
 		return c
 	} else {
-		if errors.As(err, _ParamsErr(err)) {
+		if errors.As(err, _paramsErr) {
 			return paramsErr
 		}
 		panic(err)
@@ -120,6 +124,9 @@ func Must(err error) Code {
 }
 
 func ServerErr(err error) Code {
+	if err == nil {
+		return serverErr
+	}
 	if c, ok := err.(Code); ok {
 		return c
 	} else {
@@ -129,6 +136,8 @@ func ServerErr(err error) Code {
 }
 
 type _ParamsErr error
+
+var _paramsErr _ParamsErr
 
 func ParamsErr(err error) _ParamsErr {
 	return _ParamsErr(err)

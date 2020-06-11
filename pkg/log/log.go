@@ -43,7 +43,7 @@ func Init() {
 func Critical(args ...interface{}) {
 	criticallog.ExtraCalldepth = 1
 	criticallog.Critical(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 1
 		log.Debug(args)
 	}
@@ -52,7 +52,7 @@ func Critical(args ...interface{}) {
 func Error(args ...interface{}) {
 	errorlog.ExtraCalldepth = 1
 	errorlog.Error(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 1
 		log.Debug(args)
 	}
@@ -61,7 +61,7 @@ func Error(args ...interface{}) {
 func Info(args ...interface{}) {
 	infolog.ExtraCalldepth = 1
 	infolog.Info(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 1
 		log.Debug(args)
 	}
@@ -75,7 +75,7 @@ func Debug(args ...interface{}) {
 func Critical2(args ...interface{}) {
 	criticallog.ExtraCalldepth = 2
 	criticallog.Critical(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 2
 		log.Debug(args)
 	}
@@ -84,7 +84,7 @@ func Critical2(args ...interface{}) {
 func Error2(args ...interface{}) {
 	errorlog.ExtraCalldepth = 2
 	errorlog.Error(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 2
 		log.Debug(args)
 	}
@@ -93,7 +93,7 @@ func Error2(args ...interface{}) {
 func Info2(args ...interface{}) {
 	infolog.ExtraCalldepth = 2
 	infolog.Info(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 2
 		log.Debug(args)
 	}
@@ -102,7 +102,7 @@ func Info2(args ...interface{}) {
 func Info3(args ...interface{}) {
 	infolog.ExtraCalldepth = 3
 	infolog.Info(args)
-	if conf.Get().Environment == conf.EnvDebug {
+	if conf.IsDebug() {
 		log.ExtraCalldepth = 3
 		log.Debug(args)
 	}
