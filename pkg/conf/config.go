@@ -15,6 +15,7 @@ type Config struct {
 	Media   Media
 	DB      DB
 	CORS    CORS
+	Office  Office
 }
 
 type Program struct {
@@ -45,6 +46,10 @@ type DB struct {
 type CORS struct {
 	AllowedOrigins []string
 	MaxAge         TimeDuration
+}
+
+type Office struct {
+	ConfigPath string
 }
 
 var conf Config

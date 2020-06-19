@@ -9,6 +9,7 @@ require (
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/emersion/go-imap v1.0.0
+	github.com/facebookincubator/ent v0.2.3 // indirect
 	github.com/getkin/kin-openapi v0.9.0
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-kratos/kratos v0.4.2
@@ -22,6 +23,7 @@ require (
 	github.com/jhillyerd/enmime v0.6.0
 	github.com/jinzhu/gorm v1.9.10
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/lionsoul2014/ip2region v2.2.0-release+incompatible // indirect
 	github.com/lmenezes/json-tree v0.2.2 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/phachon/go-logger v0.0.0-20180912060440-89ff8a2898f6 // indirect
