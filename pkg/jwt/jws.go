@@ -19,7 +19,7 @@ func GetToken(user string) (string, error) {
 	return token.SignedString([]byte(mySigningKey))
 }
 
-func ValidToken(tokenstr string) (string, error) {
+func ReadToken(tokenstr string) (string, error) {
 	token, err := jwt.Parse(tokenstr, func(token *jwt.Token) (interface{}, error) {
 		return []byte(mySigningKey), nil
 	})

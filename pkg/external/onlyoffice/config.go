@@ -145,3 +145,13 @@ func (c Config) ToString() string {
 
 	return str
 }
+
+func (c Config) View() string {
+	//TODO
+	return c.ToString()
+}
+
+func (c Config) Edit() string {
+	//TODO
+	return c.ToString()
+}

@@ -23,6 +23,7 @@ require (
 	github.com/jhillyerd/enmime v0.6.0
 	github.com/jinzhu/gorm v1.9.10
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/lestrrat-go/jwx v1.0.2
 	github.com/lionsoul2014/ip2region v2.2.0-release+incompatible // indirect
 	github.com/lmenezes/json-tree v0.2.2 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7

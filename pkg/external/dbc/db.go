@@ -4,6 +4,7 @@ import (
 	"time"
 	"yumi/pkg/conf"
 	"yumi/pkg/external/dbc/mysqlx"
+	"yumi/pkg/types"
 )
 
 var mysqlDb *mysqlx.Model
@@ -21,7 +22,7 @@ func InitDefault() {
 		DBName:       "",
 		MaxOpenConns: 10,
 		MaxIdleConns: 10,
-		ConnMaxLifetime: conf.TimeDuration{
+		ConnMaxLifetime: types.TimeDuration{
 			Duration: 2 * time.Hour,
 		},
 	}

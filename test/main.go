@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"hash/crc32"
 )
 
 func Print(ctx context.Context) {
@@ -11,10 +12,21 @@ func Print(ctx context.Context) {
 	fmt.Println("hello")
 }
 
-func main() {
-	var s = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+func String(s string) int {
+	v := int(crc32.ChecksumIEEE([]byte(s)))
 
-	fmt.Println(Get(s))
+	return v
+}
+
+func main() {
+	s := `123456abcd`
+
+	num := String(s)
+	fmt.Println(num)
+
+	//var s = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
+	//
+	//fmt.Println(Get(s))
 }
 
 func Get(tmp []string) [][]string {

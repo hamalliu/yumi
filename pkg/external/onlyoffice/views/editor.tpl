@@ -8,64 +8,85 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <title>ONLYOFFICE</title>
     <link rel="icon"
-          href="images/<%- editor.documentType %>.ico"
+          href="images/{{.icon}}.ico"
           type="image/x-icon" />
     <link rel="stylesheet" type="text/css" href="stylesheets/editor.css" />
 </head>
 <body style="height: 100%; margin: 0;">
 <div id="yumioffice" style="height: 100%"></div>
 
-<script type="text/javascript"></script>
-<script type="text/javascript">
+<script type="text/javascript" src = "{{.apiUrl}}"></script>
+<script type="text/javascript" language="javascript">
+    let innerAlert = function (message) {
+        if (console && console.log)
+            console.log(message);
+    };
+
     const onAppReady = function () {
-        console.log("ONLYOFFICE Document Editor is ready");
-    };
-    const onCollaborativeChanges = function () {
-        console.log("The document changed by collaborative user");
-    };
-    const onDocumentReady = function() {
-        console.log("Document is loaded");
+        innerAlert("Document editor ready");
     };
     const onDocumentStateChange = function (event) {
-        if (event.data) {
-            console.log("The document changed");
-        } else {
-            console.log("Changes are collected on document editing service");
-        }
-    };
-    const onDownloadAs = function (event) {
-        console.log("ONLYOFFICE Document Editor create file: " + event.data);
-        window.top.postMessage(event.data);
-        createAndDownloadFile("test.docx", event.data)
-    };
-    const onRequestInsertImage = function (event) {
-        console.log("ONLYOFFICE Document Editor insertImage" + event.data);
-        docEditor.insertImage({
-            "fileType": "png",
-            "url": "http://192.168.99.1/attachment/20190728测试上传文件名修改/2020January/1580363537940306800_small.png"
-        });
-    };
-    const onError = function (event) {
-        console.log("ONLYOFFICE Document Editor reports an error: code " + event.data.errorCode + ", description " + event.data.errorDescription);
-    };
-    const onOutdatedVersion = function () {
-        location.reload(true);
+        var title = document.title.replace(/\*$/g, "");
+        document.title = title + (event.data ? "*" : "");
     };
     const onRequestEditRights = function () {
-        console.log("ONLYOFFICE Document Editor requests editing rights");
-        // document.location.reload();
-        var he = location.href.replace("view", "edit");
-        location.href = he;
+        location.href = location.href.replace(RegExp("mode=view\&?", "i"), "");
+    };
+    const onError = function (event) {
+        if (event)
+            innerAlert(event.data);
     };
     const onRequestHistory = function () {
+        //TODO
     }
     const onRequestHistoryClose = function () {
         document.location.reload();
     };
     const onRequestHistoryData = function (event) {
+        //TODO
+    }
+    const onOutdatedVersion = function () {
+        location.reload(true);
+    };
+
+    let docEditor;
+    const connectEditor = function () {
+        docEditor = new DocsAPI.DocEditor(
+            "yumioffice",
+            {
+                "document": {{.config}},
+                "events": {
+                    "onAppReady": onAppReady,
+                    "onDocumentStateChange": onDocumentStateChange,
+                    'onRequestEditRights': onRequestEditRights,
+                    "onError": onError,
+                    "onRequestHistory":  onRequestHistory,
+                    "onRequestHistoryData": onRequestHistoryData,
+                    "onRequestHistoryClose": onRequestHistoryClose,
+                    "onOutdatedVersion": onOutdatedVersion,
+                }
+            }
+        )
+
+        fixSize();
+    }
+
+    let fixSize = function () {
+        var wrapEl = document.getElementsByClassName("form");
+        if (wrapEl.length) {
+            wrapEl[0].style.height = screen.availHeight + "px";
+            window.scrollTo(0, -1);
+            wrapEl[0].style.height = window.innerHeight + "px";
+        }
+    };
+
+    if (window.addEventListener) {
+        window.addEventListener("load", connectEditor);
+        window.addEventListener("resize", fixSize);
+    } else if (window.attachEvent) {
+        window.attachEvent("onload", connectEditor);
+        window.attachEvent("onresize", fixSize);
     }
 </script>
-
-
 </body>
 </html>

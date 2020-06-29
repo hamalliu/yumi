@@ -36,4 +36,14 @@
     StorageFolder =  "files"
     MaxFileSize =  "10mb"
     MobileRegEx =  "android|avantgo|playbook|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\\/|plucker|pocket|psp|symbian|treo|up\\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino"
-
+    [[Static]]
+        Name = "/public"
+        Path = "public"
+    [Token]
+        Enable = false
+        UseForRequest = true
+        AlgorithmRequest = "HS256"
+        AuthorizationHeader = "Authorization"
+        AuthorizationHeaderPrefix = "Bearer "
+        Secret = "secret"
+        ExpiresIn = "5m"

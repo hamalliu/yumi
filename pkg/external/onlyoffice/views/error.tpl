@@ -9,6 +9,6 @@
     <h1>Error.</h1>
     <h2>An error occurred while processing your request.</h2>
 </hgroup>
-<div><%= message %></div>
+<div>{{.message}}</div>
 </body>
 </html>

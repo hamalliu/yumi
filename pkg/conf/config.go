@@ -2,6 +2,8 @@ package conf
 
 import (
 	"github.com/BurntSushi/toml"
+
+	"yumi/pkg/types"
 )
 
 const (
@@ -15,7 +17,7 @@ type Config struct {
 	Media   Media
 	DB      DB
 	CORS    CORS
-	Office  Office
+	Office  OnlyOffice
 }
 
 type Program struct {
@@ -24,15 +26,15 @@ type Program struct {
 }
 
 type Server struct {
-	Addr         string       //启动地址
-	WriteTimeout TimeDuration //http写超时
-	ReadTimeout  TimeDuration //http读超时
+	Addr         string             //启动地址
+	WriteTimeout types.TimeDuration //http写超时
+	ReadTimeout  types.TimeDuration //http读超时
 }
 
 type Media struct {
-	StoragePath                string    //附件路径
-	MultipleFileUploadsMaxSize SpaceSize //多媒体上传最大限制
-	SingleFileUploadsMaxSize   SpaceSize //单媒体上传最大限制
+	StoragePath                string          //附件路径
+	MultipleFileUploadsMaxSize types.SpaceSize //多媒体上传最大限制
+	SingleFileUploadsMaxSize   types.SpaceSize //单媒体上传最大限制
 }
 
 type DB struct {
@@ -40,16 +42,12 @@ type DB struct {
 	DBName          string
 	MaxOpenConns    int
 	MaxIdleConns    int
-	ConnMaxLifetime TimeDuration
+	ConnMaxLifetime types.TimeDuration
 }
 
 type CORS struct {
 	AllowedOrigins []string
-	MaxAge         TimeDuration
-}
-
-type Office struct {
-	ConfigPath string
+	MaxAge         types.TimeDuration
 }
 
 var conf Config

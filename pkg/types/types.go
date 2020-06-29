@@ -1,4 +1,4 @@
-package conf
+package types
 
 import (
 	"fmt"
@@ -52,4 +52,16 @@ func (s *SpaceSize) UnmarshalText(text []byte) error {
 	}
 
 	return fmt.Errorf("空间单位未识别，%s", str)
+}
+
+type ArrayString []string
+
+func (as ArrayString) IndexOf(elem string) int {
+	for i, e := range as {
+		if elem == e {
+			return i
+		}
+	}
+
+	return -1
 }
