@@ -7,23 +7,24 @@ import (
 )
 
 type OnlyOffice struct {
-	ConfigPath     string
-	SiteUrl        string
-	CommandUrl     string
-	ConverterUrl   string
-	TempStorageUrl string
-	ApiUrl         string
-	PreloaderUrl   string
-	ExampleUrl     string
-	ViewedDocs     []string
-	EditedDocs     []string
-	ConvertedDocs  []string
-	StorageFolder  string
-	StoragePath    string
-	MaxFileSize    types.SpaceSize
-	MobileRegEx    string
-	Static         []Static
-	Token          Token
+	ConfigPath        string
+	SiteUrl           string
+	CommandUrl        string
+	ConverterUrl      string
+	TempStorageUrl    string
+	ApiUrl            string
+	PreloaderUrl      string
+	DocumentServerUrl string
+	ViewedDocs        []string
+	EditedDocs        []string
+	ConvertedDocs     []string
+	StorageFolder     string
+	StoragePath       string
+	SamplesPath       string
+	MaxFileSize       types.SpaceSize
+	MobileRegEx       string
+	Static            []Static
+	Token             Token
 }
 
 type Static struct {

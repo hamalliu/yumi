@@ -1,6 +1,10 @@
 package file_utility
 
-import "os"
+import (
+	"fmt"
+	"io"
+	"os"
+)
 
 func ExistDir(path string) bool {
 	f, err := os.Stat(path)
@@ -24,20 +28,45 @@ func ExistFile(path string) bool {
 	}
 }
 
-func CreateDir(path string) bool {
+func CreateDir(path string) error {
 	if !ExistDir(path) {
-		if err := os.MkdirAll(path, os.ModePerm); err != nil {
-			return false
+		if err := os.MkdirAll(path, 0644); err != nil {
+			return err
 		}
 	}
-	return true
+	return nil
 }
 
-func DeleteDir(path string) bool {
+func DeleteDir(path string) error {
 	if ExistDir(path) {
 		if err := os.RemoveAll(path); err != nil {
-			return false
+			return err
 		}
 	}
-	return true
+	return nil
+}
+
+func CopyFile(srcPath, destPath string) error {
+	sf, err := os.Open(srcPath)
+	if err != nil {
+		return err
+	}
+	defer sf.Close()
+
+	if ExistFile(destPath) {
+		return fmt.Errorf("file already exists")
+	}
+
+	df, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer df.Close()
+
+	_, err = io.Copy(df, sf)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"hash/crc32"
+	"time"
 )
 
 func Print(ctx context.Context) {
@@ -19,10 +20,14 @@ func String(s string) int {
 }
 
 func main() {
-	s := `123456abcd`
+	fmt.Println(time.Now().Add(-time.Hour * 12).Format("3pm:04:05.000  Mon Jan"))
+	fmt.Println(time.Now().Add(-time.Hour * 12).Format("3:04:05.000 PM Mon Jan"))
+	fmt.Println(time.Now().Add(-time.Hour * 12).Format(time.Kitchen))
 
-	num := String(s)
-	fmt.Println(num)
+	//s := `123456abcd`
+	//
+	//num := String(s)
+	//fmt.Println(num)
 
 	//var s = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
 	//

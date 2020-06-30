@@ -98,33 +98,21 @@ func (fu FileUtility) GetFileType(fileName string) string {
 	}
 }
 
-func (fu FileUtility) CreateDirectory(name string) {
-	if _, err := os.Stat(name); err != nil {
-		if os.IsExist(err) {
-			return
-		} else {
-			_ = os.Mkdir(name, 0644)
-		}
-	} else {
-		return
-	}
-}
-
-func (fu FileUtility) StoragePath(fileName, userid string) string {
+func (fu FileUtility) StoragePath(fileName, userId string) string {
 	cfgOffice := conf.Get().Office
 
-	directory := path.Join(cfgOffice.StoragePath, userid)
-	file_utility.CreateDir(directory)
+	directory := path.Join(cfgOffice.StoragePath, userId)
+	_ = file_utility.CreateDir(directory)
 
 	fileName = fu.GetFileName(fileName, false)
 
 	return path.Join(directory, fileName)
 }
 
-func (fu FileUtility) ForcesavePath(fileName, userid string, create bool) string {
+func (fu FileUtility) ForcesavePath(fileName, userId string, create bool) string {
 	cfgOffice := conf.Get().Office
 
-	directory := path.Join(cfgOffice.StoragePath, userid)
+	directory := path.Join(cfgOffice.StoragePath, userId)
 	if !file_utility.ExistDir(directory) {
 		return ""
 	}
@@ -134,7 +122,7 @@ func (fu FileUtility) ForcesavePath(fileName, userid string, create bool) string
 		return ""
 	}
 
-	file_utility.CreateDir(directory)
+	_ = file_utility.CreateDir(directory)
 	directory = path.Join(directory, fileName)
 	if !create && !file_utility.ExistDir(directory) {
 		return ""
@@ -143,10 +131,10 @@ func (fu FileUtility) ForcesavePath(fileName, userid string, create bool) string
 	return directory
 }
 
-func (fu FileUtility) HistoryPath(fileName, userid string, create bool) string {
+func (fu FileUtility) HistoryPath(fileName, userId string, create bool) string {
 	cfgOffice := conf.Get().Office
 
-	directory := path.Join(cfgOffice.StoragePath, userid)
+	directory := path.Join(cfgOffice.StoragePath, userId)
 	if !file_utility.ExistDir(directory) {
 		return ""
 	}
@@ -159,43 +147,47 @@ func (fu FileUtility) HistoryPath(fileName, userid string, create bool) string {
 	return directory
 }
 
-func (fu FileUtility) VersionPath(fileName, userid string, version int) string {
-	directory := fu.HistoryPath(fileName, userid, true)
+func (fu FileUtility) VersionPath(fileName, userId string, version int) string {
+	directory := fu.HistoryPath(fileName, userId, true)
 
 	return path.Join(directory, fmt.Sprintf("%d", version))
 }
 
-func (fu FileUtility) PrevFilePath(fileName, userid string, version int) string {
-	directory := fu.VersionPath(fileName, userid, version)
+func (fu FileUtility) PrevFilePath(fileName, userId string, version int) string {
+	directory := fu.VersionPath(fileName, userId, version)
 
 	return path.Join(directory, "prev"+fu.GetFileExtension(fileName, false))
 }
 
-func (fu FileUtility) DiffPath(fileName, userid string, version int) string {
-	directory := fu.VersionPath(fileName, userid, version)
+func (fu FileUtility) DiffPath(fileName, userId string, version int) string {
+	directory := fu.VersionPath(fileName, userId, version)
 
 	return path.Join(directory, "diff.zip")
 }
 
-func (fu FileUtility) ChangesPath(fileName, userid string, version int) string {
-	directory := fu.VersionPath(fileName, userid, version)
+func (fu FileUtility) ChangesPath(fileName, userId string, version int) string {
+	directory := fu.VersionPath(fileName, userId, version)
 
 	return path.Join(directory, "changes.txt")
 }
 
-func (fu FileUtility) KeyPath(fileName, userid string, version int) string {
-	directory := fu.VersionPath(fileName, userid, version)
+func (fu FileUtility) KeyPath(fileName, userId string, version int) string {
+	directory := fu.VersionPath(fileName, userId, version)
 
 	return path.Join(directory, "key.txt")
 }
 
-func (fu FileUtility) ChangesUser(fileName, userid string, version int) string {
-	directory := fu.VersionPath(fileName, userid, version)
+func (fu FileUtility) CreateInfoPath(fileName, userId string) string {
+	return fu.HistoryPath(fileName, userId, true)
+}
+
+func (fu FileUtility) ChangesUser(fileName, userId string, version int) string {
+	directory := fu.VersionPath(fileName, userId, version)
 
 	return path.Join(directory, "user.txt")
 }
 
-func (fu FileUtility) GetCorrectName(fileName, userid string) string {
+func (fu FileUtility) GetCorrectName(fileName, userId string) string {
 	baseName := fu.GetFileName(fileName, true)
 	ext := fu.GetFileExtension(fileName, false)
 
@@ -203,7 +195,7 @@ func (fu FileUtility) GetCorrectName(fileName, userid string) string {
 	index := 1
 
 	for {
-		if file_utility.ExistFile(fu.StoragePath(fileName, userid)) {
+		if file_utility.ExistFile(fu.StoragePath(fileName, userId)) {
 			name = fmt.Sprintf("%s(%d)%s", baseName, index, ext)
 			index++
 		}
@@ -226,6 +218,14 @@ func (fu FileUtility) GetInternalExtension(fileType string) string {
 	}
 }
 
-func (fu FileUtility) CleanFolderRecursive(floder string, me bool) {
+func (fu FileUtility) CleanFolderRecursive(floder string, me bool) error {
+	if err := os.RemoveAll(floder); err != nil {
+		return err
+	}
 
+	if !me {
+		return os.Mkdir(floder, 0644)
+	}
+
+	return nil
 }
