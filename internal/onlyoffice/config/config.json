@@ -1,0 +1,61 @@
+{
+  "width": "100%",
+  "height": "100%",
+  "type": "desktop",
+  "documentType": "",
+  "token": "",
+  "document": {
+    "title": "",
+    "url": "",
+    "fileType": "",
+    "key": "",
+    "info": {
+      "author": "",
+      "created": "",
+      "folder": "",
+      "owner": "",
+      "sharingSettings": []
+    },
+    "permissions": {
+      "comment": true,
+      "download": true,
+      "edit": true,
+      "print": true,
+      "review": true
+    }
+  },
+  "editorConfig": {
+    "mode": "edit",
+    "lang": "zh-CN",
+    "callbackUrl": "",
+    "createUrl": "",
+    "plugins": {},
+    "user": {
+      "id": "",
+      "name": ""
+    },
+    "embedded": {
+      "fullscreenUrl": "",
+      "embedUrl": "",
+      "saveUrl": "",
+      "shareUrl": "",
+      "toolbarDocked": "top"
+    },
+    "customization": {
+      "about": true,
+      "chat": true,
+      "comments": true,
+      "commentAuthorOnly": true,
+      "feedback": false,
+      "forcesave": false,
+      "goback": {
+        "url": ""
+      },
+      "logo": {
+        "image": "",
+        "imageEmbedded": "",
+        "url": ""
+      }
+    }
+  }
+}

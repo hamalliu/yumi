@@ -20,10 +20,13 @@ func (dm DataMedia) Add(suffix, name, realname, path, operator, operatorid strin
 		err error
 	)
 
-	sql := `INSERT INTO back_medias " +
-		("suffix", "name", "real_name", "path", "operator", "operator_id", "operate_time") 
+	sql := `
+		INSERT 
+		INTO 
+			back_medias 
+			("suffix", "name", "real_name", "path", "operator", "operator_id", "operate_time") 
 		VALUES 
-		(?, ?, ?, ?, ?, ?, sysdate())`
+			(?, ?, ?, ?, ?, ?, sysdate())`
 	if id, err = dbc.Get().Insert(sql, suffix, name, realname, path, operator, operatorid); err != nil {
 		return 0, ecode.ServerErr(err)
 	}

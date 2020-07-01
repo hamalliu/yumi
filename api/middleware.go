@@ -3,10 +3,10 @@ package api
 import (
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
-	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/gin"
 )
 
-func DebugLog(c *ymhttp.Context) {
+func DebugLog(c *gin.Context) {
 	if conf.IsDebug() {
 		c.Next()
 		return
@@ -16,6 +16,6 @@ func DebugLog(c *ymhttp.Context) {
 	log.Debug("body:", c.Request.Body)
 }
 
-func Binding(c *ymhttp.Context) {
+func Binding(c *gin.Context) {
 
 }

@@ -1,13 +1,13 @@
 package admin
 
 import (
-	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/gin"
 )
 
-func login(c *ymhttp.Context) {
+func login(c *gin.Context) {
 
 }
 
-func logout(c *ymhttp.Context) {
+func logout(c *gin.Context) {
 
 }

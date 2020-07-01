@@ -11,8 +11,8 @@ import (
 	"yumi/api_doc"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
-	"yumi/pkg/net/ymhttp"
-	"yumi/pkg/net/ymhttp/middeware"
+	"yumi/pkg/net/gin"
+	"yumi/pkg/net/gin/middeware"
 )
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 	//dbc.Init(conf.Get().DB)
 
 	log.Info("构建服务")
-	srv := ymhttp.NewServer()
+	srv := gin.NewServer()
 	srv.Use(middeware.Recovery(), middeware.Cors(conf.Get().CORS), middeware.PrintRequest())
 
 	log.Info("加载路由")

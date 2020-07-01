@@ -21,7 +21,7 @@
 
 [Pay]
 
-[Office]
+[OnlyOffice]
     ConfigPath = "./office_config.json"
     SiteUrl = "http://localhost/"
     CommandUrl = "coauthoring/CommandService.ashx"

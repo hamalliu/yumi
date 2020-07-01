@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"yumi/internal/pay/entities/trade"
-	"yumi/internal/pay/humble/dbentities"
+	"yumi/internal/pay/db"
+	"yumi/internal/pay/trade"
 )
 
 //提交订单
@@ -121,7 +121,7 @@ func RefundNotify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Reques
 
 //纠正异常订单
 func CorrectPaySuccess() ([]string, error) {
-	codes, err := dbentities.GetOrderPayCodesSubmittedAndWaitPay()
+	codes, err := db.GetOrderPayCodesSubmittedAndWaitPay()
 	if err != nil {
 		return nil, err
 	}

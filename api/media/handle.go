@@ -11,10 +11,10 @@ import (
 	"yumi/internal/db"
 	"yumi/pkg/conf"
 	"yumi/pkg/ecode"
-	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/gin"
 )
 
-func UploadMultipart(c *ymhttp.Context) {
+func UploadMultipart(c *gin.Context) {
 	req := c.Request
 	var (
 		err error
@@ -75,7 +75,7 @@ func UploadMultipart(c *ymhttp.Context) {
 	}
 }
 
-func Upload(c *ymhttp.Context) {
+func Upload(c *gin.Context) {
 	req := c.Request
 	var (
 		mulf  multipart.File

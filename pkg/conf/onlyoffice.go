@@ -7,7 +7,6 @@ import (
 )
 
 type OnlyOffice struct {
-	ConfigPath        string
 	SiteUrl           string
 	CommandUrl        string
 	ConverterUrl      string
@@ -18,12 +17,9 @@ type OnlyOffice struct {
 	ViewedDocs        []string
 	EditedDocs        []string
 	ConvertedDocs     []string
-	StorageFolder     string
-	StoragePath       string
-	SamplesPath       string
-	MaxFileSize       types.SpaceSize
 	MobileRegEx       string
 	Static            []Static
+	Document          Document
 	Token             Token
 }
 
@@ -40,6 +36,13 @@ type Token struct {
 	AuthorizationHeaderPrefix string
 	Secret                    string
 	ExpiresIn                 string
+}
+
+type Document struct {
+	StoragePath string
+	SamplesPath string
+	ConfigPath  string
+	MaxFileSize types.SpaceSize
 }
 
 func (t Token) GetAlg() jwa.SignatureAlgorithm {

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"yumi/internal/pay/entities/trade"
-	"yumi/internal/pay/humble/tradeplatform"
+	"yumi/internal/pay/trade"
+	"yumi/internal/pay/tradeplatform"
 )
 
 func TestSubmitOrderPay(t *testing.T) {

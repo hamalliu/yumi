@@ -3,14 +3,12 @@ package api
 import (
 	"yumi/api/admin"
 	"yumi/api/media"
-	"yumi/api/sysmng"
-	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/gin"
 )
 
-func Mount(r *ymhttp.RouterGroup) {
+func Mount(r *gin.RouterGroup) {
 	ar := r.Group("api", DebugLog)
 
 	admin.Mount(ar)
 	media.Mount(ar)
-	sysmng.Mount(ar)
 }

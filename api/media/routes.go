@@ -1,14 +1,12 @@
 package media
 
 import (
-	"net/http"
-
-	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/gin"
 )
 
-func Mount(r *ymhttp.RouterGroup) {
+func Mount(r *gin.RouterGroup) {
 	mr := r.Group("media")
 
-	mr.Handle(http.MethodPost, "", "/uploadmultipart", UploadMultipart)
-	mr.Handle(http.MethodPost, "", "/upload", Upload)
+	mr.POST("", "/uploadmultipart", UploadMultipart)
+	mr.POST("", "/upload", Upload)
 }

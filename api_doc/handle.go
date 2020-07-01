@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"yumi/pkg/net/ymhttp"
+	"yumi/pkg/net/gin"
 )
 
-func ApiDoc(c *ymhttp.Context) {
+func ApiDoc(c *gin.Context) {
 	path, _ := c.Params.Get("path")
 	if path == "" {
 		path = "api_doc/index.html"

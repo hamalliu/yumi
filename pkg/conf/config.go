@@ -12,12 +12,12 @@ const (
 )
 
 type Config struct {
-	Program Program
-	Server  Server
-	Media   Media
-	DB      DB
-	CORS    CORS
-	Office  OnlyOffice
+	Program    Program
+	Server     Server
+	Media      Media
+	DB         DB
+	CORS       CORS
+	OnlyOffice OnlyOffice
 }
 
 type Program struct {
