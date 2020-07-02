@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"yumi/pkg/net/gin/header"
 
 	"yumi/pkg/ecode"
 	"yumi/pkg/net/gin/binding"
@@ -196,6 +197,14 @@ func (c *Context) GetHeader(key string) string {
 	return c.requestHeader(key)
 }
 
+func (c *Context) UserId() string {
+	return header.UserId(c.Request)
+}
+
+func (c *Context) UserName() string {
+	return header.UserName(c.Request)
+}
+
 // GetRawData return stream data.
 func (c *Context) GetRawData() ([]byte, error) {
 	return ioutil.ReadAll(c.Request.Body)
@@ -261,6 +270,18 @@ func (c *Context) JSON(data interface{}, err error) {
 		Message:   bcode.Message(),
 		ParamsErr: bcode.ParamsErr(err),
 		Data:      data,
+	})
+}
+
+// JSON serializes the given struct as JSON into the response body.
+// It also sets the Content-Type as "application/json".
+func (c *Context) JSONNoDataSuccess() {
+	code := http.StatusOK
+	c.Render(code, render.JSON{
+		Code:      ecode.OK.Code(),
+		Message:   ecode.OK.Message(),
+		ParamsErr: "",
+		Data:      struct{}{},
 	})
 }
 

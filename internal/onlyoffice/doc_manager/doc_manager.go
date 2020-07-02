@@ -117,11 +117,6 @@ func (dm DocManager) GetCreateInfo(fileName, userId string) (CreateInfo, error) 
 	return ci, nil
 }
 
-func (dm DocManager) GenerateKey(fileName, userId string) string {
-	//TODO
-	return ""
-}
-
 //return: history目录下changes.txt内容
 func (dm DocManager) GetHistoryChanges(fileName, userId string, version int) (ResponseHistory, error) {
 	rh := ResponseHistory{}

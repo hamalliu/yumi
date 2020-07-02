@@ -199,3 +199,13 @@ func (fu FileUtility) CleanFolderRecursive(floder string, me bool) error {
 
 	return nil
 }
+
+func (fu FileUtility) AllowUploadExtension(ext string) bool {
+	if fu.cfg.EditedDocs.IndexOf(ext) != -1 ||
+		fu.cfg.ViewedDocs.IndexOf(ext) != -1 ||
+		fu.cfg.ConvertedDocs.IndexOf(ext) != -1 {
+		return true
+	}
+
+	return false
+}

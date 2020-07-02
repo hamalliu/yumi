@@ -3,61 +3,30 @@ package main
 import (
 	"context"
 	"fmt"
-	"hash/crc32"
 	"time"
 )
 
-func Print(ctx context.Context) {
-	<-ctx.Done()
-
-	fmt.Println("hello")
-}
-
-func String(s string) int {
-	v := int(crc32.ChecksumIEEE([]byte(s)))
-
-	return v
-}
-
 func main() {
-	fmt.Println(time.Now().Add(-time.Hour * 12).Format("3pm:04:05.000  Mon Jan"))
-	fmt.Println(time.Now().Add(-time.Hour * 12).Format("3:04:05.000 PM Mon Jan"))
-	fmt.Println(time.Now().Add(-time.Hour * 12).Format(time.Kitchen))
-
-	//s := `123456abcd`
-	//
-	//num := String(s)
-	//fmt.Println(num)
-
-	//var s = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"}
-	//
-	//fmt.Println(Get(s))
-}
-
-func Get(tmp []string) [][]string {
-	var all [][]string
-	for i := range tmp {
-		other := []string{}
-		for _, v := range tmp {
-			if v != tmp[i] {
-				other = append(other, v)
+	ctx, cancel := context.WithCancel(context.Background())
+	// 开始goroutine ,传入ctx
+	go func(ctx context.Context) {
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("任务1 结束了....")
+				return
+			default:
+				fmt.Println("任务1 正在运行中.....")
+				time.Sleep(time.Second * 2)
 			}
 		}
-		item := []string{}
-		item = append(item, tmp[i])
+	}(ctx)
 
-		if len(other) > 0 {
-			subs := Get(other)
-			for _, sub := range subs {
-				item = append(item, sub...)
-				all = append(all, item)
-
-				item = []string{}
-				item = append(item, tmp[i])
-			}
-		} else {
-			all = append(all, item)
-		}
-	}
-	return all
+	//运行10s后停止
+	time.Sleep(time.Second * 10)
+	fmt.Println("需要停止任务1....")
+	// 使用context 的cancel 函数停止goroutine
+	cancel()
+	// 为了检测监控过是否停止，如果没有监控输出，就表示停止了
+	time.Sleep(time.Second * 4)
 }

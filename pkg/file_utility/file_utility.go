@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 )
 
 func ExistDir(path string) bool {
@@ -69,4 +70,12 @@ func CopyFile(srcPath, destPath string) error {
 	}
 
 	return nil
+}
+
+func GetFileExtension(fileName string, withoutDot bool) string {
+	if withoutDot {
+		return fileName[strings.LastIndex(fileName, ".")+1:]
+	} else {
+		return fileName[strings.LastIndex(fileName, "."):]
+	}
 }

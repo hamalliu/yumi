@@ -1,6 +1,7 @@
 package doc_service
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -78,4 +79,66 @@ func (ds DocService) ReadToken(tokenStr string) (map[string]interface{}, error) 
 	}
 
 	return token.PrivateClaims(), nil
+}
+
+func ConvertUriErrorMessage(errorCode int) (errorMessage string) {
+	switch errorCode {
+	case -20:
+		errorMessage = "Error encrypt signature"
+		break
+	case -8:
+		errorMessage = "Error document signature"
+		break
+	case -7:
+		errorMessage = "Error document request"
+		break
+	case -6:
+		errorMessage = "Error database"
+		break
+	case -5:
+		errorMessage = "Error unexpected guid"
+		break
+	case -4:
+		errorMessage = "Error download error"
+		break
+	case -3:
+		errorMessage = "Error convertation error"
+		break
+	case -2:
+		errorMessage = "Error convertation timeout"
+		break
+	case -1:
+		errorMessage = "Error convertation unknown"
+		break
+	case 0:
+		break
+	default:
+		errorMessage = fmt.Sprintf("%s%d", "ErrorCode = ", errorCode)
+		break
+	}
+
+	return
+}
+
+func CommandServiceErrorMessage(errorCode int) (errorMessage string) {
+	switch errorCode {
+	case 0:
+		errorMessage = "No error"
+	case 1:
+		errorMessage = "Document key is missing or no document with such key could be found."
+	case 2:
+		errorMessage = "Callback url not correct."
+	case 3:
+		errorMessage = "Internal server error."
+	case 4:
+		errorMessage = "No changes were applied to the document before the forcesave command was received."
+	case 5:
+		errorMessage = "Command not correct."
+	case 6:
+		errorMessage = "Invalid token."
+	default:
+		errorMessage = fmt.Sprintf("%s%d", "ErrorCode = ", errorCode)
+	}
+
+	return
 }

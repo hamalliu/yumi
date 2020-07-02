@@ -1,8 +1,15 @@
 package onlyoffice
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"hash/crc32"
+	"net/http"
 	"net/url"
+	"os"
+	"regexp"
+	"strings"
 
 	"yumi/internal/onlyoffice/config"
 	"yumi/internal/onlyoffice/doc_manager"
@@ -48,6 +55,10 @@ func Init(cfg conf.OnlyOffice) {
 		DocManager: doc_manager.New(cfg.Document),
 		DocService: doc_service.New(cfg.Token),
 	}
+}
+
+func Get() OnlyOffice {
+	return _oo
 }
 
 func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryData, error) {
@@ -136,6 +147,143 @@ func (oo OnlyOffice) GetLocalFileUri(fileName, userId string, version int) strin
 	return url.PathEscape(fileUri)
 }
 
-func (oo OnlyOffice) GetConvertUri(documentUri, fromExtension, toExtension, documentRevisionId, string, async bool) {
+func (oo OnlyOffice) GenerateKey(fileName, userId string) string {
+	key := oo.GetLocalFileUri(fileName, userId, 0)
+	storagePath := oo.StoragePath(fileName, userId)
+	f, _ := os.Stat(storagePath)
+	key = key + oo.cfg.DocumentServerUrl + key + f.ModTime().Format("2006-01-02 15:04:05")
 
+	return oo.GenerateRevisionId(key)
+}
+
+func (oo OnlyOffice) GenerateRevisionId(expectedKey string) string {
+	if len(expectedKey) > 128 {
+		return fmt.Sprintf("%d", crc32.ChecksumIEEE([]byte(expectedKey)))
+	}
+
+	re, err := regexp.Compile("[^0-9-.a-zA-Z_=]")
+	if err != nil {
+		panic(err)
+	}
+
+	matchs := re.FindAllString(expectedKey, -1)
+	for i := range matchs {
+		expectedKey = strings.ReplaceAll(expectedKey, matchs[i], "_")
+	}
+
+	return expectedKey
+}
+
+type RespConvert struct {
+	EndConvert bool   `json:"endConvert"`
+	FileUrl    string `json:"fileUrl"`
+	Percent    int    `json:"percent"`
+	Error      int    `json:"error"`
+}
+
+func (oo OnlyOffice) GetConvertUri(documentUri, fromExtension, toExtension, documentRevisionId string, async bool) (RespConvert, error) {
+	res := RespConvert{}
+
+	if fromExtension == "" || toExtension == "" {
+		return res, fmt.Errorf("the fromExtention or the toExtention is empty")
+	}
+
+	if documentRevisionId == "" {
+		documentRevisionId = oo.GenerateRevisionId(documentUri)
+	}
+
+	params := struct {
+		Async      bool   `json:"async"`
+		Url        string `json:"url"`
+		OutputType string `json:"outputtype"`
+		FileType   string `json:"filetype"`
+		Title      string `json:"title"`
+		Key        string `json:"key"`
+	}{
+		Async:      async,
+		Url:        documentUri,
+		OutputType: strings.ReplaceAll(toExtension, ".", ""),
+		FileType:   strings.ReplaceAll(fromExtension, ".", ""),
+		Title:      oo.GetFileName(documentUri, false),
+		Key:        documentRevisionId,
+	}
+	body, _ := json.Marshal(&params)
+
+	uri := oo.cfg.SiteUrl + oo.cfg.ConverterUrl
+	req, err := http.NewRequest(http.MethodPost, uri, bytes.NewBuffer(body))
+	if err != nil {
+		return res, err
+	}
+	req.Header.Set("Accept", "application/json")
+	if oo.cfg.Token.Enable && oo.cfg.Token.UseForRequest {
+		token, err := oo.FillJwtByUrl(uri, params, "", nil)
+		if err != nil {
+			return res, err
+		}
+		req.Header.Set(oo.cfg.Token.AuthorizationHeader, oo.cfg.Token.AuthorizationHeaderPrefix+string(token))
+	}
+
+	cli := http.Client{}
+	resp, err := cli.Do(req)
+	if err != nil {
+		return res, err
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		return res, err
+	}
+
+	return res, nil
+}
+
+type ReqCommandService struct {
+	C        string   `json:"c"`
+	Key      string   `json:"key"`
+	Meta     Meta     `json:"meta"`
+	Token    string   `json:"token"`
+	UserData string   `json:"userdata"`
+	Users    []string `json:"users"`
+}
+type Meta struct {
+	Title string `json:"title"`
+}
+
+func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
+	documentRevisionId = oo.GenerateRevisionId(documentRevisionId)
+	params := ReqCommandService{
+		C:   "forcesave",
+		Key: documentRevisionId,
+	}
+	body, _ := json.Marshal(&params)
+
+	uri := oo.cfg.SiteUrl + oo.cfg.CommandUrl
+	req, err := http.NewRequest(http.MethodPost, uri, bytes.NewBuffer(body))
+	if err != nil {
+		return err
+	}
+	if oo.cfg.Token.Enable && oo.cfg.Token.UseForRequest {
+		token, err := oo.FillJwtByUrl(uri, params, "", nil)
+		if err != nil {
+			return err
+		}
+		req.Header.Set(oo.cfg.Token.AuthorizationHeader, oo.cfg.Token.AuthorizationHeaderPrefix+string(token))
+	}
+
+	cli := http.Client{}
+	resp, err := cli.Do(req)
+	if err != nil {
+		return err
+	}
+
+	res := struct {
+		Error int    `json:"error"`
+		Key   string `json:"key"`
+	}{}
+	err = json.NewDecoder(resp.Body).Decode(&res)
+	if err != nil {
+		return err
+	}
+
+	return fmt.Errorf("%s", doc_service.CommandServiceErrorMessage(res.Error))
 }

@@ -14,9 +14,6 @@ type OnlyOffice struct {
 	ApiUrl            string
 	PreloaderUrl      string
 	DocumentServerUrl string
-	ViewedDocs        []string
-	EditedDocs        []string
-	ConvertedDocs     []string
 	MobileRegEx       string
 	Static            []Static
 	Document          Document
@@ -39,10 +36,13 @@ type Token struct {
 }
 
 type Document struct {
-	StoragePath string
-	SamplesPath string
-	ConfigPath  string
-	MaxFileSize types.SpaceSize
+	StoragePath   string
+	SamplesPath   string
+	ConfigPath    string
+	ViewedDocs    types.ArrayString
+	EditedDocs    types.ArrayString
+	ConvertedDocs types.ArrayString
+	MaxFileSize   types.SpaceSize
 }
 
 func (t Token) GetAlg() jwa.SignatureAlgorithm {
