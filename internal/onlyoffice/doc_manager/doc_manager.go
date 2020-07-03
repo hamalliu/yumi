@@ -44,27 +44,6 @@ func New(cfg conf.Document) DocManager {
 	return DocManager{FileUtility: FileUtility{cfg: cfg}}
 }
 
-func (dm DocManager) CreateDemo(fileName, sampleName, fileExt, userId, userName string) (string, error) {
-	fileName = dm.GetCorrectName(fileName+fileExt, userId)
-	filePath := dm.StoragePath(fileName, userId)
-
-	sampleFile := ""
-	if sampleName == "" {
-		sampleName = "new"
-	}
-	sampleFile = path.Join(dm.cfg.SamplesPath, sampleName+fileExt)
-
-	if err := file_utility.CopyFile(sampleFile, filePath); err != nil {
-		return "", err
-	}
-
-	if err := dm.SaveCreateInfo(fileName, userId, userName); err != nil {
-		return "", err
-	}
-
-	return fileName, nil
-}
-
 func (dm DocManager) SaveCreateInfo(fileName, userId, userName string) error {
 	filePath := dm.StoragePath(fileName, userId)
 

@@ -8,13 +8,12 @@ import (
 const (
 	// http head
 	_httpHeaderUserId     = "x-yumi-user-id"
-	_httpHeaderUserName   = "x-yumi-user-name"
 	_httpHeaderRemoteIP   = "x-yumi-real-ip"
 	_httpHeaderRemotePort = "x-yumi-real-port"
 )
 
 func ReqHeaders() []string {
-	return []string{_httpHeaderUserName, _httpHeaderUserId, _httpHeaderRemoteIP, _httpHeaderRemotePort}
+	return []string{_httpHeaderUserId, _httpHeaderRemoteIP, _httpHeaderRemotePort}
 }
 
 func RespHeaders() []string {
@@ -22,11 +21,7 @@ func RespHeaders() []string {
 }
 
 func UserId(req *http.Request) string {
-	return req.Header.Get(_httpHeaderUserName)
-}
-
-func UserName(req *http.Request) string {
-	return req.Header.Get(_httpHeaderUserName)
+	return req.Header.Get(_httpHeaderUserId)
 }
 
 // remoteIP implements a best effort algorithm to return the real client IP, it parses

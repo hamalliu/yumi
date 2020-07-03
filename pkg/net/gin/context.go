@@ -10,11 +10,11 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"yumi/pkg/net/gin/header"
 
 	"yumi/pkg/ecode"
 	"yumi/pkg/net/gin/binding"
 	"yumi/pkg/net/gin/render"
+	"yumi/pkg/valuer"
 )
 
 const _abortIndex int8 = math.MaxInt8 / 2
@@ -36,7 +36,7 @@ type Context struct {
 	srv *Server
 
 	// Keys is a key/value pair exclusively for the context of each request.
-	Keys      map[string]interface{}
+	Keys      map[valuer.Key]*valuer.Valuer
 	KeysMutex *sync.RWMutex
 
 	Error error
@@ -87,23 +87,23 @@ func (c *Context) AbortWithStatus(code int) {
 	c.Abort()
 }
 
-func (c *Context) Set(key string, value interface{}) {
+func (c *Context) Set(key valuer.Key, value interface{}) {
 	if c.KeysMutex == nil {
 		c.KeysMutex = &sync.RWMutex{}
 	}
 
 	c.KeysMutex.Lock()
 	if c.Keys == nil {
-		c.Keys = make(map[string]interface{})
+		c.Keys = make(map[valuer.Key]*valuer.Valuer)
 	}
 
-	c.Keys[key] = value
+	c.Keys[key] = &valuer.Valuer{Value: value}
 	c.KeysMutex.Unlock()
 }
 
 // Get returns the value for the given key, ie: (value, true).
 // If the value does not exists it returns (nil, false)
-func (c *Context) Get(key string) (value interface{}, exists bool) {
+func (c *Context) Get1(key valuer.Key) (value *valuer.Valuer, exists bool) {
 	if c.KeysMutex == nil {
 		c.KeysMutex = &sync.RWMutex{}
 	}
@@ -112,6 +112,19 @@ func (c *Context) Get(key string) (value interface{}, exists bool) {
 	value, exists = c.Keys[key]
 	c.KeysMutex.RUnlock()
 	return
+}
+
+func (c *Context) Get(key valuer.Key) *valuer.Valuer {
+	if c.KeysMutex == nil {
+		c.KeysMutex = &sync.RWMutex{}
+	}
+
+	value := &valuer.Valuer{}
+	c.KeysMutex.RLock()
+	value = c.Keys[key]
+	c.KeysMutex.RUnlock()
+
+	return value
 }
 
 /************************************/
@@ -195,14 +208,6 @@ func (c *Context) Header(key, value string) {
 // GetHeader returns value from request headers.
 func (c *Context) GetHeader(key string) string {
 	return c.requestHeader(key)
-}
-
-func (c *Context) UserId() string {
-	return header.UserId(c.Request)
-}
-
-func (c *Context) UserName() string {
-	return header.UserName(c.Request)
 }
 
 // GetRawData return stream data.
@@ -371,7 +376,7 @@ func (c *Context) Value(key interface{}) interface{} {
 		return c.Request
 	}
 	if keyAsString, ok := key.(string); ok {
-		val, _ := c.Get(keyAsString)
+		val := c.Get(valuer.Key(keyAsString))
 		return val
 	}
 	return nil

@@ -13,8 +13,8 @@ type Sessions struct {
 }
 
 type Session struct {
-	User     string
-	RealName string
+	UserId   string
+	UserName string
 	Token    string
 	power    map[string]bool
 
@@ -89,7 +89,7 @@ func (m *Sessions) checkExpire() {
 		_now := time.Now().Add(-1 * m.expireDuration)
 		for _, v := range m.userList {
 			if v.LastHeart.Before(_now) {
-				Remove(v.User)
+				Remove(v.UserId)
 			}
 		}
 		time.Sleep(time.Minute * time.Duration(1))

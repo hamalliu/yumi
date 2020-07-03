@@ -1,9 +1,12 @@
 package api
 
 import (
+	"yumi/internal/session"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
 	"yumi/pkg/net/gin"
+	"yumi/pkg/net/gin/header"
+	"yumi/pkg/valuer"
 )
 
 func DebugLog(c *gin.Context) {
@@ -16,6 +19,12 @@ func DebugLog(c *gin.Context) {
 	log.Debug("body:", c.Request.Body)
 }
 
-func Binding(c *gin.Context) {
-
+func FillSession(c *gin.Context) {
+	userId := header.UserId(c.Request)
+	s, ok := session.GetUser(userId)
+	if ok {
+		c.Set(valuer.KeyUser, valuer.User{UserId: s.UserId, UserName: s.UserName})
+	} else {
+		//TODO
+	}
 }
