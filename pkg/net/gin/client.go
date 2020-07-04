@@ -14,13 +14,14 @@ import (
 
 const timeformat = "2006-01-02 15:04:05.999999"
 
+// Client is
 type Client struct {
 	Addr string
 	User string
 	Sid  string
 }
 
-//login
+// New a client.
 func New(path, user, pwd string) Client {
 
 	return Client{}

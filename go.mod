@@ -14,6 +14,7 @@ require (
 	github.com/gin-gonic/gin v1.6.2
 	github.com/go-kratos/kratos v0.4.2
 	github.com/go-openapi/spec v0.19.8 // indirect
+	github.com/go-sql-driver/mysql v1.5.1-0.20200311113236-681ffa848bae
 	github.com/go-swagger/go-swagger v0.23.0 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.3.5

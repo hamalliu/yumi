@@ -2,7 +2,6 @@ package gin
 
 import (
 	"fmt"
-	"regexp"
 
 	"yumi/pkg/log"
 )
@@ -18,7 +17,7 @@ type IRoutes interface {
 	UseFunc(...HandlerFunc) IRoutes
 	Use(...Handler) IRoutes
 
-	Handle(string, string, string, ...HandlerFunc) IRoutes
+	// Handle(string, string, string, ...HandlerFunc) IRoutes
 	HEAD(string, string, ...HandlerFunc) IRoutes
 	GET(string, string, ...HandlerFunc) IRoutes
 	POST(string, string, ...HandlerFunc) IRoutes
