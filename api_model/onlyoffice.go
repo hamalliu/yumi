@@ -9,3 +9,16 @@ type ReqSample struct {
 type ReqDownload struct {
 	FileName string `query:"file_name" binding:"required"`
 }
+
+type ReqDeleteFile struct {
+	FileName string `query:"file_name"`
+}
+
+type ReqConvert struct {
+	FileName string `query:"file_name" binding:"required"`
+}
+
+type ReqTrack struct {
+	FileName string `query:"file_name" binding:"required"`
+	UserId   string `query:"user_id" binding:"required"`
+}

@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"strings"
+	"time"
 )
 
 func ExistDir(path string) bool {
@@ -78,4 +79,9 @@ func GetFileExtension(fileName string, withoutDot bool) string {
 	} else {
 		return fileName[strings.LastIndex(fileName, "."):]
 	}
+}
+
+func GetModTime(path string) time.Time {
+	s, _ := os.Stat(path)
+	return s.ModTime()
 }

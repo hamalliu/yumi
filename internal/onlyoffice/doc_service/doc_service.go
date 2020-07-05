@@ -39,8 +39,7 @@ func (ds DocService) FillJwtByUrl(uri string, optDataObject interface{}, optIss 
 	return jwt.Sign(t, ds.cfg.GetAlg(), ds.cfg.Secret)
 }
 
-func (ds DocService) CheckJwtHeader(req *http.Response) (map[string]interface{}, error) {
-
+func (ds DocService) CheckJwtHeader(req *http.Request) (map[string]interface{}, error) {
 	authorization := req.Header.Get(ds.cfg.AuthorizationHeader)
 	if authorization != "" {
 		sign := strings.TrimPrefix(authorization, ds.cfg.AuthorizationHeaderPrefix)
@@ -57,7 +56,6 @@ func (ds DocService) CheckJwtHeader(req *http.Response) (map[string]interface{},
 }
 
 func (ds DocService) GetToken(privateClaims map[string]interface{}) ([]byte, error) {
-
 	expireIn, err := time.ParseDuration(ds.cfg.ExpiresIn)
 	if err != nil {
 		panic(err)
@@ -81,64 +79,66 @@ func (ds DocService) ReadToken(tokenStr string) (map[string]interface{}, error) 
 	return token.PrivateClaims(), nil
 }
 
-func ConvertUriErrorMessage(errorCode int) (errorMessage string) {
+func (ds DocService) ConvertUriErrorMessage(errorCode int) (errorMessage error) {
 	switch errorCode {
 	case -20:
-		errorMessage = "Error encrypt signature"
+		errorMessage = fmt.Errorf("Error encrypt signature")
 		break
 	case -8:
-		errorMessage = "Error document signature"
+		errorMessage = fmt.Errorf("Error document signature")
 		break
 	case -7:
-		errorMessage = "Error document request"
+		errorMessage = fmt.Errorf("Error document request")
 		break
 	case -6:
-		errorMessage = "Error database"
+		errorMessage = fmt.Errorf("Error database")
 		break
 	case -5:
-		errorMessage = "Error unexpected guid"
+		errorMessage = fmt.Errorf("Error unexpected guid")
 		break
 	case -4:
-		errorMessage = "Error download error"
+		errorMessage = fmt.Errorf("Error download error")
 		break
 	case -3:
-		errorMessage = "Error convertation error"
+		errorMessage = fmt.Errorf("Error convertation error")
 		break
 	case -2:
-		errorMessage = "Error convertation timeout"
+		errorMessage = fmt.Errorf("Error convertation timeout")
 		break
 	case -1:
-		errorMessage = "Error convertation unknown"
+		errorMessage = fmt.Errorf("Error convertation unknown")
 		break
 	case 0:
 		break
 	default:
-		errorMessage = fmt.Sprintf("%s%d", "ErrorCode = ", errorCode)
+		errorMessage = fmt.Errorf("%s%d", "ErrorCode = ", errorCode)
 		break
 	}
 
 	return
 }
 
-func CommandServiceErrorMessage(errorCode int) (errorMessage string) {
+func (ds DocService) CommandServiceErrorMessage(errorCode int) (errorMessage error) {
 	switch errorCode {
 	case 0:
-		errorMessage = "No error"
+		errorMessage = fmt.Errorf("No error")
 	case 1:
-		errorMessage = "Document key is missing or no document with such key could be found."
+		errorMessage = fmt.Errorf("Document key is missing or no document with such key could be found.")
 	case 2:
-		errorMessage = "Callback url not correct."
+		errorMessage = fmt.Errorf("Callback url not correct.")
 	case 3:
-		errorMessage = "Internal server error."
+		errorMessage = fmt.Errorf("Internal server error.")
 	case 4:
-		errorMessage = "No changes were applied to the document before the forcesave command was received."
+		errorMessage = fmt.Errorf("No changes were applied to the document before the forcesave command was received.")
 	case 5:
-		errorMessage = "Command not correct."
+		errorMessage = fmt.Errorf("Command not correct.")
 	case 6:
-		errorMessage = "Invalid token."
+		errorMessage = fmt.Errorf("Invalid token.")
 	default:
-		errorMessage = fmt.Sprintf("%s%d", "ErrorCode = ", errorCode)
+		errorMessage = fmt.Errorf("%s%d", "ErrorCode = ", errorCode)
 	}
 
 	return
 }
+
+//func (ds DocService) GetPreload(preload map[string]interface{})

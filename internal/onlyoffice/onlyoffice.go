@@ -285,5 +285,5 @@ func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
 		return err
 	}
 
-	return fmt.Errorf("%s", doc_service.CommandServiceErrorMessage(res.Error))
+	return fmt.Errorf("%s", oo.CommandServiceErrorMessage(res.Error))
 }
