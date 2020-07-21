@@ -24,7 +24,7 @@ func New(conf conf.DB) (*Model, error) {
 
 	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
 	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration)
+	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration())
 
 	return m, nil
 }

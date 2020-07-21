@@ -37,13 +37,20 @@
             innerAlert(event.data);
     };
     const onRequestHistory = function () {
-        //TODO
+        docEditor.refreshHistory(
+            {
+                currentVersion: "{{.Version}}",
+                history: JSON.stringify({{.History}})
+            }
+        )
     }
     const onRequestHistoryClose = function () {
         document.location.reload();
     };
     const onRequestHistoryData = function (event) {
-        //TODO
+        version = event.data
+
+        docEditor.setHistoryData({{.HistoryData}}[version-1])
     }
     const onOutdatedVersion = function () {
         location.reload(true);

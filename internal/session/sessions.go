@@ -43,8 +43,8 @@ func UpdateLastHeart(user string) {
 	sssns.rwmux.Lock()
 	defer sssns.rwmux.Unlock()
 	//验签成功后，更新心跳
-	if _tmp, ok := sssns.userList[user]; ok {
-		_tmp.LastHeart = time.Now()
+	if tmp, ok := sssns.userList[user]; ok {
+		tmp.LastHeart = time.Now()
 	}
 	return
 }
@@ -52,16 +52,16 @@ func UpdateLastHeart(user string) {
 func GetUser(user string) (Session, bool) {
 	sssns.rwmux.RLock()
 	defer sssns.rwmux.RUnlock()
-	_empty := Session{}
+	empty := Session{}
 	if u, ok := sssns.userList[user]; ok {
-		_now := time.Now().Add(-1 * sssns.expireDuration)
-		if u.LastHeart.Before(_now) {
-			return _empty, false
+		now := time.Now().Add(-1 * sssns.expireDuration)
+		if u.LastHeart.Before(now) {
+			return empty, false
 		} else {
 			return u, true
 		}
 	}
-	return _empty, false
+	return empty, false
 }
 
 func HavePower(user, code string) bool {
@@ -86,9 +86,9 @@ func Remove(user string) {
 
 func (m *Sessions) checkExpire() {
 	for {
-		_now := time.Now().Add(-1 * m.expireDuration)
+		now := time.Now().Add(-1 * m.expireDuration)
 		for _, v := range m.userList {
-			if v.LastHeart.Before(_now) {
+			if v.LastHeart.Before(now) {
 				Remove(v.UserId)
 			}
 		}

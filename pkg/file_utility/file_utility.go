@@ -73,6 +73,25 @@ func CopyFile(srcPath, destPath string) error {
 	return nil
 }
 
+func WriteFile(src io.Reader, destPath string) error {
+	if ExistFile(destPath) {
+		return fmt.Errorf("file already exists")
+	}
+
+	df, err := os.Create(destPath)
+	if err != nil {
+		return err
+	}
+	defer df.Close()
+
+	_, err = io.Copy(df, src)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetFileExtension(fileName string, withoutDot bool) string {
 	if withoutDot {
 		return fileName[strings.LastIndex(fileName, ".")+1:]

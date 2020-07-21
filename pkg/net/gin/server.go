@@ -57,8 +57,8 @@ func (srv *Server) Run(srvConf conf.Server) error {
 	server := &http.Server{
 		Handler:      srv,
 		Addr:         srvConf.Addr,
-		ReadTimeout:  srvConf.ReadTimeout.Duration,
-		WriteTimeout: srvConf.WriteTimeout.Duration,
+		ReadTimeout:  srvConf.ReadTimeout.Duration(),
+		WriteTimeout: srvConf.WriteTimeout.Duration(),
 	}
 	srv.server.Store(server)
 	_ = server.ListenAndServe()

@@ -20,7 +20,7 @@ func UploadMultipart(c *gin.Context) {
 		err error
 	)
 
-	if err = req.ParseMultipartForm(conf.Get().Media.MultipleFileUploadsMaxSize.Size); err != nil {
+	if err = req.ParseMultipartForm(conf.Get().Media.MultipleFileUploadsMaxSize.Size()); err != nil {
 		c.JSON(nil, ecode.FileSizeTooBig)
 		return
 	}
@@ -28,7 +28,7 @@ func UploadMultipart(c *gin.Context) {
 	fds := req.MultipartForm.File["file[]"]
 	l := len(fds)
 	for i := 0; i < l; i++ {
-		if fds[i].Size > conf.Get().Media.SingleFileUploadsMaxSize.Size {
+		if fds[i].Size > conf.Get().Media.SingleFileUploadsMaxSize.Size() {
 			c.JSON(nil, ecode.FileSizeTooBig)
 			return
 		}

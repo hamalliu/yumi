@@ -20,7 +20,7 @@ func Cors(corsConf conf.CORS) gin.HandlerFunc {
 			AllowedMethods:         []string{http.MethodGet, http.MethodPost},
 			AllowedHeaders:         header.ReqHeaders(),
 			ExposedHeaders:         header.RespHeaders(),
-			MaxAge:                 int(corsConf.MaxAge.Duration / time.Second),
+			MaxAge:                 int(corsConf.MaxAge.Duration() / time.Second),
 			AllowCredentials:       true,
 			OptionsPassthrough:     false,
 			Debug:                  false,

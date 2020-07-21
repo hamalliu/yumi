@@ -36,7 +36,7 @@ func New(conf conf.DB) (*Model, error) {
 
 	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
 	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration)
+	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration())
 
 	//创建存储过程
 	if f, err := os.Open("./page_select.sql"); err != nil {

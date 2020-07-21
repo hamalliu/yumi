@@ -22,3 +22,9 @@ type ReqTrack struct {
 	FileName string `query:"file_name" binding:"required"`
 	UserId   string `query:"user_id" binding:"required"`
 }
+
+type ReqEditor struct {
+	Mode     string `query:"mode" binding:"oneof=view edit"`
+	Type     string `query:"type"`
+	FileName string `query:"file_name" binding:"required"`
+}

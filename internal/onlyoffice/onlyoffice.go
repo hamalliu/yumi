@@ -61,17 +61,17 @@ func Get() OnlyOffice {
 	return _oo
 }
 
-func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryData, error) {
+func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryData, int, error) {
 	hs := []History{}
 	hds := []HistoryData{}
 
-	countVersion := oo.CountHistoryVersion(fileName, userId)
+	countVersion := oo.CountHistoryVersion(fileName, userId) + 1
 	uri := oo.GetFileUri(fileName, userId)
 
-	if countVersion == 0 {
+	if countVersion == 1 {
 		ci, err := oo.GetCreateInfo(fileName, userId)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, 0, err
 		}
 
 		key := oo.GenerateKey(fileName, userId)
@@ -95,17 +95,17 @@ func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryDa
 		hs = append(hs, h)
 		hds = append(hds, hd)
 
-		return hs, hds, nil
+		return hs, hds, countVersion, nil
 	}
 
 	for i := 1; i <= countVersion; i++ {
 		rh, err := oo.GetHistoryChanges(fileName, userId, i)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, 0, err
 		}
 		key, err := oo.GetHistoryKey(fileName, userId, i)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, 0, err
 		}
 
 		h := History{
@@ -131,7 +131,7 @@ func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryDa
 		hds = append(hds, hd)
 	}
 
-	return hs, hds, nil
+	return hs, hds, countVersion, nil
 }
 
 func (oo OnlyOffice) GetFileUri(fileName, userId string) string {
@@ -286,4 +286,72 @@ func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
 	}
 
 	return fmt.Errorf("%s", oo.CommandServiceErrorMessage(res.Error))
+}
+
+type File struct {
+	Name        string
+	Ext         string
+	Uri         string
+	Key         string
+	Version     int
+	Created     string
+	Author      string
+	Permissions string //权限 Full Access, Read Only, Deny Access
+	User        string //用户名
+}
+type Customer struct {
+	Address string //地址
+	Info    string //附加信息
+	Logo    string //头像
+	Mail    string //邮箱
+	Name    string //名称
+	Www     string //个人或公司网站
+}
+
+type Editor struct {
+	File        File
+	GobackUrl   string
+	Customer    Customer
+	Mode        string
+	CallbackUrl string
+	UserId      string
+	UserName    string
+
+	Type         string
+	DocumentType string
+	Token        string
+}
+
+func (oo OnlyOffice) GetConfigStr(cfg Editor) string {
+	c := oo.Config
+	c.Type = cfg.Type
+	c.Token = cfg.Token
+	c.DocumentType = cfg.DocumentType
+
+	c.Document.Title = cfg.File.Name
+	c.Document.Url = cfg.File.Uri
+	c.Document.FileType = cfg.File.Ext
+	c.Document.Key = cfg.File.Key
+	c.Document.Info.Author = cfg.File.Author
+	c.Document.Info.Created = cfg.File.Created
+	c.Document.Info.Owner = cfg.File.Author
+	c.Document.Info.SharingSettings.User = cfg.File.Permissions
+	c.Document.Info.SharingSettings.Permissions = cfg.File.User
+
+	c.EditorConfig.Mode = cfg.Mode
+	c.EditorConfig.CallbackUrl = cfg.CallbackUrl
+	c.EditorConfig.User.Id = cfg.UserId
+	c.EditorConfig.User.Name = cfg.UserName
+	c.EditorConfig.Customization.Goback.Url = cfg.GobackUrl
+	c.EditorConfig.Customization.Customer.Name = cfg.Customer.Name
+	c.EditorConfig.Customization.Customer.Www = cfg.Customer.Www
+	c.EditorConfig.Customization.Customer.Mail = cfg.Customer.Mail
+	c.EditorConfig.Customization.Customer.Logo = cfg.Customer.Logo
+	c.EditorConfig.Customization.Customer.Address = cfg.Customer.Address
+	c.EditorConfig.Customization.Customer.Info = cfg.Customer.Info
+	c.EditorConfig.Embedded.EmbedUrl = cfg.File.Uri
+	c.EditorConfig.Embedded.SaveUrl = cfg.File.Uri
+	c.EditorConfig.Embedded.ShareUrl = cfg.File.Uri
+
+	return c.ToString()
 }

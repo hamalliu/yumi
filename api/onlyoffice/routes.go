@@ -7,7 +7,6 @@ import (
 func Mount(r *gin.RouterGroup) {
 	mr := r.Group("media")
 
-	mr.GET("", "/index", Index)
 	mr.POST("", "/upload", Upload)
 	mr.POST("", "/sample", Sample)
 	mr.GET("", "/editor", Editor)
