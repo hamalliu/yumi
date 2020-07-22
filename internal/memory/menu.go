@@ -7,7 +7,6 @@ import (
 
 	"yumi/internal/db"
 	"yumi/model"
-	"yumi/pkg/conf"
 )
 
 const (
@@ -52,7 +51,7 @@ func newMenuTree() (*DataMenu, map[string][]*MenuTree) {
 	mt := new(DataMenu)
 	mt.root = new(MenuTree)
 
-	mt.root.Name = conf.Get().SysName
+	mt.root.Name = ""
 	mt.root.Code = "0"
 	mt.root.childrenMap = make(map[string]*MenuTree)
 

@@ -2,6 +2,7 @@ package dbc
 
 import (
 	"time"
+
 	"yumi/pkg/conf"
 	"yumi/pkg/external/dbc/mysqlx"
 	"yumi/pkg/types"
@@ -18,13 +19,11 @@ func Init(conf conf.DB) {
 
 func InitDefault() {
 	testConf := conf.DB{
-		Dsn:          "",
-		DBName:       "",
-		MaxOpenConns: 10,
-		MaxIdleConns: 10,
-		ConnMaxLifetime: types.TimeDuration{
-			Duration: 2 * time.Hour,
-		},
+		Dsn:             "",
+		DBName:          "",
+		MaxOpenConns:    10,
+		MaxIdleConns:    10,
+		ConnMaxLifetime: types.TimeDuration(2 * time.Hour),
 	}
 	var err error
 	if mysqlDb, err = mysqlx.New(testConf); err != nil {

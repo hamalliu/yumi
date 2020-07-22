@@ -11,18 +11,8 @@ import (
 
 const timeFormat = "2006-01-02 15:04:05.999"
 
-/**
- * 业务对象接口
- * 供用例（use case）对象调用，对外开放
- */
-
-type PayResult struct {
-	AliPayHtml  []byte
-	WxPayBizUrl string
-}
-
-//提交支付订单
-func SubmitOrderPay(buyerAccountGuid, sellerKey string, totalFee int, body, detail string,
+//SubmitOrderPay 提交支付订单
+func SubmitOrderPay(buyerAccountGUID, sellerKey string, totalFee int, body, detail string,
 	timeoutExpress time.Time) (string, error) {
 	e, err := NewEntityByPayCode("")
 	if err != nil {
@@ -32,13 +22,13 @@ func SubmitOrderPay(buyerAccountGuid, sellerKey string, totalFee int, body, deta
 
 	now := time.Now()
 	code := getCode(OrderPayCode)
-	return code, e.dataOp.Submit(buyerAccountGuid, sellerKey, "", "", totalFee, body, detail, timeoutExpress, now, code, Submitted)
+	return code, e.dataOp.Submit(buyerAccountGUID, sellerKey, "", "", totalFee, body, detail, timeoutExpress, now, code, Submitted)
 }
 
-func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIp, notifyUrl string) (string, error) {
+func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIP, notifyURL string) (string, error) {
 	outTradeNo := getOutTradeNo()
 	e.op.OutTradeNo = outTradeNo
-	if err := e.dataOp.SetOutTradeNo(outTradeNo, notifyUrl); err != nil {
+	if err := e.dataOp.SetOutTradeNo(outTradeNo, notifyURL); err != nil {
 		return "", err
 	}
 
@@ -48,12 +38,12 @@ func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIp, notifyUrl s
 	}
 
 	e.op.PayExpire = payExpire
-	e.op.SpbillCreateIp = clientIp
-	e.op.NotifyUrl = notifyUrl
+	e.op.SpbillCreateIp = clientIP
+	e.op.NotifyUrl = notifyURL
 	if tp, err := trade.Pay(e.op); err != nil {
 		return "", err
 	} else {
-		if err := e.dataOp.SetWaitPay(tradeWay, tp.AppId, tp.MchId, clientIp, payExpire, WaitPay); err != nil {
+		if err := e.dataOp.SetWaitPay(tradeWay, tp.AppId, tp.MchId, clientIP, payExpire, WaitPay); err != nil {
 			return "", err
 		}
 
@@ -61,8 +51,8 @@ func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIp, notifyUrl s
 	}
 }
 
-//发起支付
-func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.Time) (string, error) {
+//Pay 发起支付
+func Pay(code string, tradeWay Way, clientIP, notifyURL string, payExpire time.Time) (string, error) {
 	e, err := NewEntityByPayCode(code)
 	if err != nil {
 		return "", err
@@ -76,7 +66,7 @@ func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.T
 
 	switch e.op.Status {
 	case Submitted:
-		return sendPay(tradeWay, e, payExpire, clientIp, notifyUrl)
+		return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
 	case WaitPay:
 		//查询当前支付状态
 		trade := getTrade(e.op.TradeWay)
@@ -92,10 +82,10 @@ func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.T
 				return "", err
 			}
 			//发起支付
-			return sendPay(tradeWay, e, payExpire, clientIp, notifyUrl)
+			return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
 		} else if tpq.TradeStatus == Closed {
 			//发起支付
-			return sendPay(tradeWay, e, payExpire, clientIp, notifyUrl)
+			return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
 		} else {
 			return "", ecode.InvalidSendPay
 		}
@@ -104,7 +94,7 @@ func Pay(code string, tradeWay Way, clientIp, notifyUrl string, payExpire time.T
 	}
 }
 
-//取消支付订单
+//CancelOrderPay 取消支付订单
 func CancelOrderPay(code string) (err error) {
 	e, err := NewEntityByPayCode(code)
 	if err != nil {
@@ -130,7 +120,7 @@ func CancelOrderPay(code string) (err error) {
 	}
 }
 
-//查询支付成功（只查询待支付订单）
+//PaySuccess 查询支付成功（只查询待支付订单）
 func PaySuccess(code string) (res Status, err error) {
 	e, err := NewEntityByPayCode(code)
 	if err != nil {
@@ -163,7 +153,7 @@ func PaySuccess(code string) (res Status, err error) {
 	}
 }
 
-//查询支付状态
+//PayStatus 查询支付状态
 func PayStatus(code string) (res Status, err error) {
 	e, err := NewEntityByPayCode(code)
 	if err != nil {
@@ -182,7 +172,7 @@ func PayStatus(code string) (res Status, err error) {
 	}
 }
 
-//关闭交易（只关闭待支付订单）
+//CloseTrade 关闭交易（只关闭待支付订单）
 func CloseTrade(code string) (err error) {
 	e, err := NewEntityByPayCode(code)
 	if err != nil {
@@ -205,7 +195,7 @@ func CloseTrade(code string) (err error) {
 	}
 }
 
-//支付通知(待支付时处理通知)
+//PayNotify 支付通知(待支付时处理通知)
 func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, Status) {
 	trade := getTrade(way)
 	//解析通知参数
@@ -230,23 +220,22 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 			}
 
 			//查询支付状态
-			if tpq, err := trade.QueryPayStatus(e.op); err != nil {
+			tpq, err := trade.QueryPayStatus(e.op)
+			if err != nil {
 				trade.PayNotifyResp(err, resp)
 				return "", ""
-			} else {
-				if tpq.TradeStatus == Success {
-					if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
-						err = fmt.Errorf("服务器内部错误")
-						trade.PayNotifyResp(err, resp)
-						return "", ""
-					}
-					trade.PayNotifyResp(nil, resp)
-					return ret.OrderPayCode, Success
-				} else {
-					log.Error(fmt.Errorf("ip：%s,非法请求", utils.ClientIp(req)))
-					return "", tpq.TradeStatus
-				}
 			}
+			if tpq.TradeStatus == Success {
+				if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
+					err = fmt.Errorf("服务器内部错误")
+					trade.PayNotifyResp(err, resp)
+					return "", ""
+				}
+				trade.PayNotifyResp(nil, resp)
+				return ret.OrderPayCode, Success
+			}
+			log.Error(fmt.Errorf("非法请求"))
+			return "", tpq.TradeStatus
 		case Paid:
 			trade.PayNotifyResp(nil, resp)
 			return ret.OrderPayCode, Success
@@ -258,8 +247,8 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 	}
 }
 
-//提交退款订单（只退款已支付订单）
-func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time) (string, error) {
+//Refund 提交退款订单（只退款已支付订单）
+func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time) (string, error) {
 	e, err := NewEntityByPayCode(orderPayCode)
 	if err != nil {
 		return "", err
@@ -286,7 +275,7 @@ func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee 
 
 		code := getCode(OrderRefundCode)
 		outRefundNo := code
-		if err := e.dataOr.Submit(code, orderPayCode, count, notifyUrl, refundAccountGuid, e.op.TradeWay, outRefundNo, refundFee,
+		if err := e.dataOr.Submit(code, orderPayCode, count, notifyURL, refundAccountGUID, e.op.TradeWay, outRefundNo, refundFee,
 			refundDesc, submitTime, timeoutExpress, Submitted); err != nil {
 			return "", err
 		}
@@ -317,7 +306,7 @@ func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee 
 	}
 }
 
-//退款查询（只查询退款中的订单）
+//RefundSuccess 退款查询（只查询退款中的订单）
 func RefundSuccess(code string) (res Status, err error) {
 	e, err := NewEntityByRefundCode(code)
 	if err != nil {
@@ -352,7 +341,7 @@ func RefundSuccess(code string) (res Status, err error) {
 	}
 }
 
-//退款通知
+//RefundNotify 退款通知
 func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 	trade := getTrade(way)
 	if trade == nil {
@@ -392,7 +381,7 @@ func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 	return status
 }
 
-//将超时订单设置为已取消
+//SetTimeout 将超时订单设置为已取消
 func SetTimeout(code string) error {
 	e, err := NewEntityByPayCode(code)
 	if err != nil {

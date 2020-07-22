@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.37.4 // indirect
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/BurntSushi/toml v0.3.1
+	github.com/acroca/go-symbols v0.1.1 // indirect
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/douyu/juno v0.1.0 // indirect
@@ -30,13 +31,19 @@ require (
 	github.com/lestrrat-go/jwx v1.0.2
 	github.com/lionsoul2014/ip2region v2.2.0-release+incompatible // indirect
 	github.com/lmenezes/json-tree v0.2.2 // indirect
+	github.com/mdempsky/gocode v0.0.0-20200405233807-4acdcbdea79d // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/phachon/go-logger v0.0.0-20180912060440-89ff8a2898f6 // indirect
+	github.com/ramya-rao-a/go-outline v0.0.0-20200117021646-2a048b4510eb // indirect
 	github.com/robfig/cron/v3 v3.0.1
+	github.com/rogpeppe/godef v1.1.2 // indirect
 	github.com/rs/cors v1.7.0
+	github.com/sqs/goreturns v0.0.0-20181028201513-538ac6014518 // indirect
+	github.com/stamblerre/gocode v1.0.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/swaggo/gin-swagger v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.1.7
+	github.com/uudashr/gopkgs v2.0.1+incompatible // indirect
 	go.uber.org/dig v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a // indirect

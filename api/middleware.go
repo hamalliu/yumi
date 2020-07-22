@@ -9,6 +9,7 @@ import (
 	"yumi/pkg/valuer"
 )
 
+//DebugLog ...
 func DebugLog(c *gin.Context) {
 	if conf.IsDebug() {
 		c.Next()
@@ -19,9 +20,10 @@ func DebugLog(c *gin.Context) {
 	log.Debug("body:", c.Request.Body)
 }
 
+//FillSession ...
 func FillSession(c *gin.Context) {
-	userId := header.UserId(c.Request)
-	s, ok := session.GetUser(userId)
+	userID := header.UserId(c.Request)
+	s, ok := session.GetUser(userID)
 	if ok {
 		c.Set(valuer.KeyUser, valuer.User{UserId: s.UserId, UserName: s.UserName})
 	} else {

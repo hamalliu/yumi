@@ -49,7 +49,7 @@ func AesEncrypt(orig string, key []byte) (string, error) {
 
 	// 创建数组
 	cryted := make([]byte, len(origData))
-
+	
 	// 加密
 	blockMode.CryptBlocks(cryted, origData)
 

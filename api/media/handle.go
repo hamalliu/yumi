@@ -90,7 +90,7 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	if mulfh.Size > conf.Get().Media.SingleFileUploadsMaxSize.Size {
+	if mulfh.Size > conf.Get().Media.SingleFileUploadsMaxSize.Size() {
 		c.JSON(nil, ecode.FileSizeTooBig)
 		return
 	}
