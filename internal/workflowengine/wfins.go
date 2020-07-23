@@ -9,6 +9,7 @@ import (
 
 //操作流程实例============================================================================================================
 
+// DeleteActor ...
 func (m *Model) DeleteActor(actorId uint, proxyActorId uint) error {
 	//如果还有待办未处理完，不能删除账号
 	var (
@@ -60,6 +61,7 @@ func (m *Model) DeleteActor(actorId uint, proxyActorId uint) error {
 	return nil
 }
 
+// MoveTask ...
 func (m *Model) MoveTask(actorId uint, proxyActorId uint, wfCode string) error {
 	var (
 		err error
@@ -78,6 +80,7 @@ func (m *Model) MoveTask(actorId uint, proxyActorId uint, wfCode string) error {
 	return nil
 }
 
+// Launch ...
 /**
  *发起流程
  *@mp:推动函数参数
@@ -214,6 +217,7 @@ func (m *Model) Launch(wf string, parWfinsId uint, wsId uint, ctx string, rolePa
 	return nil
 }
 
+// Move ...
 func (m *Model) Move(wf string, wfinsId, nodeInsId, wsId uint, ctx string, rolePath string) error {
 	var (
 		nodeins  = NodeInstance{ID: nodeInsId}
@@ -734,6 +738,7 @@ func (m *Model) getWorkflowInstance(wfinsId uint) (WorkflowInstance, error) {
 
 //查询流程实例============================================================================================================
 
+// GetWorkflowInstance ...
 /**
  *获取单个流程实例
  *@wfId:流程实例id
@@ -763,6 +768,7 @@ func (m *Model) GetWorkflowInstance(wfinsId uint, phase string) (WorkflowInstanc
 	return wfins, err
 }
 
+// GetWorkflowInstanceListByInitiaor ...
 /**
  *获取流程发起者流程列表
  *@st, et:开始时间，截止时间
@@ -801,6 +807,7 @@ func (m *Model) GetWorkflowInstanceListByInitiaor(
 	return wfinss, total, nil
 }
 
+// GetWorkflowInstanceListByActor ...
 func (m *Model) GetWorkflowInstanceListByActor(
 	sd, ed string, actorId uint, wfinsstat string, offset, line uint) ([]WorkflowInstance, int, error) {
 	var (
@@ -833,6 +840,7 @@ func (m *Model) GetWorkflowInstanceListByActor(
 	return wfinss, total, nil
 }
 
+// GetWorkflowInstanceListByReviewer ...
 func (m *Model) GetWorkflowInstanceListByReviewer(
 	sd, ed string, actorId uint, wfinsstat string, offset, line uint) ([]WorkflowInstance, int, error) {
 	var (
@@ -864,6 +872,7 @@ func (m *Model) GetWorkflowInstanceListByReviewer(
 	return wfinss, total, nil
 }
 
+// GetTodo ...
 func (m *Model) GetTodo(actorId uint, offset, line uint) ([]WorkflowInstance, int, error) {
 	var (
 		wfinss []WorkflowInstance
@@ -888,6 +897,7 @@ func (m *Model) GetTodo(actorId uint, offset, line uint) ([]WorkflowInstance, in
 	return wfinss, total, nil
 }
 
+// GetTodoCount ...
 func (m *Model) GetTodoCount(actor uint) (uint, error) {
 
 	return 0, nil

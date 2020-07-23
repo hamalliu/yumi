@@ -7,7 +7,7 @@ import (
 )
 
 //操作流程定义============================================================================================================
-
+//AddWorkflow ...
 func (m *Model) AddWorkflow(name string, codePrefix string) (uint, error) {
 	var (
 		wf      Workflow
@@ -41,6 +41,7 @@ func (m *Model) AddWorkflow(name string, codePrefix string) (uint, error) {
 	return wf.ID, nil
 }
 
+//UpdateWorkflow ...
 func (m *Model) UpdateWorkflow(name string, codePrefix string, id uint) error {
 	var (
 		wf      = Workflow{ID: id}
@@ -70,6 +71,7 @@ func (m *Model) UpdateWorkflow(name string, codePrefix string, id uint) error {
 	return nil
 }
 
+//ReleaseWorkflow ...
 func (m *Model) ReleaseWorkflow(id uint) error {
 	var (
 		err error
@@ -86,6 +88,7 @@ func (m *Model) ReleaseWorkflow(id uint) error {
 	return nil
 }
 
+//DeleteWorkflow ...
 func (m *Model) DeleteWorkflow(wfId uint) error {
 	var (
 		wf    = Workflow{ID: wfId}
@@ -115,6 +118,7 @@ func (m *Model) DeleteWorkflow(wfId uint) error {
 	return nil
 }
 
+//AddNode ...
 func (m *Model) AddNode(node Node, isFirstNode bool) (uint, error) {
 	var (
 		maxCode int
@@ -165,6 +169,7 @@ func (m *Model) AddNode(node Node, isFirstNode bool) (uint, error) {
 	return node.ID, nil
 }
 
+//UpdateNode ...
 func (m *Model) UpdateNode(node Node) error {
 	var (
 		oldNode = Node{ID: node.ID}
@@ -199,6 +204,7 @@ func (m *Model) UpdateNode(node Node) error {
 	return nil
 }
 
+//DeleteNode ...
 func (m *Model) DeleteNode(nodeId uint) error {
 	var (
 		node    = Node{ID: nodeId}
@@ -233,6 +239,7 @@ func (m *Model) DeleteNode(nodeId uint) error {
 	return nil
 }
 
+//DeleteRole ...
 func (m *Model) DeleteRole(roleId uint) error {
 	//如果流程定义中还有该角色，不能删除
 	for _, wv := range m.wfs {
@@ -255,6 +262,7 @@ func (m *Model) DeleteRole(roleId uint) error {
 	return nil
 }
 
+//DeleteActorOfRole ...
 func (m *Model) DeleteActorOfRole(actorId uint, roleId uint) error {
 	var (
 		role role
@@ -272,6 +280,7 @@ func (m *Model) DeleteActorOfRole(actorId uint, roleId uint) error {
 	return nil
 }
 
+//AddWorkflowInstanceStatus ...
 func (m *Model) AddWorkflowInstanceStatus(t string, v string) (uint, error) {
 	var (
 		wfinsSt WorkflowInstanceStatus
@@ -288,6 +297,7 @@ func (m *Model) AddWorkflowInstanceStatus(t string, v string) (uint, error) {
 	return wfinsSt.ID, nil
 }
 
+//UpdateWorkflowInstanceStatus ...
 func (m *Model) UpdateWorkflowInstanceStatus(id uint, t string, v string) error {
 	var (
 		updates = make(map[string]interface{})
@@ -310,6 +320,7 @@ func (m *Model) UpdateWorkflowInstanceStatus(id uint, t string, v string) error 
 	return nil
 }
 
+//GetWorkflowInstanceStatus ...
 func (m *Model) GetWorkflowInstanceStatus() error {
 	var (
 		wfinsSts []WorkflowInstanceStatus
@@ -324,6 +335,7 @@ func (m *Model) GetWorkflowInstanceStatus() error {
 	return nil
 }
 
+//DeleteWorkflowInstanceStatus ...
 func (m *Model) DeleteWorkflowInstanceStatus(id uint) error {
 	var (
 		err error
@@ -527,6 +539,8 @@ func isValidOutflow(outflow string) bool {
 }
 
 //查询流程定义============================================================================================================
+
+//GetWorkflowList ...
 func (m *Model) GetWorkflowList(codePrefix string, offset, line uint) ([]Workflow, int, error) {
 	var (
 		wfs   []Workflow
@@ -545,6 +559,7 @@ func (m *Model) GetWorkflowList(codePrefix string, offset, line uint) ([]Workflo
 	return wfs, total, nil
 }
 
+//GetWorkflow ...
 func (m *Model) GetWorkflow(wfcode string) (Workflow, error) {
 	var (
 		wf = Workflow{Code: wfcode}

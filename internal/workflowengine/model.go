@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 
+	"yumi/pkg/conf"
+
 	"github.com/jinzhu/gorm"
 	"github.com/robfig/cron/v3"
 )
@@ -41,11 +43,13 @@ const (
 	WorkflowStatusRelease = "已发布"
 )
 
+//Config ...
 type Config struct {
-	ResetDb  bool       `json:"resetdb"`
-	DbConfig gdb.Config `json:"dbconfig"`
+	ResetDb  bool    `json:"resetdb"`
+	DbConfig conf.DB `json:"dbconfig"`
 }
 
+//Model ...
 type Model struct {
 	db    *gorm.DB
 	wfMux sync.Mutex
@@ -65,15 +69,19 @@ type Model struct {
 	//流程实例状态
 	wfinsStat map[string] /*value*/ string /*type*/
 
-	actors map[string] /*roleid*/ []actor
+	actors map[string] /*roleid*/ []Actor
 }
 
+//GetOutflow ...
 type GetOutflow func(wsId []uint) (string, error)
 
+//Intercept ...
 type Intercept func(instance WorkflowInstance) (bool, error)
 
+//Hook ...
 type Hook func(instance WorkflowInstance) error
 
+//New ...
 func New(conf Config) (*Model, error) {
 	var (
 		m Model
@@ -82,9 +90,9 @@ func New(conf Config) (*Model, error) {
 		err error
 	)
 
-	if m.db, err = gdb.New(conf.DbConfig); err != nil {
-		return nil, fmt.Errorf("数据库连接失败，%s", err.Error())
-	}
+	// if m.db, err = gdb.New(conf.DB); err != nil {
+	// 	return nil, fmt.Errorf("数据库连接失败，%s", err.Error())
+	// }
 
 	m.hook = make(map[string]Hook)
 	m.intercept = make(map[string]Intercept)
@@ -163,6 +171,7 @@ func (m *Model) load() error {
 	return nil
 }
 
+//RegisteHook ...
 func (m *Model) RegisteHook(hook interface{}) error {
 	hookv := reflect.ValueOf(hook)
 	if hookv.Kind() != reflect.Ptr {
@@ -185,6 +194,7 @@ func (m *Model) RegisteHook(hook interface{}) error {
 	return nil
 }
 
+//RegisteInterceptor ...
 func (m *Model) RegisteInterceptor(interceptor interface{}) error {
 	interceptorv := reflect.ValueOf(interceptor)
 
@@ -195,11 +205,11 @@ func (m *Model) RegisteInterceptor(interceptor interface{}) error {
 	for _, wv := range m.nds {
 		for _, nv := range wv {
 			if nv.Hook != "" {
-				if interceptorv.MethodByName(nv.Intercept).Kind() == reflect.Invalid ||
-					interceptorv.MethodByName(nv.Intercept).Kind().String() != "func(instance WorkflowInstance) (bool, error)" {
-					return fmt.Errorf("流程%s,节点%s,拦截函数%s不存在", nv.WfCode, nv.Code, nv.Intercept)
+				if interceptorv.MethodByName(nv.Intercepter).Kind() == reflect.Invalid ||
+					interceptorv.MethodByName(nv.Intercepter).Kind().String() != "func(instance WorkflowInstance) (bool, error)" {
+					return fmt.Errorf("流程%s,节点%s,拦截函数%s不存在", nv.WfCode, nv.Code, nv.Intercepter)
 				} else {
-					m.intercept[nv.Intercept] = interceptorv.MethodByName(nv.Intercept).Interface().(func(instance WorkflowInstance) (bool, error))
+					m.intercept[nv.Intercepter] = interceptorv.MethodByName(nv.Intercepter).Interface().(func(instance WorkflowInstance) (bool, error))
 				}
 			}
 		}
@@ -208,6 +218,7 @@ func (m *Model) RegisteInterceptor(interceptor interface{}) error {
 	return nil
 }
 
+//RegisteWorkSpace ...
 func (m *Model) RegisteWorkSpace(ws interface{}) error {
 	wsv := reflect.ValueOf(ws)
 
@@ -217,9 +228,9 @@ func (m *Model) RegisteWorkSpace(ws interface{}) error {
 
 	for _, wv := range m.nds {
 		for _, nv := range wv {
-			if wsv.MethodByName(nv.Intercept).Kind() == reflect.Invalid ||
-				wsv.MethodByName(nv.Intercept).Kind().String() != "func(wsId []uint) (string, error)" {
-				return fmt.Errorf("流程%s,节点%s,工作间%s不存在", nv.WfCode, nv.Code, nv.Intercept)
+			if wsv.MethodByName(nv.Intercepter).Kind() == reflect.Invalid ||
+				wsv.MethodByName(nv.Intercepter).Kind().String() != "func(wsId []uint) (string, error)" {
+				return fmt.Errorf("流程%s,节点%s,工作间%s不存在", nv.WfCode, nv.Code, nv.Intercepter)
 			} else {
 				m.workspace[nv.WsName] = wsv.MethodByName(nv.WsName).Interface().(func(wsId []uint) (string, error))
 			}

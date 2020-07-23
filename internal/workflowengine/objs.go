@@ -5,14 +5,14 @@ import (
 	"time"
 )
 
-//执行者
+//Actor ...执行者
 type Actor struct {
 	Deleted bool
 	ID      uint
 	Name    string //执行者姓名
 }
 
-//流程定义
+//Workflow ...流程定义
 type Workflow struct {
 	nodeMux sync.Mutex `json:"-"`
 
@@ -26,7 +26,7 @@ type Workflow struct {
 	Nodes []Node `json:"nodes"`
 }
 
-//流程定义节点
+//Node ...流程定义节点
 type Node struct {
 	ID             uint   `json:"id"`
 	Code           string `json:"code"`           //节点编码
@@ -47,7 +47,7 @@ type Node struct {
 	WorkflowID uint `json:"workflowid"` //流程id
 }
 
-//流程实例
+//WorkflowInstance ...流程实例
 type WorkflowInstance struct {
 	ID            uint      `json:"id"`
 	Year          string    `json:"year"`          //分表标准字段（暂定以年为标准）
@@ -73,7 +73,7 @@ type WorkflowInstance struct {
 	SubWfinssMap     map[string] /*code*/ []WorkflowInstance `json:"-"`
 }
 
-//流程实例节点
+//NodeInstance ... 流程实例节点
 type NodeInstance struct {
 	ID                 uint      `json:"id"`
 	NdinsSerialNum     uint      `json:"ndinsserialnum"` //同一个节点的节点实例序号
@@ -88,7 +88,7 @@ type NodeInstance struct {
 	RvwType            string    `json:"rvwtype"`        //审批类型(rvw,ordrvw,grouprvw,assiordrvw,assigrouprvw)
 	Status             string    `json:"status"`         //状态
 	WsName             string    `json:"wsname"`         //工作间名称
-	WsId               uint      `json:"wsid"`           //工作间id
+	WsID               uint      `json:"wsid"`           //工作间id
 	RolePath           string    `json:"rolepath"`       //角色路径（com>dep>role）
 	ActorID            uint      `json:"actorid"`        //执行者id
 	UpdateDate         time.Time `json:"updatedate"`     //更新时间
@@ -99,7 +99,7 @@ type NodeInstance struct {
 	AssiActors string `json:"assiactors"` //指派执行者
 }
 
-//流程实例状态
+//WorkflowInstanceStatus ...流程实例状态
 type WorkflowInstanceStatus struct {
 	ID    uint
 	Type  string ``
