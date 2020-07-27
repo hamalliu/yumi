@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	// 导入驱动包
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 
@@ -18,14 +19,16 @@ import (
 
 const dirverName = "mysql"
 
-type Model struct {
+//Client mysql 客户端
+type Client struct {
 	*sqlx.DB
 	conf conf.DB
 }
 
-func New(conf conf.DB) (*Model, error) {
+//New 新建一个 mysql 客户端
+func New(conf conf.DB) (*Client, error) {
 	var (
-		m   = new(Model)
+		m   = new(Client)
 		err error
 	)
 
@@ -39,22 +42,23 @@ func New(conf conf.DB) (*Model, error) {
 	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration())
 
 	//创建存储过程
-	if f, err := os.Open("./page_select.sql"); err != nil {
+	f, err := os.Open("./page_select.sql")
+	if err != nil {
 		log.Error(err)
 		return nil, err
-	} else {
-		if sqlb, err := ioutil.ReadAll(f); err != nil {
-			log.Error(err)
-			return nil, err
-		} else {
-			_, _ = m.Query(string(sqlb))
-		}
 	}
+	sqlb, err := ioutil.ReadAll(f)
+	if err != nil {
+		log.Error(err)
+		return nil, err
+	}
+	_, _ = m.Query(string(sqlb))
 
 	return m, nil
 }
 
-func (m *Model) Insert(query string, args ...interface{}) (int64, error) {
+//Insert exec insert sql
+func (m *Client) Insert(query string, args ...interface{}) (int64, error) {
 	if res, err := m.Exec(query, args); err != nil {
 		return 0, err
 	} else if id, err := res.LastInsertId(); err != nil {
@@ -65,8 +69,8 @@ func (m *Model) Insert(query string, args ...interface{}) (int64, error) {
 
 }
 
-//分页查询
-func (m *Model) PageSelect(dest interface{}, cloumns, table, where, order string, index, size int, args ...interface{}) (total, curIndex, curCount int, err error) {
+//PageSelect 分页查询
+func (m *Client) PageSelect(dest interface{}, cloumns, table, where, order string, index, size int, args ...interface{}) (total, curIndex, curCount int, err error) {
 	sqlStr := fmt.Sprintf(
 		`
 			declare 
@@ -80,44 +84,43 @@ func (m *Model) PageSelect(dest interface{}, cloumns, table, where, order string
 			select 
 				@total, @cur_index, @cur_count;`,
 		cloumns, table, where, order, index, size)
-	if rows, err := m.Query(sqlStr, args...); err != nil {
+	rows, err := m.Query(sqlStr, args...)
+	if err != nil {
 		return 0, 0, 0, err
-	} else {
-		defer rows.Close()
-		if err = sqlx.StructScan(rows, dest); err != nil {
-			return 0, 0, 0, err
-		} else {
-			if rows.NextResultSet() {
-				if rows.Next() {
-					if err = rows.Scan(&total, &curIndex, &curCount); err != nil {
-						return 0, 0, 0, err
-					}
-				}
+	}
+	defer rows.Close()
+	if err = sqlx.StructScan(rows, dest); err != nil {
+		return 0, 0, 0, err
+	}
+	if rows.NextResultSet() {
+		if rows.Next() {
+			if err = rows.Scan(&total, &curIndex, &curCount); err != nil {
+				return 0, 0, 0, err
 			}
-			return total, curIndex, curCount, nil
 		}
 	}
+	return total, curIndex, curCount, nil
 }
 
-//软删除
-func (m *Model) Delete(query string, args ...interface{}) error {
+//Delete 软删除
+func (m *Client) Delete(query string, args ...interface{}) error {
 	var (
 		sqls, ts = sqlDeleteToSelect(query)
 		records  = make(map[string]string)
 	)
 	for i := range sqls {
-		if rows, err := m.Query(sqls[i], args); err != nil {
+		rows, err := m.Query(sqls[i], args)
+		if err != nil {
 			return err
-		} else {
-			records[ts[i]] = rowsToJson(rows)
 		}
+		records[ts[i]] = rowsToJSON(rows)
 	}
-	if recordsByte, err := json.Marshal(records); err != nil {
+	recordsByte, err := json.Marshal(records)
+	if err != nil {
 		return err
-	} else {
-		if err := m.insertDeleteRecords(query, string(recordsByte)); err != nil {
-			return err
-		}
+	}
+	if err := m.insertDeleteRecords(query, string(recordsByte)); err != nil {
+		return err
 	}
 
 	if _, err := m.Exec(query, args); err != nil {
@@ -127,7 +130,7 @@ func (m *Model) Delete(query string, args ...interface{}) error {
 	return nil
 }
 
-func (m *Model) insertDeleteRecords(query, records string) error {
+func (m *Client) insertDeleteRecords(query, records string) error {
 	sqlStr := `
 		INSERT
 		INTO 
@@ -142,7 +145,7 @@ func (m *Model) insertDeleteRecords(query, records string) error {
 	return nil
 }
 
-func rowsToJson(rows *sql.Rows) string {
+func rowsToJSON(rows *sql.Rows) string {
 	var w bytes.Buffer
 SCAN:
 	valsMap := make(map[string]interface{})

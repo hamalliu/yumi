@@ -8,8 +8,9 @@ import (
 	"yumi/pkg/types"
 )
 
-var mysqlDb *mysqlx.Model
+var mysqlDb *mysqlx.Client
 
+//Init 初始化数据库连接配置
 func Init(conf conf.DB) {
 	var err error
 	if mysqlDb, err = mysqlx.New(conf); err != nil {
@@ -17,6 +18,7 @@ func Init(conf conf.DB) {
 	}
 }
 
+//InitDefault 按默认配置初始化数据库连接
 func InitDefault() {
 	testConf := conf.DB{
 		Dsn:             "",
@@ -31,6 +33,7 @@ func InitDefault() {
 	}
 }
 
-func Get() *mysqlx.Model {
+//Get 返回数据库客户端
+func Get() *mysqlx.Client {
 	return mysqlDb
 }

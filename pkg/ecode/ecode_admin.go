@@ -5,6 +5,8 @@ package ecode
  */
 
 var (
-	UserError     = add(10000) //用户名错误
-	PasswordError = add(10001) //密码错误
+	//UserError 用户名错误
+	UserError     = add(10000) 
+	//PasswordError 密码错误
+	PasswordError = add(10001)
 )

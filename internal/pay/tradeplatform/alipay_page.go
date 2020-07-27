@@ -72,7 +72,7 @@ func (alipp AliPagePay) PayNotifyCheck(op trade.OrderPay, reqData interface{}) e
 	}
 
 	if reqNotify, ok := reqData.(alipay.ReqNotify); ok {
-		err := fmt.Errorf("转换类型失败，wxnative")
+		err := fmt.Errorf("转换类型失败，alipagepay")
 		return ecode.ServerErr(err)
 	} else {
 		if err := alipay.CheckPayNotify(aliMch, op.OutTradeNo, alipp.toPrice(op.TotalFee), op.MchId, reqNotify); err != nil {

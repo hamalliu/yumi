@@ -32,7 +32,8 @@ func request(respBody interface{}, method, url string, reqBody interface{}, tr *
 		return nil, err
 	}
 	ctx := context.Background()
-	ctxtimeout, _ := context.WithTimeout(ctx, time.Second*15)
+	ctxtimeout, cancel := context.WithTimeout(ctx, time.Second*15)
+	defer cancel()
 	reqtx, err := http.NewRequestWithContext(ctxtimeout, method, url, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err

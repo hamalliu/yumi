@@ -4,20 +4,27 @@ import (
 	"time"
 )
 
+//OrderStatus 订单状态
 type OrderStatus string
 
 const (
-	Submitted OrderStatus = "SUBMITTED" //"已提交" //包含支付订单和退款订单
-	WaitPay   OrderStatus = "WAIT_PAY"  //"待支付"
-	Paid      OrderStatus = "PAID"      //"已支付"
-	Cancelled OrderStatus = "CANCELLED" //"已取消" //包含支付订单和退款订单
-	Refunding OrderStatus = "REFUNDING" //"退款中"
-	Refunded  OrderStatus = "REFUNDED"  //"已退款"
-
-	Error OrderStatus = "ERROR" //"错误" //包含支付订单和退款订单
+	//Submitted "已提交" #包含支付订单和退款订单
+	Submitted OrderStatus = "SUBMITTED" 
+	//WaitPay "待支付"
+	WaitPay OrderStatus = "WAIT_PAY"
+	//Paid "已支付"
+	Paid OrderStatus = "PAID"
+	//Cancelled "已取消" #包含支付订单和退款订单
+	Cancelled OrderStatus = "CANCELLED" 
+	//Refunding "退款中"
+	Refunding OrderStatus = "REFUNDING"
+	//Refunded "已退款"
+	Refunded  OrderStatus = "REFUNDED"  
+	//Error "错误" #包含支付订单和退款订单
+	Error OrderStatus = "ERROR"
 )
 
-//支付订单
+//OrderPay 支付订单
 type OrderPay struct {
 	Code string `db:"code"` //唯一编码
 
@@ -55,7 +62,7 @@ type OrderPay struct {
 	Remarks          string      `db:"remarks"`            //备注
 }
 
-//支付数据接口
+//DataOrderPay 支付数据接口
 type DataOrderPay interface {
 	New(code string) (DataOrderPay, error)
 	Data() OrderPay
@@ -80,16 +87,19 @@ type DataOrderPay interface {
 
 var op DataOrderPay
 
+//RigsterDataOrderPay 注册支付订单数据层对象
 func RigsterDataOrderPay(src DataOrderPay) {
 	op = src
 }
 
+//NewDataOrderPay 新建支付订单
 func NewDataOrderPay(code string) (DataOrderPay, error) {
 	return op.New(code)
 }
 
 //======================================================================================================================
 
+// OrderRefund 退款订单
 type OrderRefund struct {
 	Code         string `db:"code"`           //唯一编码
 	OrderPayCode string `db:"order_pay_code"` //支付订单编码
@@ -112,7 +122,7 @@ type OrderRefund struct {
 	Remarks           string      `db:"remarks"`             //备注
 }
 
-//退款数据接口
+//DataOrderRefund 退款数据接口
 type DataOrderRefund interface {
 	New(code string) (DataOrderRefund, error)
 	Data() OrderRefund
@@ -138,10 +148,12 @@ type DataOrderRefund interface {
 
 var or DataOrderRefund
 
+//RigsterDataOrderRefund 注册数据层对象
 func RigsterDataOrderRefund(src DataOrderRefund) {
 	or = src
 }
 
+//NewDataOrderRefund 新建一个退款订单对象
 func NewDataOrderRefund(code string) (DataOrderRefund, error) {
 	return or.New(code)
 }

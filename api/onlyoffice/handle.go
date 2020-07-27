@@ -175,7 +175,7 @@ func Editor(c *gin.Context) {
 	}
 
 	rc := renderConfig{
-		APIURL:      confOo.SiteUrl + confOo.ApiUrl,
+		APIURL:      confOo.SiteURL + confOo.APIURL,
 		History:     history,
 		HistoryData: historyData,
 		Config:      onlyoffice.Get().GetConfigStr(editor),

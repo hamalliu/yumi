@@ -40,15 +40,16 @@ func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIP, notifyURL s
 	e.op.PayExpire = payExpire
 	e.op.SpbillCreateIp = clientIP
 	e.op.NotifyUrl = notifyURL
-	if tp, err := trade.Pay(e.op); err != nil {
-		return "", err
-	} else {
-		if err := e.dataOp.SetWaitPay(tradeWay, tp.AppId, tp.MchId, clientIP, payExpire, WaitPay); err != nil {
-			return "", err
-		}
 
-		return tp.Data, nil
+	tp, err := trade.Pay(e.op)
+	if err != nil {
+		return "", err
 	}
+	if err := e.dataOp.SetWaitPay(tradeWay, tp.AppId, tp.MchId, clientIP, payExpire, WaitPay); err != nil {
+		return "", err
+	}
+
+	return tp.Data, nil
 }
 
 //Pay 发起支付
@@ -134,16 +135,16 @@ func PaySuccess(code string) (res Status, err error) {
 		if trade == nil {
 			return "", ecode.NotSupportTradeWay
 		}
-		if tpq, err := trade.QueryPayStatus(e.op); err != nil {
+		tpq, err := trade.QueryPayStatus(e.op)
+		if err != nil {
 			return "", err
-		} else {
-			if tpq.TradeStatus == Success {
-				if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
-					return "", err
-				}
-			}
-			return tpq.TradeStatus, nil
 		}
+		if tpq.TradeStatus == Success {
+			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
+				return "", err
+			}
+		}
+		return tpq.TradeStatus, nil
 	case Paid:
 		return Success, nil
 	case Cancelled:
@@ -165,11 +166,12 @@ func PayStatus(code string) (res Status, err error) {
 	if trade == nil {
 		return "", ecode.NotSupportTradeWay
 	}
-	if tpq, err := trade.QueryPayStatus(e.op); err != nil {
+	tpq, err := trade.QueryPayStatus(e.op)
+	if err != nil {
 		return "", err
-	} else {
-		return tpq.TradeStatus, nil
 	}
+
+	return tpq.TradeStatus, nil
 }
 
 //CloseTrade 关闭交易（只关闭待支付订单）
@@ -199,51 +201,51 @@ func CloseTrade(code string) (err error) {
 func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, Status) {
 	trade := getTrade(way)
 	//解析通知参数
-	if ret, err := trade.PayNotifyReq(req); err != nil {
+	ret, err := trade.PayNotifyReq(req)
+	if err != nil {
 		trade.PayNotifyResp(err, resp)
 		return "", ""
-	} else {
-		e, err := NewEntityByPayCode(ret.OrderPayCode)
-		if err != nil {
-			log.Error(err)
+	}
+	e, err := NewEntityByPayCode(ret.OrderPayCode)
+	if err != nil {
+		log.Error(err)
+		trade.PayNotifyResp(err, resp)
+		return "", ""
+	}
+	defer func() { _ = e.ReleaseOrderPay() }()
+
+	switch e.op.Status {
+	case WaitPay:
+		//检查通知参数
+		if err := trade.PayNotifyCheck(e.op, ret.ReqData); err != nil {
 			trade.PayNotifyResp(err, resp)
 			return "", ""
 		}
-		defer func() { _ = e.ReleaseOrderPay() }()
 
-		switch e.op.Status {
-		case WaitPay:
-			//检查通知参数
-			if err := trade.PayNotifyCheck(e.op, ret.ReqData); err != nil {
-				trade.PayNotifyResp(err, resp)
-				return "", ""
-			}
-
-			//查询支付状态
-			tpq, err := trade.QueryPayStatus(e.op)
-			if err != nil {
-				trade.PayNotifyResp(err, resp)
-				return "", ""
-			}
-			if tpq.TradeStatus == Success {
-				if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
-					err = fmt.Errorf("服务器内部错误")
-					trade.PayNotifyResp(err, resp)
-					return "", ""
-				}
-				trade.PayNotifyResp(nil, resp)
-				return ret.OrderPayCode, Success
-			}
-			log.Error(fmt.Errorf("非法请求"))
-			return "", tpq.TradeStatus
-		case Paid:
-			trade.PayNotifyResp(nil, resp)
-			return ret.OrderPayCode, Success
-		default:
-			//返回成功，停止通知
-			trade.PayNotifyResp(nil, resp)
+		//查询支付状态
+		tpq, err := trade.QueryPayStatus(e.op)
+		if err != nil {
+			trade.PayNotifyResp(err, resp)
 			return "", ""
 		}
+		if tpq.TradeStatus == Success {
+			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
+				err = fmt.Errorf("服务器内部错误")
+				trade.PayNotifyResp(err, resp)
+				return "", ""
+			}
+			trade.PayNotifyResp(nil, resp)
+			return ret.OrderPayCode, Success
+		}
+		log.Error(fmt.Errorf("非法请求"))
+		return "", tpq.TradeStatus
+	case Paid:
+		trade.PayNotifyResp(nil, resp)
+		return ret.OrderPayCode, Success
+	default:
+		//返回成功，停止通知
+		trade.PayNotifyResp(nil, resp)
+		return "", ""
 	}
 }
 
@@ -348,7 +350,6 @@ func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 		err := fmt.Errorf("tradeway（交易方式）不存在")
 		log.Error(err)
 		panic(err)
-		return ""
 	}
 
 	ret, err := trade.RefundNotifyReq(req)

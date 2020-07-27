@@ -139,7 +139,7 @@ func (oo OnlyOffice) GetFileUri(fileName, userId string) string {
 }
 
 func (oo OnlyOffice) GetLocalFileUri(fileName, userId string, version int) string {
-	fileUri := fmt.Sprintf("%s/%s/%s/%s", oo.cfg.DocumentServerUrl, oo.cfg.Document.StoragePath, userId, fileName)
+	fileUri := fmt.Sprintf("%s/%s/%s/%s", oo.cfg.DocumentServerURL, oo.cfg.Document.StoragePath, userId, fileName)
 	if version != 0 {
 		fileUri = fmt.Sprintf("%s-history/%d", fileUri, version)
 	}
@@ -151,7 +151,7 @@ func (oo OnlyOffice) GenerateKey(fileName, userId string) string {
 	key := oo.GetLocalFileUri(fileName, userId, 0)
 	storagePath := oo.StoragePath(fileName, userId)
 	f, _ := os.Stat(storagePath)
-	key = key + oo.cfg.DocumentServerUrl + key + f.ModTime().Format("2006-01-02 15:04:05")
+	key = key + oo.cfg.DocumentServerURL + key + f.ModTime().Format("2006-01-02 15:04:05")
 
 	return oo.GenerateRevisionId(key)
 }
@@ -209,7 +209,7 @@ func (oo OnlyOffice) GetConvertUri(documentUri, fromExtension, toExtension, docu
 	}
 	body, _ := json.Marshal(&params)
 
-	uri := oo.cfg.SiteUrl + oo.cfg.ConverterUrl
+	uri := oo.cfg.SiteURL + oo.cfg.ConverterURL
 	req, err := http.NewRequest(http.MethodPost, uri, bytes.NewBuffer(body))
 	if err != nil {
 		return res, err
@@ -257,7 +257,7 @@ func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
 	}
 	body, _ := json.Marshal(&params)
 
-	uri := oo.cfg.SiteUrl + oo.cfg.CommandUrl
+	uri := oo.cfg.SiteURL + oo.cfg.CommandURL
 	req, err := http.NewRequest(http.MethodPost, uri, bytes.NewBuffer(body))
 	if err != nil {
 		return err

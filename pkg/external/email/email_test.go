@@ -13,8 +13,8 @@ const (
 var config = Config{
 	ImapHost: "imap.qq.com",
 	ImapPort: "993",
-	SmtpHost: "smtp.qq.com",
-	SmtpPort: "25",
+	SMTPHost: "smtp.qq.com",
+	SMTPPort: "25",
 	Domain:   "qq.com",
 }
 
@@ -30,7 +30,7 @@ var e = SendEmail{
 
 func TestModel_SmtpSendEmail(t *testing.T) {
 	var err error
-	if err = mm.SmtpSendEmail(user, pwd, e); err != nil {
+	if err = mm.SMTPSendEmail(user, pwd, e); err != nil {
 		t.Error(err)
 		return
 	}

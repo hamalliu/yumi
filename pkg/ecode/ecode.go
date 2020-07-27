@@ -62,6 +62,7 @@ func (e Code) Error() string {
 // Code return error code
 func (e Code) Code() int { return int(e) }
 
+//ParamsErrMsg 参数错误消息内容
 func (e Code) ParamsErrMsg() string {
 	return "请求参数错误"
 }
@@ -80,13 +81,12 @@ func (e Code) Message() string {
 	return e.Error()
 }
 
-//
+//ParamsErr 参数错误
 func (e Code) ParamsErr(err error) string {
 	if e != paramsErr {
 		return ""
-	} else {
-		return err.Error()
 	}
+	return err.Error()
 }
 
 // Details return details.
@@ -108,37 +108,40 @@ func String(e string) Code {
 	return Code(i)
 }
 
+//Must 转换err为code，如果失败且不是参数错误就panic
 func Must(err error) Code {
 	if err == nil {
 		return OK
 	}
 
-	if c, ok := err.(Code); ok {
+	c, ok := err.(Code)
+	if ok {
 		return c
-	} else {
-		if errors.As(err, _paramsErr) {
-			return paramsErr
-		}
-		panic(err)
 	}
+	if errors.As(err, emptyParamsErr) {
+		return paramsErr
+	}
+	panic(err)
 }
 
+//ServerErr 服务器错误
 func ServerErr(err error) Code {
 	if err == nil {
 		return serverErr
 	}
 	if c, ok := err.(Code); ok {
 		return c
-	} else {
-		log.Error2(err)
-		return serverErr
 	}
+	log.Error2(err)
+	return serverErr
 }
 
-type _ParamsErr error
+//ErrorTypeParamsErr 用于前端未按要求传参的错误类型
+type ErrorTypeParamsErr error
 
-var _paramsErr _ParamsErr
+var emptyParamsErr = new(ErrorTypeParamsErr)
 
-func ParamsErr(err error) _ParamsErr {
-	return _ParamsErr(err)
+//ParamsErr 参数错误
+func ParamsErr(err error) ErrorTypeParamsErr {
+	return ErrorTypeParamsErr(err)
 }

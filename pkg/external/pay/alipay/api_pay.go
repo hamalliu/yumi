@@ -62,6 +62,7 @@ var payapi = PayApi{
 	//OrderValidity:              30,
 }
 
+//GetDefault ...
 func GetDefault() PayApi {
 	return payapi
 }
@@ -74,7 +75,7 @@ var req = ReqPublicPrameter{
 	Version:   "1.0",
 }
 
-//统一收单下单并支付页面接口
+//UnifiedOrder 统一收单下单并支付页面接口
 func (p PayApi) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error) {
 	retn := PagePayReturn{}
 
@@ -99,18 +100,18 @@ func (p PayApi) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error)
 		PassbackParams:    order.PassbackParams,
 	}
 
-	if dataBytes, err := json.Marshal(&reqOrder); err != nil {
+	dataBytes, err := json.Marshal(&reqOrder)
+	if err != nil {
 		return retn, err
-	} else {
-		reqModel.BizContent = string(dataBytes)
 	}
+	reqModel.BizContent = string(dataBytes)
 
 	//加签
-	if sign, err := BuildSign(reqModel, mch.PrivateKey); err != nil {
+	sign, err := BuildSign(reqModel, mch.PrivateKey)
+	if err != nil {
 		return retn, err
-	} else {
-		req.Sign = sign
 	}
+	req.Sign = sign
 
 	//发起请求
 	respModel := RespPagePay{}
@@ -137,13 +138,12 @@ func (p PayApi) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error)
 		retn.MerchantOrderNo = respModel.MerchantOrderNo
 
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.Msg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.Msg)
 }
 
-//统一收单线下交易查询
+//TradeQuery 统一收单线下交易查询
 func (p PayApi) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, error) {
 	retn := TradeQueryReturn{}
 
@@ -162,18 +162,18 @@ func (p PayApi) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, er
 		TradeNo:    query.TradeNo,
 	}
 
-	if dataBytes, err := json.Marshal(&reqQuery); err != nil {
+	dataBytes, err := json.Marshal(&reqQuery)
+	if err != nil {
 		return retn, err
-	} else {
-		reqModel.BizContent = string(dataBytes)
 	}
+	reqModel.BizContent = string(dataBytes)
 
 	//加签
-	if sign, err := BuildSign(reqModel, mch.PrivateKey); err != nil {
+	sign, err := BuildSign(reqModel, mch.PrivateKey)
+	if err != nil {
 		return retn, err
-	} else {
-		req.Sign = sign
 	}
+	req.Sign = sign
 
 	//发起请求
 	respModel := RespTradeQuery{}
@@ -196,13 +196,12 @@ func (p PayApi) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, er
 		retn = respModel.TradeQueryReturn
 
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.Msg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.Msg)
 }
 
-//统一收单交易退款接口
+//Refund 统一收单交易退款接口
 func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 	retn := RefundReturn{}
 
@@ -225,18 +224,18 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 		OutRequestNo:   refund.OutRequestNo,
 	}
 
-	if dataBytes, err := json.Marshal(&reqRefund); err != nil {
+	dataBytes, err := json.Marshal(&reqRefund)
+	if err != nil {
 		return retn, err
-	} else {
-		reqModel.BizContent = string(dataBytes)
 	}
+	reqModel.BizContent = string(dataBytes)
 
 	//加签
-	if sign, err := BuildSign(reqModel, mch.PrivateKey); err != nil {
+	sign, err := BuildSign(reqModel, mch.PrivateKey)
+	if err != nil {
 		return retn, err
-	} else {
-		req.Sign = sign
 	}
+	req.Sign = sign
 
 	//发起请求
 	respModel := RespRefund{}
@@ -259,13 +258,12 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 		retn = respModel.RefundReturn
 
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.Msg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.Msg)
 }
 
-//统一收单交易退款查询
+//RefundQuery 统一收单交易退款查询
 func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryReturn, error) {
 	retn := RefundQueryReturn{}
 
@@ -285,18 +283,18 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 		OutRequestNo: refundQuery.OutRequestNo,
 	}
 
-	if dataBytes, err := json.Marshal(&reqQuery); err != nil {
+	dataBytes, err := json.Marshal(&reqQuery)
+	if err != nil {
 		return retn, err
-	} else {
-		reqModel.BizContent = string(dataBytes)
 	}
+	reqModel.BizContent = string(dataBytes)
 
 	//加签
-	if sign, err := BuildSign(reqModel, mch.PrivateKey); err != nil {
+	sign, err := BuildSign(reqModel, mch.PrivateKey)
+	if err != nil {
 		return retn, err
-	} else {
-		req.Sign = sign
 	}
+	req.Sign = sign
 
 	//发起请求
 	respModel := RespRefundQuery{}
@@ -319,13 +317,12 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 		retn = respModel.RefundQueryReturn
 
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.Msg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.Msg)
 }
 
-//统一收单交易关闭接口
+//TradeClose 统一收单交易关闭接口
 func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, error) {
 	retn := TradeCloseReturn{}
 
@@ -345,18 +342,18 @@ func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, er
 		OperatorId: close.OperatorId,
 	}
 
-	if dataBytes, err := json.Marshal(&reqClose); err != nil {
+	dataBytes, err := json.Marshal(&reqClose)
+	if err != nil {
 		return retn, err
-	} else {
-		reqModel.BizContent = string(dataBytes)
 	}
+	reqModel.BizContent = string(dataBytes)
 
 	//加签
-	if sign, err := BuildSign(reqModel, mch.PrivateKey); err != nil {
+	sign, err := BuildSign(reqModel, mch.PrivateKey)
+	if err != nil {
 		return retn, err
-	} else {
-		req.Sign = sign
 	}
+	req.Sign = sign
 
 	//发起请求
 	respModel := RespTradeClose{}
@@ -379,13 +376,12 @@ func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, er
 		retn = respModel.TradeCloseReturn
 
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.Msg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.Msg)
 }
 
-//查询对账单下载地址
+//BillDownloadUrlQuery 查询对账单下载地址
 func (p PayApi) BillDownloadUrlQuery(mch Merchant, bill BillDownloadUrlQuery) (BillDownloadUrlQueryReturn, error) {
 	retn := BillDownloadUrlQueryReturn{}
 
@@ -400,18 +396,18 @@ func (p PayApi) BillDownloadUrlQuery(mch Merchant, bill BillDownloadUrlQuery) (B
 		BillType: bill.BillType,
 	}
 
-	if dataBytes, err := json.Marshal(&reqBill); err != nil {
+	dataBytes, err := json.Marshal(&reqBill)
+	if err != nil {
 		return retn, err
-	} else {
-		reqModel.BizContent = string(dataBytes)
 	}
+	reqModel.BizContent = string(dataBytes)
 
 	//加签
-	if sign, err := BuildSign(reqModel, mch.PrivateKey); err != nil {
+	sign, err := BuildSign(reqModel, mch.PrivateKey)
+	if err != nil {
 		return retn, err
-	} else {
-		req.Sign = sign
 	}
+	req.Sign = sign
 
 	//发起请求
 	respModel := RespBillDownloadUrlQuery{}
@@ -434,8 +430,7 @@ func (p PayApi) BillDownloadUrlQuery(mch Merchant, bill BillDownloadUrlQuery) (B
 		retn = respModel.BillDownloadUrlQueryReturn
 
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.Msg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.Msg)
 }

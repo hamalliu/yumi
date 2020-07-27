@@ -1,8 +1,11 @@
 package ecode
 
 var (
-	OK = add(0) // 正确
+	//OK 正确
+	OK = add(0) 
 
-	serverErr = add(500) // 服务器错误
-	paramsErr = add(501) //前端请求参数错误
+	//serverErr 服务器错误
+	serverErr = add(500) 
+	//paramsErr 前端请求参数错误
+	paramsErr = add(501) 
 )

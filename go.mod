@@ -7,6 +7,7 @@ require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/BurntSushi/toml v0.3.1
 	github.com/acroca/go-symbols v0.1.1 // indirect
+	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/douyu/juno v0.1.0 // indirect
@@ -25,6 +26,7 @@ require (
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/gorilla/csrf v1.7.0 // indirect
 	github.com/gorilla/mux v1.7.3 // indirect
+	github.com/huichen/sego v0.0.0-20180617034105-3f3c8a8cfacc
 	github.com/jhillyerd/enmime v0.6.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/jmoiron/sqlx v1.2.0

@@ -6,25 +6,28 @@ import (
 	"yumi/pkg/types"
 )
 
+//OnlyOffice 配置
 type OnlyOffice struct {
-	SiteUrl           string
-	CommandUrl        string
-	ConverterUrl      string
-	TempStorageUrl    string
-	ApiUrl            string
-	PreloaderUrl      string
-	DocumentServerUrl string
+	SiteURL           string
+	CommandURL        string
+	ConverterURL      string
+	TempStorageURL    string
+	APIURL            string
+	PreloaderURL      string
+	DocumentServerURL string
 	MobileRegEx       string
 	Static            []Static
 	Document          Document
 	Token             Token
 }
 
+//Static 配置
 type Static struct {
 	Name string
 	Path string
 }
 
+//Token 配置
 type Token struct {
 	Enable                    bool
 	UseForRequest             bool
@@ -35,6 +38,7 @@ type Token struct {
 	ExpiresIn                 string
 }
 
+//Document 配置
 type Document struct {
 	StoragePath   string
 	SamplesPath   string
@@ -45,6 +49,7 @@ type Document struct {
 	MaxFileSize   types.SpaceSize
 }
 
+//GetAlg 获取签名算法
 func (t Token) GetAlg() jwa.SignatureAlgorithm {
 	var alg jwa.SignatureAlgorithm
 	switch t.AlgorithmRequest {

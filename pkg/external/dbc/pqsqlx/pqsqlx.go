@@ -8,13 +8,15 @@ import (
 
 const dirverName = "postgres"
 
-type Model struct {
+//Client postgres 客户端
+type Client struct {
 	*sqlx.DB
 }
 
-func New(conf conf.DB) (*Model, error) {
+//New 根据conf配置新建数据库客户端
+func New(conf conf.DB) (*Client, error) {
 	var (
-		m   = new(Model)
+		m   = new(Client)
 		err error
 	)
 

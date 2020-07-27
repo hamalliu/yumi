@@ -15,6 +15,7 @@ var (
 	orderRefundSync map[string]*sync.Mutex
 )
 
+//Entity 业务对象
 type Entity struct {
 	dataOp DataOrderPay
 	op     OrderPay
@@ -38,7 +39,8 @@ var entityMutex sync.Mutex
  * 业务对象对象基本操作
  * 供业务对象接口调用，对外不开放
  */
-//加载支付订单数据
+
+//NewEntityByPayCode 加载支付订单数据
 func NewEntityByPayCode(code string) (*Entity, error) {
 	if code == "" {
 		dataOp, err := NewDataOrderPay(code)
@@ -71,7 +73,7 @@ func NewEntityByPayCode(code string) (*Entity, error) {
 	return &e, nil
 }
 
-//释放支付订单数据
+//ReleaseOrderPay 释放支付订单数据
 func (e *Entity) ReleaseOrderPay() error {
 	if e.op.Code == "" {
 		return nil
@@ -86,7 +88,7 @@ func (e *Entity) ReleaseOrderPay() error {
 	return nil
 }
 
-//加载退款订单数据
+//NewEntityByRefundCode 加载退款订单数据
 func NewEntityByRefundCode(code string) (*Entity, error) {
 	if code == "" {
 		panic(fmt.Errorf("code 不能为空"))
@@ -123,7 +125,7 @@ func NewEntityByRefundCode(code string) (*Entity, error) {
 	return &e, nil
 }
 
-//释放退款订单数据
+//ReleaseOrderRefund 释放退款订单数据
 func (e *Entity) ReleaseOrderRefund() error {
 	if e.op.Code == "" {
 		return nil
@@ -150,11 +152,14 @@ func getOutTradeNo() string {
 	return fmt.Sprintf("%s%s", prefix, utils.CreateRandomStr(10, utils.NUMBER))
 }
 
-//生成订单号
+//CodeType 生成订单号
 type CodeType uint8
 
+//编码类型
 const (
+	//OrderPayCode 支付订单号
 	OrderPayCode CodeType = iota
+	//OrderRefundCode 退款订单号
 	OrderRefundCode
 )
 

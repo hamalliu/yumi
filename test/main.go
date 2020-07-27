@@ -2,25 +2,21 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/huichen/sego"
 )
 
-type S struct {
-
-}
-
-func (s S) Add() {
-	fmt.Println("S")
-}
-
-type SS struct {
-	S
-}
-
-func (ss SS) Add() {
-	fmt.Println("SS")
-}
-
 func main() {
-	var ss SS
-	ss.Add()
+	// 载入词典
+	var segmenter sego.Segmenter
+	segmenter.LoadDictionary("./dictionary.txt")
+	segmenter.Dictionary()
+
+	// 分词
+	text := []byte("中华人民共和国（手动阀手动阀）中央人民政府")
+	segments := segmenter.Segment(text)
+
+	// 处理分词结果
+	// 支持普通模式和搜索模式两种分词，见代码中SegmentsToString函数的注释。
+	fmt.Println(sego.SegmentsToString(segments, false))
 }

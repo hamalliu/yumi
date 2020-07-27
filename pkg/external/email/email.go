@@ -31,12 +31,14 @@ const (
 	mailHeaderTo      = "To"
 )
 
+//UploadFile 上传文件
 type UploadFile struct {
 	FileName    string
 	ContentType string
 	Content     []byte
 }
 
+//UploadInlines 上传inlines结构
 type UploadInlines struct {
 	FileName    string
 	ContentType string
@@ -44,20 +46,22 @@ type UploadInlines struct {
 	ContentID   string
 }
 
+//ReceiveEmail 接受邮件
 type ReceiveEmail struct {
 	Seen    bool   `json:"seen"`
 	Date    string `json:"date"`
-	Uid     string `json:"uid"`
+	UID     string `json:"uid"`
 	From    string `json:"from"`
 	To      string `json:"to"`
 	Subject string `json:"subject"`
 
 	Text    string            `json:"text"`
-	Html    string            `json:"html"`
+	HTML    string            `json:"html"`
 	Files   []string          `json:"files"`
 	Inlines map[string][]byte `json:"inlines"`
 }
 
+//SendEmail 发送邮件
 type SendEmail struct {
 	Date    string
 	From    string
@@ -78,20 +82,23 @@ type SendEmail struct {
 	bcc  []*mail.Address
 }
 
+//Config 邮箱服务器配置
 type Config struct {
 	ImapHost string `json:"imaphost"`
 	ImapPort string `json:"imapport"`
 
-	SmtpHost string `json:"smtphost"`
-	SmtpPort string `json:"smtpport"`
+	SMTPHost string `json:"smtphost"`
+	SMTPPort string `json:"smtpport"`
 
 	Domain string `json:"domain"`
 }
 
+//Model 邮箱服务器配置
 type Model struct {
 	conf Config
 }
 
+//New ...
 func New(conf Config) (*Model, error) {
 	//TODO:ping imap AND smtp
 	return &Model{conf: conf}, nil
@@ -143,7 +150,6 @@ func (m *Model) imapAddEmailFlagByUids(user, pwd string, uids string, flag strin
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -157,6 +163,7 @@ func (m *Model) imapAddEmailFlagByUids(user, pwd string, uids string, flag strin
 	return nil
 }
 
+//SetSeenFlagByUids 通过uids设置已读标志
 func (m *Model) SetSeenFlagByUids(user, pwd string, uids string) error {
 	var (
 		err error
@@ -169,6 +176,7 @@ func (m *Model) SetSeenFlagByUids(user, pwd string, uids string) error {
 	return nil
 }
 
+//GetEmailListByMailBox 通过邮箱名称获取邮件列表
 func (m *Model) GetEmailListByMailBox(user, pwd string, mbName string, offset, line uint) ([]ReceiveEmail, uint, uint, error) {
 	var (
 		err    error
@@ -192,7 +200,6 @@ func (m *Model) GetEmailListByMailBox(user, pwd string, mbName string, offset, l
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -249,13 +256,14 @@ func (m *Model) GetEmailListByMailBox(user, pwd string, mbName string, offset, l
 			}
 		}
 		email.Date = msg.InternalDate.Format(timeFormat)
-		email.Uid = fmt.Sprintf("%d", msg.Uid)
+		email.UID = fmt.Sprintf("%d", msg.Uid)
 	}
 
 	return emails, count, offset, nil
 }
 
-func (m *Model) GetEmailByUid(user, pwd string, uid string) (ReceiveEmail, error) {
+//GetEmailByUID 通过uid获取邮件
+func (m *Model) GetEmailByUID(user, pwd string, uid string) (ReceiveEmail, error) {
 	var (
 		err    error
 		email  ReceiveEmail
@@ -271,7 +279,6 @@ func (m *Model) GetEmailByUid(user, pwd string, uid string) (ReceiveEmail, error
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -305,7 +312,7 @@ func (m *Model) GetEmailByUid(user, pwd string, uid string) (ReceiveEmail, error
 				}
 				email.To = buildManyMailAddress(to)
 				email.Text = env.Text
-				email.Html = env.HTML
+				email.HTML = env.HTML
 				for i := range env.Attachments {
 					email.Files = append(email.Files, env.Attachments[i].FileName)
 				}
@@ -317,7 +324,7 @@ func (m *Model) GetEmailByUid(user, pwd string, uid string) (ReceiveEmail, error
 			}
 
 			email.Date = msg.InternalDate.Format(timeFormat)
-			email.Uid = uid
+			email.UID = uid
 			for i := range msg.Flags {
 				if imap.SeenFlag == msg.Flags[i] {
 					email.Seen = true
@@ -329,6 +336,7 @@ func (m *Model) GetEmailByUid(user, pwd string, uid string) (ReceiveEmail, error
 	return email, nil
 }
 
+//GetEmailAttachmentByFileName ...
 func (m *Model) GetEmailAttachmentByFileName(user, pwd string, uid string, fileName string) (io.Reader, error) {
 	var (
 		err    error
@@ -343,7 +351,6 @@ func (m *Model) GetEmailAttachmentByFileName(user, pwd string, uid string, fileN
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -383,7 +390,8 @@ func (m *Model) GetEmailAttachmentByFileName(user, pwd string, uid string, fileN
 	return nil, nil
 }
 
-func (m *Model) DeleteEmailByUid(user, pwd string, uid string) error {
+//DeleteEmailByUID 删除邮件通过uid
+func (m *Model) DeleteEmailByUID(user, pwd string, uid string) error {
 	var (
 		err    error
 		c      *client.Client
@@ -398,7 +406,6 @@ func (m *Model) DeleteEmailByUid(user, pwd string, uid string) error {
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -416,7 +423,8 @@ func (m *Model) DeleteEmailByUid(user, pwd string, uid string) error {
 	return nil
 }
 
-func (m *Model) MoveDeletedMailBox(user, pwd string, uid string) error {
+//MoveInDeletedMailBox 把uid的邮件移入已删除邮箱
+func (m *Model) MoveInDeletedMailBox(user, pwd string, uid string) error {
 	var (
 		err    error
 		c      *client.Client
@@ -429,7 +437,6 @@ func (m *Model) MoveDeletedMailBox(user, pwd string, uid string) error {
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -451,7 +458,7 @@ func (m *Model) MoveDeletedMailBox(user, pwd string, uid string) error {
 	}
 
 	go func() {
-		done <- m.DeleteEmailByUid(user, pwd, uid)
+		done <- m.DeleteEmailByUID(user, pwd, uid)
 	}()
 	if err = <-done; err != nil {
 		return err
@@ -472,6 +479,7 @@ func (m *Model) MoveDeletedMailBox(user, pwd string, uid string) error {
 	return nil
 }
 
+//AppendToMyMailbox 追加到我的邮箱
 func (m *Model) AppendToMyMailbox(user, pwd string, mbName string, flags []string, e SendEmail) error {
 	var (
 		err error
@@ -490,7 +498,6 @@ func (m *Model) AppendToMyMailbox(user, pwd string, mbName string, flags []strin
 	defer func() {
 		if err = c.Logout(); err != nil {
 			panic(err)
-			return
 		}
 	}()
 
@@ -505,7 +512,8 @@ func (m *Model) AppendToMyMailbox(user, pwd string, mbName string, flags []strin
 	return nil
 }
 
-func (m *Model) SmtpSendEmail(user, pwd string, e SendEmail) error {
+//SMTPSendEmail Smtp发送邮件
+func (m *Model) SMTPSendEmail(user, pwd string, e SendEmail) error {
 	var (
 		err error
 
@@ -513,7 +521,7 @@ func (m *Model) SmtpSendEmail(user, pwd string, e SendEmail) error {
 	)
 
 	go func() {
-		done <- e.Send(m.conf.SmtpHost+":"+m.conf.SmtpPort, smtp.PlainAuth("", user, pwd, m.conf.SmtpHost))
+		done <- e.send(m.conf.SMTPHost+":"+m.conf.SMTPPort, smtp.PlainAuth("", user, pwd, m.conf.SMTPHost))
 	}()
 
 	if err = m.AppendToMyMailbox(user, pwd, mailBoxSent, nil, e); err != nil {
@@ -527,7 +535,8 @@ func (m *Model) SmtpSendEmail(user, pwd string, e SendEmail) error {
 	return nil
 }
 
-func (e *SendEmail) BuildMessage(outPut io.Writer) error {
+//BuildMessage 构建消息内容
+func (e *SendEmail) buildMessage(outPut io.Writer) error {
 	var (
 		err     error
 		builder enmime.MailBuilder
@@ -607,14 +616,15 @@ func (e *SendEmail) BuildMessage(outPut io.Writer) error {
 	return nil
 }
 
-func (e *SendEmail) Send(addr string, a smtp.Auth) error {
+//Send 发送
+func (e *SendEmail) send(addr string, a smtp.Auth) error {
 	var (
 		err error
 
 		buf = &bytes.Buffer{}
 	)
 
-	if err = e.BuildMessage(buf); err != nil {
+	if err = e.buildMessage(buf); err != nil {
 		return err
 	}
 
