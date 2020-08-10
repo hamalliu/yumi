@@ -143,7 +143,7 @@ func (c *Context) Bind(obj interface{}) error {
 	return c.BindWith(obj, b)
 }
 
-// MustBindWith binds the passed struct pointer using the specified binding engine.
+// BindWith binds the passed struct pointer using the specified binding engine.
 // It will abort the request with HTTP 400 if any error occurs.
 // See the binding package.
 func (c *Context) BindWith(obj interface{}, b binding.Binding) error {
@@ -278,8 +278,7 @@ func (c *Context) JSON(data interface{}, err error) {
 	})
 }
 
-// JSON serializes the given struct as JSON into the response body.
-// It also sets the Content-Type as "application/json".
+// JSONNoDataSuccess ...
 func (c *Context) JSONNoDataSuccess() {
 	code := http.StatusOK
 	c.Render(code, render.JSON{

@@ -9,21 +9,21 @@ import (
 	"yumi/internal/pay/trade"
 )
 
-//提交订单
-func SubmitOrderPay(accountGuid, sellerKey string, totalFee int, body, detail string,
-	timeoutExpress time.Time) (string, error) {
+//SubmitOrderPay 提交订单
+func SubmitOrderPay(accountGuid, sellerKey string, totalFee int, body, detail string, timeoutExpress time.Time) (
+	string, error) {
 	if totalFee <= 0 {
 		return "", fmt.Errorf("金额必须大于0")
 	}
 	return trade.SubmitOrderPay(accountGuid, sellerKey, totalFee, body, detail, timeoutExpress)
 }
 
-//立即支付
+//Pay 立即支付
 func Pay(code string, tradeWay trade.Way, clientIp, notifyUrl string, payExpire time.Time) (string, error) {
 	return trade.Pay(code, tradeWay, clientIp, notifyUrl, payExpire)
 }
 
-//轮循查询支付结果(发货的时候必须处理重复的成功通知)
+//RoundRobinQueryPaySuccess 轮循查询支付结果(发货的时候必须处理重复的成功通知)
 func RoundRobinQueryPaySuccess(code string) (bool, error) {
 	status, err := trade.PaySuccess(code)
 	if err != nil {
@@ -36,7 +36,7 @@ func RoundRobinQueryPaySuccess(code string) (bool, error) {
 	return false, nil
 }
 
-//支付遇到问题
+//PayProblem 支付遇到问题
 func PayProblem(code string) (bool, error) {
 	//查询支付是否支付成功，如果未支付，则关闭订单
 	status, err := trade.PaySuccess(code)
@@ -57,7 +57,7 @@ func PayProblem(code string) (bool, error) {
 	return false, nil
 }
 
-//支付完成
+//PayCompleted 支付完成
 func PayCompleted(code string) (bool, error) {
 	//查询支付是否支付成功，如果未支付，则关闭订单
 	status, err := trade.PaySuccess(code)
@@ -76,12 +76,12 @@ func PayCompleted(code string) (bool, error) {
 	return false, nil
 }
 
-//取消订单
+//CancelOrderPay 取消订单
 func CancelOrderPay(code string) error {
 	return trade.CancelOrderPay(code)
 }
 
-//支付通知(发货的时候必须处理重复的成功通知)
+//PayNotify 支付通知(发货的时候必须处理重复的成功通知)
 func PayNotify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Request) (string, bool) {
 	orderPayCode, tradeStatus := trade.PayNotify(tradeWay, resp, req)
 	if tradeStatus == trade.Success {
@@ -91,13 +91,13 @@ func PayNotify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Request) 
 	return orderPayCode, false
 }
 
-//提交退款
+//Refund 提交退款
 func Refund(orderPayCode, notifyUrl string, refundAccountGuid string, refundFee int, refundDesc string, submitTime,
 	timeoutExpress time.Time) (string, error) {
 	return trade.Refund(orderPayCode, notifyUrl, refundAccountGuid, refundFee, refundDesc, submitTime, timeoutExpress)
 }
 
-//查询退款
+//RefundSuccess 查询退款
 func RefundSuccess(code string) (bool, error) {
 	status, err := trade.RefundSuccess(code)
 	if err != nil {
@@ -109,7 +109,7 @@ func RefundSuccess(code string) (bool, error) {
 	return false, nil
 }
 
-//退款通知
+//RefundNotify 退款通知
 func RefundNotify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Request) bool {
 	tradeStatus := trade.RefundNotify(tradeWay, resp, req)
 	if tradeStatus == trade.Success {
@@ -119,7 +119,7 @@ func RefundNotify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Reques
 	return false
 }
 
-//纠正异常订单
+//CorrectPaySuccess 纠正异常订单
 func CorrectPaySuccess() ([]string, error) {
 	codes, err := db.GetOrderPayCodesSubmittedAndWaitPay()
 	if err != nil {

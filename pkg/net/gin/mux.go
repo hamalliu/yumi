@@ -11,6 +11,7 @@ type injection struct {
 	handlers []HandlerFunc
 }
 
+//Mux 路由选择器
 type Mux struct {
 	RouterGroup
 
@@ -68,6 +69,7 @@ func default405Handler(c *Context) {
 	c.Abort()
 }
 
+//NewMux 新建一个路由选择器
 func NewMux() *Mux {
 	mux := &Mux{
 		RouterGroup: RouterGroup{

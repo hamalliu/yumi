@@ -71,7 +71,7 @@ type SendEmail struct {
 	Subject string
 
 	Text string
-	Html string
+	HTML string
 
 	UploadFiles   []UploadFile
 	UploadInlines []UploadInlines
@@ -502,7 +502,7 @@ func (m *Model) AppendToMyMailbox(user, pwd string, mbName string, flags []strin
 	}()
 
 	b := &bytes.Buffer{}
-	if err = e.BuildMessage(b); err != nil {
+	if err = e.buildMessage(b); err != nil {
 		return err
 	}
 	if err = c.Append(mbName, flags, time.Now(), b); err != nil {
@@ -579,8 +579,8 @@ func (e *SendEmail) buildMessage(outPut io.Writer) error {
 		builder = builder.Subject(e.Subject)
 	}
 	//set html
-	if e.Html != "" {
-		builder = builder.HTML([]byte(e.Html))
+	if e.HTML != "" {
+		builder = builder.HTML([]byte(e.HTML))
 	}
 	//set text
 	if e.Text != "" {

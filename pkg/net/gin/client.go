@@ -27,7 +27,8 @@ func New(path, user, pwd string) Client {
 	return Client{}
 }
 
-func (cli Client) GetJson(path string, urlParams map[string]string) render.JSON {
+//GetJSON 以json格式交互的get请求
+func (cli Client) GetJSON(path string, urlParams map[string]string) render.JSON {
 	urlVals := url.Values{}
 	for k, v := range urlParams {
 		urlVals.Set(k, v)
@@ -60,7 +61,8 @@ func (cli Client) GetJson(path string, urlParams map[string]string) render.JSON 
 	return respJ
 }
 
-func (cli Client) PostJson(path string, body interface{}, urlParams map[string]string) render.JSON {
+//PostJSON 以json格式交互的post请求
+func (cli Client) PostJSON(path string, body interface{}, urlParams map[string]string) render.JSON {
 	urlVals := url.Values{}
 
 	for k, v := range urlParams {

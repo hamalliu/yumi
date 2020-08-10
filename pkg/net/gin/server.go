@@ -9,22 +9,26 @@ import (
 	"yumi/pkg/conf"
 )
 
+//Handler 处理器
 type Handler interface {
 	ServeHTTP(c *Context)
 }
 
+//HandlerFunc 处理函数
 type HandlerFunc func(*Context)
 
 func (f HandlerFunc) ServeHTTP(c *Context) {
 	f(c)
 }
 
+//Server gin服务器
 type Server struct {
 	Mux
 
 	server atomic.Value
 }
 
+//NewServer 新建gin服务器
 func NewServer() *Server {
 	srv := &Server{
 		Mux: *NewMux(),
@@ -53,6 +57,7 @@ func (srv *Server) handleContext(c *Context) {
 	c.Next()
 }
 
+//Run 运行服务器
 func (srv *Server) Run(srvConf conf.Server) error {
 	server := &http.Server{
 		Handler:      srv,
@@ -65,16 +70,19 @@ func (srv *Server) Run(srvConf conf.Server) error {
 	return nil
 }
 
+//RunTLS 运行https服务器
 func (srv *Server) RunTLS(srvConf conf.Server) error {
 	//TODO
 	return nil
 }
 
+//RunUnix 运行unix域服务器
 func (srv *Server) RunUnix(srvConf conf.Server) error {
 	//TODO
 	return nil
 }
 
+//Server ...
 func (srv *Server) Server() *http.Server {
 	s, ok := srv.server.Load().(*http.Server)
 	if !ok {
@@ -83,6 +91,7 @@ func (srv *Server) Server() *http.Server {
 	return s
 }
 
+//Shutdown 等待当前处理函数执行完之后，关闭服务器
 func (srv *Server) Shutdown(ctx context.Context) error {
 	server := srv.Server()
 	if server == nil {
