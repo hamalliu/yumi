@@ -44,10 +44,12 @@ type Context struct {
 	Params Params
 }
 
+//Code ...
 func (c *Context) Code() string {
 	return c.code
 }
 
+//FullPath ...
 func (c *Context) FullPath() string {
 	return c.fullPath
 }
@@ -87,6 +89,7 @@ func (c *Context) AbortWithStatus(code int) {
 	c.Abort()
 }
 
+// Set ...
 func (c *Context) Set(key valuer.Key, value interface{}) {
 	if c.KeysMutex == nil {
 		c.KeysMutex = &sync.RWMutex{}
@@ -101,19 +104,7 @@ func (c *Context) Set(key valuer.Key, value interface{}) {
 	c.KeysMutex.Unlock()
 }
 
-// Get returns the value for the given key, ie: (value, true).
-// If the value does not exists it returns (nil, false)
-func (c *Context) Get1(key valuer.Key) (value *valuer.Valuer, exists bool) {
-	if c.KeysMutex == nil {
-		c.KeysMutex = &sync.RWMutex{}
-	}
-
-	c.KeysMutex.RLock()
-	value, exists = c.Keys[key]
-	c.KeysMutex.RUnlock()
-	return
-}
-
+// Get returns the value for the given key
 func (c *Context) Get(key valuer.Key) *valuer.Valuer {
 	if c.KeysMutex == nil {
 		c.KeysMutex = &sync.RWMutex{}
@@ -130,6 +121,7 @@ func (c *Context) Get(key valuer.Key) *valuer.Valuer {
 /************************************/
 /************** BINDING *************/
 /************************************/
+
 // Bind checks the Content-Type to select a binding engine automatically,
 // Depending the "Content-Type" header different bindings are used:
 //     "application/json" --> JSON binding

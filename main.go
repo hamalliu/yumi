@@ -27,7 +27,7 @@ func main() {
 
 	log.Info("构建服务")
 	srv := gin.NewServer()
-	srv.Use(middeware.Recovery(), middeware.Cors(conf.Get().CORS), middeware.PrintRequest())
+	srv.Use(middeware.Recovery(), middeware.Cors(conf.Get().CORS), middeware.Debug())
 
 	log.Info("加载路由")
 	router := srv.Group("/")

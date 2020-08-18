@@ -9,7 +9,8 @@ import (
 	"yumi/pkg/net/gin"
 )
 
-func PrintRequest() gin.HandlerFunc {
+//Debug ...
+func Debug() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if conf.IsDebug() {
 			fmt.Printf("url: %s\n", c.Request.URL.String())
