@@ -66,7 +66,6 @@ func (m *Client) Insert(query string, args ...interface{}) (int64, error) {
 	} else {
 		return id, nil
 	}
-
 }
 
 //PageSelect 分页查询
