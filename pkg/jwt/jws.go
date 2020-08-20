@@ -8,6 +8,7 @@ import (
 
 const mySigningKey = "doudoubuwangchuxinfangdeshizhong,.+-*\\"
 
+//GetToken ...
 func GetToken(user string) (string, error) {
 	claims := &jwt.StandardClaims{
 		ExpiresAt: 15000,
@@ -19,6 +20,7 @@ func GetToken(user string) (string, error) {
 	return token.SignedString([]byte(mySigningKey))
 }
 
+//ReadToken ...
 func ReadToken(tokenstr string) (string, error) {
 	token, err := jwt.Parse(tokenstr, func(token *jwt.Token) (interface{}, error) {
 		return []byte(mySigningKey), nil
@@ -30,9 +32,9 @@ func ReadToken(tokenstr string) (string, error) {
 	if token.Valid {
 		if claims, ok := token.Claims.(jwt.StandardClaims); ok {
 			return claims.Issuer, nil
-		} else {
-			return "", errors.New("无效token")
 		}
+		
+		return "", errors.New("无效token")
 	} else if ve, ok := err.(*jwt.ValidationError); ok {
 		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
 			return "", errors.New("错误token")

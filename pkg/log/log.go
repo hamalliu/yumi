@@ -13,6 +13,7 @@ var errorlog = logging.MustGetLogger("error")
 var criticallog = logging.MustGetLogger("critical")
 var log = logging.MustGetLogger("log")
 
+//Init ...
 func Init() {
 	var format = logging.MustStringFormatter(
 		`%{time:2006-01-02 15:04:05.000} %{level:.4s} %{longfile} %{message}`,
@@ -40,6 +41,7 @@ func Init() {
 	criticallog.SetBackend(lvlCriticalBackend)
 }
 
+//Critical ...
 func Critical(args ...interface{}) {
 	criticallog.ExtraCalldepth = 1
 	criticallog.Critical(args)
@@ -49,6 +51,7 @@ func Critical(args ...interface{}) {
 	}
 }
 
+//Error ...
 func Error(args ...interface{}) {
 	errorlog.ExtraCalldepth = 1
 	errorlog.Error(args)
@@ -58,6 +61,7 @@ func Error(args ...interface{}) {
 	}
 }
 
+//Info ...
 func Info(args ...interface{}) {
 	infolog.ExtraCalldepth = 1
 	infolog.Info(args)
@@ -67,11 +71,13 @@ func Info(args ...interface{}) {
 	}
 }
 
+//Debug ...
 func Debug(args ...interface{}) {
 	log.ExtraCalldepth = 1
 	log.Debug(args)
 }
 
+//Critical2 ...
 func Critical2(args ...interface{}) {
 	criticallog.ExtraCalldepth = 2
 	criticallog.Critical(args)
@@ -81,6 +87,7 @@ func Critical2(args ...interface{}) {
 	}
 }
 
+//Error2 ...
 func Error2(args ...interface{}) {
 	errorlog.ExtraCalldepth = 2
 	errorlog.Error(args)
@@ -90,6 +97,7 @@ func Error2(args ...interface{}) {
 	}
 }
 
+//Info2 ...
 func Info2(args ...interface{}) {
 	infolog.ExtraCalldepth = 2
 	infolog.Info(args)
@@ -99,6 +107,7 @@ func Info2(args ...interface{}) {
 	}
 }
 
+//Info3 ...
 func Info3(args ...interface{}) {
 	infolog.ExtraCalldepth = 3
 	infolog.Info(args)

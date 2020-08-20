@@ -11,6 +11,7 @@ import (
 	"yumi/pkg/net/gin/header"
 )
 
+//Cors ...
 func Cors(corsConf conf.CORS) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		opts := cors.Options{

@@ -1,4 +1,4 @@
-package file_utility
+package fileutility
 
 import (
 	"fmt"
@@ -8,6 +8,7 @@ import (
 	"time"
 )
 
+//ExistDir ...
 func ExistDir(path string) bool {
 	f, err := os.Stat(path)
 	if err != nil {
@@ -19,6 +20,7 @@ func ExistDir(path string) bool {
 	}
 }
 
+//ExistFile ...
 func ExistFile(path string) bool {
 	f, err := os.Stat(path)
 	if err != nil {
@@ -30,6 +32,7 @@ func ExistFile(path string) bool {
 	}
 }
 
+//CreateDir ...
 func CreateDir(path string) error {
 	if !ExistDir(path) {
 		if err := os.MkdirAll(path, 0644); err != nil {
@@ -39,6 +42,7 @@ func CreateDir(path string) error {
 	return nil
 }
 
+//DeleteDir ...
 func DeleteDir(path string) error {
 	if ExistDir(path) {
 		if err := os.RemoveAll(path); err != nil {
@@ -48,6 +52,7 @@ func DeleteDir(path string) error {
 	return nil
 }
 
+//CopyFile ...
 func CopyFile(srcPath, destPath string) error {
 	sf, err := os.Open(srcPath)
 	if err != nil {
@@ -73,6 +78,7 @@ func CopyFile(srcPath, destPath string) error {
 	return nil
 }
 
+//WriteFile ...
 func WriteFile(src io.Reader, destPath string) error {
 	if ExistFile(destPath) {
 		return fmt.Errorf("file already exists")
@@ -92,14 +98,16 @@ func WriteFile(src io.Reader, destPath string) error {
 	return nil
 }
 
+//GetFileExtension ...
 func GetFileExtension(fileName string, withoutDot bool) string {
 	if withoutDot {
 		return fileName[strings.LastIndex(fileName, ".")+1:]
-	} else {
-		return fileName[strings.LastIndex(fileName, "."):]
 	}
+	
+	return fileName[strings.LastIndex(fileName, "."):]
 }
 
+//GetModTime ...
 func GetModTime(path string) time.Time {
 	s, _ := os.Stat(path)
 	return s.ModTime()

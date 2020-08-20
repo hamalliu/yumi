@@ -9,14 +9,14 @@ import (
 )
 
 func TestSubmitOrderPay(t *testing.T) {
-	accountGuid := "liuxin@guid"
+	accountGUID := "liuxin@guid"
 	sellerKey := "zzyq_account_001"
 	totalFee := 1
 	body := "商品描述"
 	detail := "商品详情"
 	timeoutExpress := time.Now().Add(time.Minute * 30)
 
-	if code, err := SubmitOrderPay(accountGuid, sellerKey, totalFee, body, detail, timeoutExpress); err != nil {
+	if code, err := SubmitOrderPay(accountGUID, sellerKey, totalFee, body, detail, timeoutExpress); err != nil {
 		t.Error(err)
 	} else {
 		t.Log(code)
@@ -25,10 +25,10 @@ func TestSubmitOrderPay(t *testing.T) {
 
 func TestPay(t *testing.T) {
 	code := "2051114151401906"
-	notifyUrl := "http:120.24.183.196:20192/signin"
+	notifyURL := "http:120.24.183.196:20192/signin"
 
 	t.Log(code)
-	if intf, err := Pay(code, tradeplatform.WxPayNATIVE2, "125.71.211.25", notifyUrl, time.Now().Add(time.Minute*30)); err != nil {
+	if intf, err := Pay(code, tradeplatform.WxPayNATIVE2, "125.71.211.25", notifyURL, time.Now().Add(time.Minute*30)); err != nil {
 		t.Error(err)
 	} else {
 		t.Log(intf)
@@ -46,7 +46,7 @@ func TestPayProblem(t *testing.T) {
 
 	code := "205616102203701156"
 
-	if _, err := PayProblem(code); err != nil {
+	if _, err := Problem(code); err != nil {
 		t.Error(err)
 		return
 	}
@@ -62,7 +62,7 @@ func TestPayProblem(t *testing.T) {
 func TestPayCompleted(t *testing.T) {
 	code := "20424172163301438"
 
-	if _, err := PayCompleted(code); err != nil {
+	if _, err := Completed(code); err != nil {
 		t.Error(err)
 		return
 	}
@@ -97,12 +97,12 @@ func TestPayNotify(t *testing.T) {
 
 func TestRefund(t *testing.T) {
 	orderPayCode := "205616102203701156"
-	notifyUrl := "https://weixin.qq.com/notify/"
-	refundAccountGuid := "liuxin@guid"
+	notifyURL := "https://weixin.qq.com/notify/"
+	refundAccountGUID := "liuxin@guid"
 	refundFee := 1
 	refundDesc := "测试退款"
 	now := time.Now()
-	code, err := Refund(orderPayCode, notifyUrl, refundAccountGuid, refundFee, refundDesc, now, now.Add(time.Minute*30))
+	code, err := Refund(orderPayCode, notifyURL, refundAccountGUID, refundFee, refundDesc, now, now.Add(time.Minute*30))
 	if err != nil {
 		time.Sleep(time.Second * 1)
 		t.Error(code, err)

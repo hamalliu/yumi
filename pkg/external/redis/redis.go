@@ -9,16 +9,19 @@ import (
 	"github.com/gomodule/redigo/redis"
 )
 
+//Config ...
 type Config struct {
 	Host string `json:"host"`
 	Port string `json:"port"`
 }
 
+//Model ...
 type Model struct {
 	redis.Conn
 	conf Config
 }
 
+//New ...
 func New(conf Config) (*Model, error) {
 	var (
 		err   error
@@ -48,6 +51,7 @@ func (m *Model) dialRedis() error {
 	return nil
 }
 
+//PutStructOrMapFlat ...
 func (m *Model) PutStructOrMapFlat(key string, obj interface{}) error {
 	if _, err := m.Do("HMSET", redis.Args{}.Add(key).AddFlat(obj)...); err != nil {
 		return err
@@ -56,6 +60,7 @@ func (m *Model) PutStructOrMapFlat(key string, obj interface{}) error {
 	return nil
 }
 
+//GetStructOrMapFlat ...
 func (m *Model) GetStructOrMapFlat(key string, objptr interface{}) error {
 	v, err := redis.Values(m.Do("HGETALL", key))
 	if err != nil {
@@ -69,6 +74,7 @@ func (m *Model) GetStructOrMapFlat(key string, objptr interface{}) error {
 	return err
 }
 
+//MputStructOrMapFlat ...
 func (m *Model) MputStructOrMapFlat(key string, obj interface{}) error {
 	ov := reflect.ValueOf(obj)
 	switch ov.Kind() {
@@ -96,6 +102,7 @@ func (m *Model) MputStructOrMapFlat(key string, obj interface{}) error {
 	return nil
 }
 
+//MgetStructOrMapFlat ...
 func (m *Model) MgetStructOrMapFlat(key string, objptr interface{}) error {
 	args := []interface{}{key, "BY", key}
 
@@ -118,6 +125,7 @@ func (m *Model) MgetStructOrMapFlat(key string, objptr interface{}) error {
 	return err
 }
 
+//PutString ...
 func (m *Model) PutString(key string, v string, ex int64) error {
 	var args []interface{}
 	if ex == 0 {
@@ -132,11 +140,12 @@ func (m *Model) PutString(key string, v string, ex int64) error {
 	return nil
 }
 
+//GetString ...
 func (m *Model) GetString(key string) (string, error) {
 	return redis.String(m.Do("GET", key))
-
 }
 
+//MputString ...
 func (m *Model) MputString(args []interface{}) error {
 	_, err := m.Do("MSET", args...)
 	if err != nil {
@@ -146,16 +155,19 @@ func (m *Model) MputString(args []interface{}) error {
 	return nil
 }
 
+//MgetString ...
 func (m *Model) MgetString(key []interface{}) ([]string, error) {
 	return redis.Strings(m.Do("MGET", key...))
 
 }
 
+//GetFloat64 ...
 func (m *Model) GetFloat64(key string) (float64, error) {
 	return redis.Float64(m.Do("GET", key))
 
 }
 
+//Del ...
 func (m *Model) Del(key []interface{}) error {
 	if _, err := m.Do("DEL", key...); err != nil {
 		return err
@@ -164,6 +176,7 @@ func (m *Model) Del(key []interface{}) error {
 	return nil
 }
 
+//DelMap ...
 func (m *Model) DelMap(key string, mkeys []interface{}) error {
 	var args []interface{}
 	args = append(args, key)

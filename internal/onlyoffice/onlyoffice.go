@@ -15,7 +15,7 @@ import (
 	"yumi/internal/onlyoffice/docmanager"
 	"yumi/internal/onlyoffice/docservice"
 	"yumi/pkg/conf"
-	"yumi/pkg/file_utility"
+	"yumi/pkg/fileutility"
 )
 
 //OnlyOffice ...
@@ -128,7 +128,7 @@ func (oo OnlyOffice) GetHistory(fileName, userID string) ([]History, []HistoryDa
 			Key:     key,
 			URL:     uri,
 		}
-		if i > 1 && file_utility.ExistFile(oo.DiffPath(fileName, userID, i-1)) {
+		if i > 1 && fileutility.ExistFile(oo.DiffPath(fileName, userID, i-1)) {
 			hd.Pervious.Key = hds[i-2].Pervious.Key
 			hd.Pervious.URL = hds[i-2].Pervious.URL
 			hd.ChangesURL = oo.GetLocalFileURI(fileName, userID, i-1) + "/diff.zip"

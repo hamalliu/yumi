@@ -6,14 +6,16 @@ import (
 	"time"
 )
 
+//Sessions ...
 type Sessions struct {
 	rwmux          sync.RWMutex
 	userList       map[string]Session
 	expireDuration time.Duration
 }
 
+//Session ...
 type Session struct {
-	UserId   string
+	UserID   string
 	UserName string
 	Token    string
 	power    map[string]bool
@@ -31,6 +33,7 @@ func initSessions(ed time.Duration) {
 	go sssns.checkExpire()
 }
 
+//LoadSeesion ...
 func LoadSeesion(user string) error {
 	sssns.rwmux.Lock()
 	defer sssns.rwmux.Unlock()
@@ -39,6 +42,7 @@ func LoadSeesion(user string) error {
 	return nil
 }
 
+//UpdateLastHeart ...
 func UpdateLastHeart(user string) {
 	sssns.rwmux.Lock()
 	defer sssns.rwmux.Unlock()
@@ -49,6 +53,7 @@ func UpdateLastHeart(user string) {
 	return
 }
 
+//GetUser ...
 func GetUser(user string) (Session, bool) {
 	sssns.rwmux.RLock()
 	defer sssns.rwmux.RUnlock()
@@ -57,13 +62,14 @@ func GetUser(user string) (Session, bool) {
 		now := time.Now().Add(-1 * sssns.expireDuration)
 		if u.LastHeart.Before(now) {
 			return empty, false
-		} else {
-			return u, true
 		}
+		
+		return u, true
 	}
 	return empty, false
 }
 
+//HavePower ...
 func HavePower(user, code string) bool {
 	codes := strings.Split(code, ",")
 	for i := range codes {
@@ -75,6 +81,7 @@ func HavePower(user, code string) bool {
 	return false
 }
 
+//Remove ...
 func Remove(user string) {
 	sssns.rwmux.Lock()
 	defer sssns.rwmux.Unlock()
@@ -89,7 +96,7 @@ func (m *Sessions) checkExpire() {
 		now := time.Now().Add(-1 * m.expireDuration)
 		for _, v := range m.userList {
 			if v.LastHeart.Before(now) {
-				Remove(v.UserId)
+				Remove(v.UserID)
 			}
 		}
 		time.Sleep(time.Minute * time.Duration(1))

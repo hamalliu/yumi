@@ -8,24 +8,30 @@ import (
 	"time"
 )
 
+//TimeDuration ...
 type TimeDuration time.Duration
 
+//Duration ...
 func (d TimeDuration) Duration() time.Duration {
 	return time.Duration(d)
 }
 
+//UnmarshalText ...
 func (d *TimeDuration) UnmarshalText(text []byte) error {
 	dur, err := time.ParseDuration(strings.TrimSpace(string(text)))
 	*d = TimeDuration(dur)
 	return err
 }
 
+//SpaceSize ...
 type SpaceSize int64
 
+//Size ...
 func (s SpaceSize) Size() int64 {
 	return int64(s)
 }
 
+//UnmarshalText ...
 //parse "b", "kb", "mb", "gb", "tb" to int64
 func (s *SpaceSize) UnmarshalText(text []byte) error {
 	str := strings.TrimSpace(string(text))
@@ -58,8 +64,10 @@ func (s *SpaceSize) UnmarshalText(text []byte) error {
 	return fmt.Errorf("空间单位未识别，%s", str)
 }
 
+//ArrayString ...
 type ArrayString []string
 
+//IndexOf ...
 func (as ArrayString) IndexOf(elem string) int {
 	for i, e := range as {
 		if elem == e {

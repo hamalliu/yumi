@@ -11,6 +11,7 @@ const logdir = "logfile"
 const dateformat = "2006-01-02"
 const timeformat = "2006-01-02 15-03-04.999"
 
+//File ...
 type File struct {
 	mux sync.Mutex
 	f   *os.File
@@ -20,6 +21,7 @@ type File struct {
 	day     bool
 }
 
+//New ...
 func New(prefix string, maxsize int64, day bool) *File {
 	_ = os.Mkdir(logdir, 0644)
 	return &File{
@@ -29,6 +31,7 @@ func New(prefix string, maxsize int64, day bool) *File {
 	}
 }
 
+//Write ...
 func (m *File) Write(b []byte) (int, error) {
 	m.mux.Lock()
 	defer m.mux.Unlock()

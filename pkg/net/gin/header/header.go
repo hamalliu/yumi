@@ -7,24 +7,27 @@ import (
 
 const (
 	// http head
-	_httpHeaderUserId     = "x-yumi-user-id"
+	_httpHeaderUserID     = "x-yumi-user-id"
 	_httpHeaderRemoteIP   = "x-yumi-real-ip"
 	_httpHeaderRemotePort = "x-yumi-real-port"
 )
 
+//ReqHeaders ...
 func ReqHeaders() []string {
-	return []string{_httpHeaderUserId, _httpHeaderRemoteIP, _httpHeaderRemotePort}
+	return []string{_httpHeaderUserID, _httpHeaderRemoteIP, _httpHeaderRemotePort}
 }
 
+//RespHeaders ...
 func RespHeaders() []string {
 	return nil
 }
 
-func UserId(req *http.Request) string {
-	return req.Header.Get(_httpHeaderUserId)
+//UserID ...
+func UserID(req *http.Request) string {
+	return req.Header.Get(_httpHeaderUserID)
 }
 
-// remoteIP implements a best effort algorithm to return the real client IP, it parses
+// RemoteIP implements a best effort algorithm to return the real client IP, it parses
 // x-backend-bm-real-ip or X-Real-IP or X-Forwarded-For in order to work properly with reverse-proxies such us: nginx or haproxy.
 // Use X-Forwarded-For before X-Real-Ip as nginx uses X-Real-Ip with the proxy's IP.
 func RemoteIP(req *http.Request) (remote string) {
@@ -44,6 +47,7 @@ func RemoteIP(req *http.Request) (remote string) {
 	return
 }
 
+//RemotePort ...
 func RemotePort(req *http.Request) (port string) {
 	if port = req.Header.Get(_httpHeaderRemotePort); port != "" && port != "null" {
 		return

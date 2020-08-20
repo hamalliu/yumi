@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"yumi/pkg/conf"
-	"yumi/pkg/file_utility"
+	"yumi/pkg/fileutility"
 	"yumi/pkg/types"
 )
 
@@ -95,7 +95,7 @@ func (fu FileUtility) GetFileType(fileName string) string {
 //StoragePath ...
 func (fu FileUtility) StoragePath(fileName, userID string) string {
 	directory := path.Join(fu.cfg.StoragePath, userID)
-	_ = file_utility.CreateDir(directory)
+	_ = fileutility.CreateDir(directory)
 
 	fileName = fu.GetFileName(fileName, false)
 
@@ -105,18 +105,18 @@ func (fu FileUtility) StoragePath(fileName, userID string) string {
 //ForcesavePath ...
 func (fu FileUtility) ForcesavePath(fileName, userID string, create bool) string {
 	directory := path.Join(fu.cfg.StoragePath, userID)
-	if !file_utility.ExistDir(directory) {
+	if !fileutility.ExistDir(directory) {
 		return ""
 	}
 
 	directory = path.Join(directory, fileName+"-history")
-	if !create && !file_utility.ExistDir(directory) {
+	if !create && !fileutility.ExistDir(directory) {
 		return ""
 	}
 
-	_ = file_utility.CreateDir(directory)
+	_ = fileutility.CreateDir(directory)
 	directory = path.Join(directory, fileName)
-	if !create && !file_utility.ExistDir(directory) {
+	if !create && !fileutility.ExistDir(directory) {
 		return ""
 	}
 
@@ -126,12 +126,12 @@ func (fu FileUtility) ForcesavePath(fileName, userID string, create bool) string
 //HistoryPath ...
 func (fu FileUtility) HistoryPath(fileName, userID string, create bool) string {
 	directory := path.Join(fu.cfg.StoragePath, userID)
-	if !file_utility.ExistDir(directory) {
+	if !fileutility.ExistDir(directory) {
 		return ""
 	}
 
 	directory = path.Join(directory, fileName+"-history")
-	if !create && !file_utility.ExistDir(path.Join(directory, "1")) {
+	if !create && !fileutility.ExistDir(path.Join(directory, "1")) {
 		return ""
 	}
 
@@ -182,7 +182,7 @@ func (fu FileUtility) GetCorrectName(fileName, userID string) string {
 	index := 1
 
 	for {
-		if file_utility.ExistFile(fu.StoragePath(fileName, userID)) {
+		if fileutility.ExistFile(fu.StoragePath(fileName, userID)) {
 			name = fmt.Sprintf("%s(%d)%s", baseName, index, ext)
 			index++
 		}

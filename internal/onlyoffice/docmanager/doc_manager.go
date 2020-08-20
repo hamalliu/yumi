@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"yumi/pkg/conf"
-	"yumi/pkg/file_utility"
+	"yumi/pkg/fileutility"
 )
 
 //ResponseHistory ...
@@ -63,7 +63,7 @@ func (dm DocManager) SaveCreateInfo(fileName, userID, userName string) error {
 	modTimeStr := s.ModTime().Format(timeFormat)
 
 	directory := dm.HistoryPath(fileName, userID, true)
-	if err := file_utility.CreateDir(directory); err != nil {
+	if err := fileutility.CreateDir(directory); err != nil {
 		return err
 	}
 
@@ -148,7 +148,7 @@ func (dm DocManager) CountHistoryVersion(fileName, userID string) int {
 	index := 0
 	for {
 		index++
-		if !file_utility.ExistDir(path.Join(directory, fmt.Sprintf("%d", index))) {
+		if !fileutility.ExistDir(path.Join(directory, fmt.Sprintf("%d", index))) {
 			break
 		}
 	}
