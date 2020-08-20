@@ -7,7 +7,8 @@ import (
 	"yumi/pkg/net/gin"
 )
 
-func ApiDoc(c *gin.Context) {
+//APIDoc ...
+func APIDoc(c *gin.Context) {
 	path, _ := c.Params.Get("path")
 	if path == "" {
 		path = "api_doc/index.html"

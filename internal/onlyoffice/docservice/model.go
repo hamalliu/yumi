@@ -1,23 +1,27 @@
-package doc_service
+package docservice
 
+//Callback ...
 type Callback struct {
 	Actions        []Action  `json:"actions"`
 	Changeshistory []Changes `json:"changeshistory"`
-	ChangesUrl     string    `json:"changesurl"`
+	ChangesURL     string    `json:"changesurl"`
 	Forcesavetype  int       `json:"forcesavetype"`
 	History        History   `json:"history"`
 	Key            string    `json:"key"`
 	Status         int       `json:"status"`
-	Url            string    `json:"url"`
+	URL            string    `json:"url"`
 	UserData       string    `json:"userdata"`
 	Users          []string  `json:"users"`
 }
 
+//History ...
 type History struct {
 }
 
+//Action ...
 type Action struct {
 }
 
+//Changes ...
 type Changes struct {
 }

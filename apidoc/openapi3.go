@@ -2,6 +2,7 @@ package apidoc
 
 import "github.com/getkin/kin-openapi/openapi3"
 
+//Doc 接口文档
 type Doc struct {
 	openapi3.Swagger
 }
@@ -34,15 +35,20 @@ var _doc = Doc{
 	},
 }
 
+//Component ...
 type Component struct {
 	Parameter   Parameter
 	RequestBody RequestBody
 	Response    Response
 }
+//Parameter ...
 type Parameter interface{}
+//RequestBody ...
 type RequestBody interface{}
+//Response ...
 type Response interface{}
 
+//RegisterComponent ...
 func RegisterComponent(comp Component) {
 	//TODO
 }

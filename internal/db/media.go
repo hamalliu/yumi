@@ -5,14 +5,17 @@ import (
 	"yumi/pkg/external/dbc"
 )
 
+//DataMedia ...
 type DataMedia int
 
 var media DataMedia
 
+//Media ...
 func Media() DataMedia {
 	return media
 }
 
+//Add ...
 func (dm DataMedia) Add(suffix, name, realname, path, operator, operatorid string) (int, error) {
 	var (
 		id int64
@@ -34,24 +37,28 @@ func (dm DataMedia) Add(suffix, name, realname, path, operator, operatorid strin
 	return int(id), nil
 }
 
+//Delete ...
 func (dm DataMedia) Delete() (int, error) {
 	//TODO
 
 	return 0, nil
 }
 
+//Update ...
 func (dm DataMedia) Update() (int, error) {
 	//TODO
 
 	return 0, nil
 }
 
+//Search ...
 func (dm DataMedia) Search() (int, error) {
 	//TODO
 
 	return 0, nil
 }
 
+//GetItem ...
 func (dm DataMedia) GetItem() (int, error) {
 	//TODO
 

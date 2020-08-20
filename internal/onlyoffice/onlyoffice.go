@@ -12,75 +12,82 @@ import (
 	"strings"
 
 	"yumi/internal/onlyoffice/config"
-	"yumi/internal/onlyoffice/doc_manager"
-	"yumi/internal/onlyoffice/doc_service"
+	"yumi/internal/onlyoffice/docmanager"
+	"yumi/internal/onlyoffice/docservice"
 	"yumi/pkg/conf"
 	"yumi/pkg/file_utility"
 )
 
+//OnlyOffice ...
 type OnlyOffice struct {
 	cfg conf.OnlyOffice
-	doc_manager.DocManager
-	doc_service.DocService
+	docmanager.DocManager
+	docservice.DocService
 	config.Config
 }
 
+//History ...
 type History struct {
-	doc_manager.ResponseHistory
-	User    doc_manager.User `json:"user"`
-	Created string           `json:"created"`
+	docmanager.ResponseHistory
+	User    docmanager.User `json:"user"`
+	Created string          `json:"created"`
 
 	Key     string `json:"key"`
 	Version int    `json:"version"`
 }
 
+//HistoryData ...
 type HistoryData struct {
-	ChangesUrl string      `json:"changesUrl"`
+	ChangesURL string      `json:"changesUrl"`
 	Key        string      `json:"key"`
 	Pervious   Pervious    `json:"pervious"`
-	Url        string      `json:"url"`
+	URL        string      `json:"url"`
 	Version    interface{} `json:"version"`
 }
 
+//Pervious ...
 type Pervious struct {
 	Key string `json:"key"`
-	Url string `json:"url"`
+	URL string `json:"url"`
 }
 
 var _oo OnlyOffice
 
+//Init ...
 func Init(cfg conf.OnlyOffice) {
 	_oo = OnlyOffice{
 		cfg:        cfg,
-		DocManager: doc_manager.New(cfg.Document),
-		DocService: doc_service.New(cfg.Token),
+		DocManager: docmanager.New(cfg.Document),
+		DocService: docservice.New(cfg.Token),
 	}
 }
 
+//Get ...
 func Get() OnlyOffice {
 	return _oo
 }
 
-func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryData, int, error) {
+//GetHistory ...
+func (oo OnlyOffice) GetHistory(fileName, userID string) ([]History, []HistoryData, int, error) {
 	hs := []History{}
 	hds := []HistoryData{}
 
-	countVersion := oo.CountHistoryVersion(fileName, userId) + 1
-	uri := oo.GetFileUri(fileName, userId)
+	countVersion := oo.CountHistoryVersion(fileName, userID) + 1
+	uri := oo.GetFileURI(fileName, userID)
 
 	if countVersion == 1 {
-		ci, err := oo.GetCreateInfo(fileName, userId)
+		ci, err := oo.GetCreateInfo(fileName, userID)
 		if err != nil {
 			return nil, nil, 0, err
 		}
 
-		key := oo.GenerateKey(fileName, userId)
+		key := oo.GenerateKey(fileName, userID)
 
 		h := History{
 			Key:     key,
 			Version: 1,
-			User: doc_manager.User{
-				Id:   ci.UserId,
+			User: docmanager.User{
+				ID:   ci.UserID,
 				Name: ci.UserName,
 			},
 			Created: ci.Created,
@@ -89,7 +96,7 @@ func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryDa
 		hd := HistoryData{
 			Version: 1,
 			Key:     key,
-			Url:     uri,
+			URL:     uri,
 		}
 
 		hs = append(hs, h)
@@ -99,11 +106,11 @@ func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryDa
 	}
 
 	for i := 1; i <= countVersion; i++ {
-		rh, err := oo.GetHistoryChanges(fileName, userId, i)
+		rh, err := oo.GetHistoryChanges(fileName, userID, i)
 		if err != nil {
 			return nil, nil, 0, err
 		}
-		key, err := oo.GetHistoryKey(fileName, userId, i)
+		key, err := oo.GetHistoryKey(fileName, userID, i)
 		if err != nil {
 			return nil, nil, 0, err
 		}
@@ -119,12 +126,12 @@ func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryDa
 		hd := HistoryData{
 			Version: i,
 			Key:     key,
-			Url:     uri,
+			URL:     uri,
 		}
-		if i > 1 && file_utility.ExistFile(oo.DiffPath(fileName, userId, i-1)) {
+		if i > 1 && file_utility.ExistFile(oo.DiffPath(fileName, userID, i-1)) {
 			hd.Pervious.Key = hds[i-2].Pervious.Key
-			hd.Pervious.Url = hds[i-2].Pervious.Url
-			hd.ChangesUrl = oo.GetLocalFileUri(fileName, userId, i-1) + "/diff.zip"
+			hd.Pervious.URL = hds[i-2].Pervious.URL
+			hd.ChangesURL = oo.GetLocalFileURI(fileName, userID, i-1) + "/diff.zip"
 		}
 
 		hs = append(hs, h)
@@ -134,29 +141,33 @@ func (oo OnlyOffice) GetHistory(fileName, userId string) ([]History, []HistoryDa
 	return hs, hds, countVersion, nil
 }
 
-func (oo OnlyOffice) GetFileUri(fileName, userId string) string {
-	return oo.GetLocalFileUri(fileName, userId, 0)
+//GetFileURI ...
+func (oo OnlyOffice) GetFileURI(fileName, userID string) string {
+	return oo.GetLocalFileURI(fileName, userID, 0)
 }
 
-func (oo OnlyOffice) GetLocalFileUri(fileName, userId string, version int) string {
-	fileUri := fmt.Sprintf("%s/%s/%s/%s", oo.cfg.DocumentServerURL, oo.cfg.Document.StoragePath, userId, fileName)
+//GetLocalFileURI ...
+func (oo OnlyOffice) GetLocalFileURI(fileName, userID string, version int) string {
+	fileURI := fmt.Sprintf("%s/%s/%s/%s", oo.cfg.DocumentServerURL, oo.cfg.Document.StoragePath, userID, fileName)
 	if version != 0 {
-		fileUri = fmt.Sprintf("%s-history/%d", fileUri, version)
+		fileURI = fmt.Sprintf("%s-history/%d", fileURI, version)
 	}
 
-	return url.PathEscape(fileUri)
+	return url.PathEscape(fileURI)
 }
 
-func (oo OnlyOffice) GenerateKey(fileName, userId string) string {
-	key := oo.GetLocalFileUri(fileName, userId, 0)
-	storagePath := oo.StoragePath(fileName, userId)
+//GenerateKey ...
+func (oo OnlyOffice) GenerateKey(fileName, userID string) string {
+	key := oo.GetLocalFileURI(fileName, userID, 0)
+	storagePath := oo.StoragePath(fileName, userID)
 	f, _ := os.Stat(storagePath)
 	key = key + oo.cfg.DocumentServerURL + key + f.ModTime().Format("2006-01-02 15:04:05")
 
-	return oo.GenerateRevisionId(key)
+	return oo.GenerateRevisionID(key)
 }
 
-func (oo OnlyOffice) GenerateRevisionId(expectedKey string) string {
+//GenerateRevisionID ...
+func (oo OnlyOffice) GenerateRevisionID(expectedKey string) string {
 	if len(expectedKey) > 128 {
 		return fmt.Sprintf("%d", crc32.ChecksumIEEE([]byte(expectedKey)))
 	}
@@ -174,38 +185,40 @@ func (oo OnlyOffice) GenerateRevisionId(expectedKey string) string {
 	return expectedKey
 }
 
+//RespConvert ...
 type RespConvert struct {
 	EndConvert bool   `json:"endConvert"`
-	FileUrl    string `json:"fileUrl"`
+	FileURL    string `json:"fileUrl"`
 	Percent    int    `json:"percent"`
 	Error      int    `json:"error"`
 }
 
-func (oo OnlyOffice) GetConvertUri(documentUri, fromExtension, toExtension, documentRevisionId string, async bool) (RespConvert, error) {
+//GetConvertURI ...
+func (oo OnlyOffice) GetConvertURI(documentURI, fromExtension, toExtension, documentRevisionID string, async bool) (RespConvert, error) {
 	res := RespConvert{}
 
 	if fromExtension == "" || toExtension == "" {
 		return res, fmt.Errorf("the fromExtention or the toExtention is empty")
 	}
 
-	if documentRevisionId == "" {
-		documentRevisionId = oo.GenerateRevisionId(documentUri)
+	if documentRevisionID == "" {
+		documentRevisionID = oo.GenerateRevisionID(documentURI)
 	}
 
 	params := struct {
 		Async      bool   `json:"async"`
-		Url        string `json:"url"`
+		URL        string `json:"url"`
 		OutputType string `json:"outputtype"`
 		FileType   string `json:"filetype"`
 		Title      string `json:"title"`
 		Key        string `json:"key"`
 	}{
 		Async:      async,
-		Url:        documentUri,
+		URL:        documentURI,
 		OutputType: strings.ReplaceAll(toExtension, ".", ""),
 		FileType:   strings.ReplaceAll(fromExtension, ".", ""),
-		Title:      oo.GetFileName(documentUri, false),
-		Key:        documentRevisionId,
+		Title:      oo.GetFileName(documentURI, false),
+		Key:        documentRevisionID,
 	}
 	body, _ := json.Marshal(&params)
 
@@ -216,7 +229,7 @@ func (oo OnlyOffice) GetConvertUri(documentUri, fromExtension, toExtension, docu
 	}
 	req.Header.Set("Accept", "application/json")
 	if oo.cfg.Token.Enable && oo.cfg.Token.UseForRequest {
-		token, err := oo.FillJwtByUrl(uri, params, "", nil)
+		token, err := oo.FillJwtByURL(uri, params, "", nil)
 		if err != nil {
 			return res, err
 		}
@@ -237,6 +250,7 @@ func (oo OnlyOffice) GetConvertUri(documentUri, fromExtension, toExtension, docu
 	return res, nil
 }
 
+//ReqCommandService ...
 type ReqCommandService struct {
 	C        string   `json:"c"`
 	Key      string   `json:"key"`
@@ -245,15 +259,18 @@ type ReqCommandService struct {
 	UserData string   `json:"userdata"`
 	Users    []string `json:"users"`
 }
+
+//Meta ...
 type Meta struct {
 	Title string `json:"title"`
 }
 
-func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
-	documentRevisionId = oo.GenerateRevisionId(documentRevisionId)
+//CommandForceSave ...
+func (oo OnlyOffice) CommandForceSave(documentRevisionID string) error {
+	documentRevisionID = oo.GenerateRevisionID(documentRevisionID)
 	params := ReqCommandService{
 		C:   "forcesave",
-		Key: documentRevisionId,
+		Key: documentRevisionID,
 	}
 	body, _ := json.Marshal(&params)
 
@@ -263,7 +280,7 @@ func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
 		return err
 	}
 	if oo.cfg.Token.Enable && oo.cfg.Token.UseForRequest {
-		token, err := oo.FillJwtByUrl(uri, params, "", nil)
+		token, err := oo.FillJwtByURL(uri, params, "", nil)
 		if err != nil {
 			return err
 		}
@@ -288,10 +305,11 @@ func (oo OnlyOffice) CommandForceSave(documentRevisionId string) error {
 	return fmt.Errorf("%s", oo.CommandServiceErrorMessage(res.Error))
 }
 
+//File ...
 type File struct {
 	Name        string
 	Ext         string
-	Uri         string
+	URI         string
 	Key         string
 	Version     int
 	Created     string
@@ -299,6 +317,8 @@ type File struct {
 	Permissions string //权限 Full Access, Read Only, Deny Access
 	User        string //用户名
 }
+
+//Customer ...
 type Customer struct {
 	Address string //地址
 	Info    string //附加信息
@@ -308,13 +328,14 @@ type Customer struct {
 	Www     string //个人或公司网站
 }
 
+//Editor ...
 type Editor struct {
 	File        File
-	GobackUrl   string
+	GobackURL   string
 	Customer    Customer
 	Mode        string
-	CallbackUrl string
-	UserId      string
+	CallbackURL string
+	UserID      string
 	UserName    string
 
 	Type         string
@@ -322,6 +343,7 @@ type Editor struct {
 	Token        string
 }
 
+//GetConfigStr ...
 func (oo OnlyOffice) GetConfigStr(cfg Editor) string {
 	c := oo.Config
 	c.Type = cfg.Type
@@ -329,7 +351,7 @@ func (oo OnlyOffice) GetConfigStr(cfg Editor) string {
 	c.DocumentType = cfg.DocumentType
 
 	c.Document.Title = cfg.File.Name
-	c.Document.Url = cfg.File.Uri
+	c.Document.URL = cfg.File.URI
 	c.Document.FileType = cfg.File.Ext
 	c.Document.Key = cfg.File.Key
 	c.Document.Info.Author = cfg.File.Author
@@ -339,19 +361,19 @@ func (oo OnlyOffice) GetConfigStr(cfg Editor) string {
 	c.Document.Info.SharingSettings.Permissions = cfg.File.User
 
 	c.EditorConfig.Mode = cfg.Mode
-	c.EditorConfig.CallbackUrl = cfg.CallbackUrl
-	c.EditorConfig.User.Id = cfg.UserId
+	c.EditorConfig.CallbackURL = cfg.CallbackURL
+	c.EditorConfig.User.ID = cfg.UserID
 	c.EditorConfig.User.Name = cfg.UserName
-	c.EditorConfig.Customization.Goback.Url = cfg.GobackUrl
+	c.EditorConfig.Customization.Goback.URL = cfg.GobackURL
 	c.EditorConfig.Customization.Customer.Name = cfg.Customer.Name
 	c.EditorConfig.Customization.Customer.Www = cfg.Customer.Www
 	c.EditorConfig.Customization.Customer.Mail = cfg.Customer.Mail
 	c.EditorConfig.Customization.Customer.Logo = cfg.Customer.Logo
 	c.EditorConfig.Customization.Customer.Address = cfg.Customer.Address
 	c.EditorConfig.Customization.Customer.Info = cfg.Customer.Info
-	c.EditorConfig.Embedded.EmbedUrl = cfg.File.Uri
-	c.EditorConfig.Embedded.SaveUrl = cfg.File.Uri
-	c.EditorConfig.Embedded.ShareUrl = cfg.File.Uri
+	c.EditorConfig.Embedded.EmbedURL = cfg.File.URI
+	c.EditorConfig.Embedded.SaveURL = cfg.File.URI
+	c.EditorConfig.Embedded.ShareURL = cfg.File.URI
 
 	return c.ToString()
 }

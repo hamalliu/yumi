@@ -1,4 +1,4 @@
-package doc_manager
+package docmanager
 
 import (
 	"encoding/json"
@@ -12,40 +12,48 @@ import (
 	"yumi/pkg/file_utility"
 )
 
+//ResponseHistory ...
 type ResponseHistory struct {
 	ServerVersion string   `json:"serverVersion"`
 	Changes       []Change `json:"changes"`
 }
 
+//Change ...
 type Change struct {
 	Created string `json:"created"`
 	User    User   `json:"user"`
 }
 
+//User ...
 type User struct {
-	Id   string `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
+//CreateInfo ...
 type CreateInfo struct {
 	Created  string
-	UserId   string
+	UserID   string
 	UserName string
 }
 
 //======================================================================================================================
+
+//DocManager ...
 type DocManager struct {
 	FileUtility
 }
 
 const timeFormat = "2006-01-02 15:04:05"
 
+//New ...
 func New(cfg conf.Document) DocManager {
 	return DocManager{FileUtility: FileUtility{cfg: cfg}}
 }
 
-func (dm DocManager) SaveCreateInfo(fileName, userId, userName string) error {
-	filePath := dm.StoragePath(fileName, userId)
+//SaveCreateInfo ...
+func (dm DocManager) SaveCreateInfo(fileName, userID, userName string) error {
+	filePath := dm.StoragePath(fileName, userID)
 
 	s, err := os.Stat(filePath)
 	if err != nil {
@@ -54,7 +62,7 @@ func (dm DocManager) SaveCreateInfo(fileName, userId, userName string) error {
 
 	modTimeStr := s.ModTime().Format(timeFormat)
 
-	directory := dm.HistoryPath(fileName, userId, true)
+	directory := dm.HistoryPath(fileName, userID, true)
 	if err := file_utility.CreateDir(directory); err != nil {
 		return err
 	}
@@ -65,7 +73,7 @@ func (dm DocManager) SaveCreateInfo(fileName, userId, userName string) error {
 	}
 	defer f.Close()
 
-	_, err = f.WriteString(fmt.Sprintf("%s,%s,%s", modTimeStr, userId, userName))
+	_, err = f.WriteString(fmt.Sprintf("%s,%s,%s", modTimeStr, userID, userName))
 	if err != nil {
 		return err
 	}
@@ -73,10 +81,11 @@ func (dm DocManager) SaveCreateInfo(fileName, userId, userName string) error {
 	return nil
 }
 
-func (dm DocManager) GetCreateInfo(fileName, userId string) (CreateInfo, error) {
+//GetCreateInfo ...
+func (dm DocManager) GetCreateInfo(fileName, userID string) (CreateInfo, error) {
 	ci := CreateInfo{}
 
-	historyPath := dm.HistoryPath(fileName, userId, false)
+	historyPath := dm.HistoryPath(fileName, userID, false)
 
 	f, err := os.Open(path.Join(historyPath, fileName+".txt"))
 	if err != nil {
@@ -90,17 +99,17 @@ func (dm DocManager) GetCreateInfo(fileName, userId string) (CreateInfo, error) 
 
 	feilds := strings.Split(string(cb), ",")
 	ci.Created = feilds[0]
-	ci.UserId = feilds[1]
+	ci.UserID = feilds[1]
 	ci.UserName = feilds[2]
 
 	return ci, nil
 }
 
-//return: history目录下changes.txt内容
-func (dm DocManager) GetHistoryChanges(fileName, userId string, version int) (ResponseHistory, error) {
+//GetHistoryChanges return: history目录下changes.txt内容
+func (dm DocManager) GetHistoryChanges(fileName, userID string, version int) (ResponseHistory, error) {
 	rh := ResponseHistory{}
 
-	changesPath := dm.ChangesPath(fileName, userId, version)
+	changesPath := dm.ChangesPath(fileName, userID, version)
 	f, err := os.Open(changesPath)
 	if err != nil {
 		return rh, err
@@ -113,9 +122,9 @@ func (dm DocManager) GetHistoryChanges(fileName, userId string, version int) (Re
 	return rh, nil
 }
 
-//return: history 目录下key.txt内容
-func (dm DocManager) GetHistoryKey(fileName, userId string, version int) (string, error) {
-	keyPath := dm.KeyPath(fileName, userId, version)
+//GetHistoryKey return: history 目录下key.txt内容
+func (dm DocManager) GetHistoryKey(fileName, userID string, version int) (string, error) {
+	keyPath := dm.KeyPath(fileName, userID, version)
 	f, err := os.Open(keyPath)
 	if err != nil {
 		return "", err
@@ -129,8 +138,9 @@ func (dm DocManager) GetHistoryKey(fileName, userId string, version int) (string
 	return string(key), nil
 }
 
-func (dm DocManager) CountHistoryVersion(fileName, userId string) int {
-	directory := dm.HistoryPath(fileName, userId, false)
+//CountHistoryVersion ...
+func (dm DocManager) CountHistoryVersion(fileName, userID string) int {
+	directory := dm.HistoryPath(fileName, userID, false)
 	if directory == "" {
 		return 0
 	}

@@ -8,15 +8,17 @@ import (
 	"yumi/pkg/conf"
 )
 
+//Document ...
 type Document struct {
 	Title       string      `json:"title"`    //为查看或编辑的文档定义所需的文件名，该文件名也将在下载文档时用作文件名。
-	Url         string      `json:"url"`      //定义存储原始查看或编辑的文档的绝对URL。
+	URL         string      `json:"url"`      //定义存储原始查看或编辑的文档的绝对URL。
 	FileType    string      `json:"fileType"` //为查看或编辑的源文件定义文件类型docx
 	Key         string      `json:"key"`      //定义用于服务识别文档的唯一文档标识符。万一已知密钥被发送，文档将从缓存中获取。每次编辑和保存文档时，都必须重新生成密钥。可以将文档url用作键，但不能包含特殊字符，并且长度限制为20个符号。
 	Info        Info        `json:"info"`     //
 	Permissions Permissions `json:"permissions"`
 }
 
+//Info ...
 type Info struct {
 	Author          string          `json:"author"`          //作者
 	Created         string          `json:"created"`         //创建时间
@@ -26,11 +28,13 @@ type Info struct {
 	SharingSettings SharingSettings `json:"sharingSettings"` //共享设置
 }
 
+//SharingSettings ...
 type SharingSettings struct {
 	Permissions string `json:"permissions"` //权限 Full Access, Read Only, Deny Access
 	User        string `json:"user"`        //用户名
 }
 
+//Permissions ...
 type Permissions struct {
 	Comment  bool `json:"comment"`  //文档是否能被评论
 	Download bool `json:"download"` //文档是否能被下载
@@ -44,12 +48,13 @@ type Permissions struct {
 	//ModifyContentControl bool `json:"modifyContentControl"`
 }
 
+//EditorConfig ...
 type EditorConfig struct {
 	//ActionLink
 	Mode        string `json:"mode"`        //edit, view
 	Lang        string `json:"lang"`        //语言zh-CN，en-US
-	CallbackUrl string `json:"callbackUrl"` //指定文档存储服务的绝对URL
-	CreateUrl   string `json:"createUrl"`   //创建文档时的url
+	CallbackURL string `json:"callbackUrl"` //指定文档存储服务的绝对URL
+	CreateURL   string `json:"createUrl"`   //创建文档时的url
 
 	Plugins       Plugins       `json:"plugins"`
 	User          User          `json:"user"`
@@ -57,22 +62,26 @@ type EditorConfig struct {
 	Customization Customization `json:"customization"`
 }
 
+//Plugins ...
 type Plugins struct {
 }
 
+//User ...
 type User struct {
-	Id   string `json:"id"`   //当前用户id
+	ID   string `json:"id"`   //当前用户id
 	Name string `json:"name"` // 当前用户名称
 }
 
+//Embedded ...
 type Embedded struct {
-	FullscreenUrl string `json:"fullscreenUrl"`
-	SaveUrl       string `json:"saveUrl"`
-	EmbedUrl      string `json:"embedUrl"`
-	ShareUrl      string `json:"shareUrl"`
+	FullscreenURL string `json:"fullscreenUrl"`
+	SaveURL       string `json:"saveUrl"`
+	EmbedURL      string `json:"embedUrl"`
+	ShareURL      string `json:"shareUrl"`
 	ToolbarDocked string `json:"toolbarDocked"`
 }
 
+//Customization ...
 type Customization struct {
 	Chat              bool `json:"chat"`              //是否显示聊天
 	CommentAuthorOnly bool `json:"commentAuthorOnly"` //评论是否只读
@@ -85,8 +94,10 @@ type Customization struct {
 	Logo     Logo     `json:"logo"`
 }
 
+//Feedback ...
 type Feedback struct{}
 
+//Customer ...
 //编辑者的信息，对后续打开文件的人都可见
 type Customer struct {
 	Address string `json:"address"` //地址
@@ -97,16 +108,19 @@ type Customer struct {
 	Www     string `json:"www"`     //个人或公司网站
 }
 
+//Goback ...
 type Goback struct {
-	Url string `json:"url"` //打开文件位置按钮的url
+	URL string `json:"url"` //打开文件位置按钮的url
 }
 
+//Logo ...
 type Logo struct {
 	Image         string `json:"image"`         //172x40
 	ImageEmbedded string `json:"imageEmbedded"` //248x40
-	Url           string `json:"url"`           //点击图片跳转的url
+	URL           string `json:"url"`           //点击图片跳转的url
 }
 
+//Config ...
 type Config struct {
 	Width        string       `json:"width"`        //宽度
 	Height       string       `json:"height"`       //高度
@@ -119,6 +133,7 @@ type Config struct {
 
 var _conf Config
 
+//Init ...
 func Init(conf conf.OnlyOffice) {
 	f, err := os.Open(conf.Document.ConfigPath)
 	if err != nil {
@@ -131,10 +146,12 @@ func Init(conf conf.OnlyOffice) {
 	return
 }
 
+//Get ...
 func Get() Config {
 	return _conf
 }
 
+//ToString ...
 func (c Config) ToString() string {
 	bs, _ := json.Marshal(&c)
 	str := string(bs)

@@ -14,6 +14,7 @@ import (
 	"yumi/pkg/net/gin"
 )
 
+//UploadMultipart 多文件上传
 func UploadMultipart(c *gin.Context) {
 	req := c.Request
 	var (
@@ -75,6 +76,7 @@ func UploadMultipart(c *gin.Context) {
 	}
 }
 
+//Upload 单文件上传
 func Upload(c *gin.Context) {
 	req := c.Request
 	var (

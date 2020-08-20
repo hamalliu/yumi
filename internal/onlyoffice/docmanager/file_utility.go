@@ -1,4 +1,4 @@
-package doc_manager
+package docmanager
 
 import (
 	"fmt"
@@ -12,14 +12,20 @@ import (
 )
 
 const (
+	//FileTypeText ...
 	FileTypeText         = "text"
+	//FileTypeSpreadsheet ...
 	FileTypeSpreadsheet  = "spreadsheet"
+	//FileTypePresentation ...
 	FileTypePresentation = "presentation"
 )
 
 const (
+	//InteralFileExtDocx ...
 	InteralFileExtDocx = ".docx"
+	//InteralFileExtXlsx ...
 	InteralFileExtXlsx = ".xlsx"
+	//InteralFileExtPptx ...
 	InteralFileExtPptx = ".pptx"
 )
 
@@ -33,10 +39,12 @@ var spreadsheetExts = types.ArrayString{
 var presentationExts = types.ArrayString{
 	".pps", ".ppsx", ".ppsm", ".ppt", ".pptx", ".pptm", ".pot", ".potx", ".potm", ".odp", ".fodp", ".otp"}
 
+//FileUtility ...
 type FileUtility struct {
 	cfg conf.Document
 }
 
+//GetFileName ...
 func (fu FileUtility) GetFileName(fileName string, withoutExtension bool) string {
 	if fileName == "" {
 		return ""
@@ -44,9 +52,7 @@ func (fu FileUtility) GetFileName(fileName string, withoutExtension bool) string
 
 	fileName = strings.ToLower(fileName)
 	s := strings.LastIndex(fileName, "/")
-	if s == -1 {
-		fileName = fileName
-	} else {
+	if s != -1 {
 		fileName = fileName[s+1:]
 	}
 
@@ -57,6 +63,7 @@ func (fu FileUtility) GetFileName(fileName string, withoutExtension bool) string
 	return fileName
 }
 
+//GetFileExtension ...
 func (fu FileUtility) GetFileExtension(fileName string, withoutDot bool) string {
 	s := strings.LastIndex(fileName, ".")
 	if s == -1 {
@@ -65,11 +72,12 @@ func (fu FileUtility) GetFileExtension(fileName string, withoutDot bool) string 
 
 	if withoutDot {
 		return fileName[s+1:]
-	} else {
-		return fileName[s:]
 	}
+	
+	return fileName[s:]
 }
 
+//GetFileType ...
 func (fu FileUtility) GetFileType(fileName string) string {
 	ext := fu.GetFileExtension(fileName, false)
 	switch {
@@ -84,8 +92,9 @@ func (fu FileUtility) GetFileType(fileName string) string {
 	}
 }
 
-func (fu FileUtility) StoragePath(fileName, userId string) string {
-	directory := path.Join(fu.cfg.StoragePath, userId)
+//StoragePath ...
+func (fu FileUtility) StoragePath(fileName, userID string) string {
+	directory := path.Join(fu.cfg.StoragePath, userID)
 	_ = file_utility.CreateDir(directory)
 
 	fileName = fu.GetFileName(fileName, false)
@@ -93,8 +102,9 @@ func (fu FileUtility) StoragePath(fileName, userId string) string {
 	return path.Join(directory, fileName)
 }
 
-func (fu FileUtility) ForcesavePath(fileName, userId string, create bool) string {
-	directory := path.Join(fu.cfg.StoragePath, userId)
+//ForcesavePath ...
+func (fu FileUtility) ForcesavePath(fileName, userID string, create bool) string {
+	directory := path.Join(fu.cfg.StoragePath, userID)
 	if !file_utility.ExistDir(directory) {
 		return ""
 	}
@@ -113,8 +123,9 @@ func (fu FileUtility) ForcesavePath(fileName, userId string, create bool) string
 	return directory
 }
 
-func (fu FileUtility) HistoryPath(fileName, userId string, create bool) string {
-	directory := path.Join(fu.cfg.StoragePath, userId)
+//HistoryPath ...
+func (fu FileUtility) HistoryPath(fileName, userID string, create bool) string {
+	directory := path.Join(fu.cfg.StoragePath, userID)
 	if !file_utility.ExistDir(directory) {
 		return ""
 	}
@@ -127,37 +138,43 @@ func (fu FileUtility) HistoryPath(fileName, userId string, create bool) string {
 	return directory
 }
 
-func (fu FileUtility) VersionPath(fileName, userId string, version int) string {
-	directory := fu.HistoryPath(fileName, userId, true)
+//VersionPath ...
+func (fu FileUtility) VersionPath(fileName, userID string, version int) string {
+	directory := fu.HistoryPath(fileName, userID, true)
 
 	return path.Join(directory, fmt.Sprintf("%d", version))
 }
 
-func (fu FileUtility) PrevFilePath(fileName, userId string, version int) string {
-	directory := fu.VersionPath(fileName, userId, version)
+//PrevFilePath ...
+func (fu FileUtility) PrevFilePath(fileName, userID string, version int) string {
+	directory := fu.VersionPath(fileName, userID, version)
 
 	return path.Join(directory, "prev"+fu.GetFileExtension(fileName, false))
 }
 
-func (fu FileUtility) DiffPath(fileName, userId string, version int) string {
-	directory := fu.VersionPath(fileName, userId, version)
+//DiffPath ...
+func (fu FileUtility) DiffPath(fileName, userID string, version int) string {
+	directory := fu.VersionPath(fileName, userID, version)
 
 	return path.Join(directory, "diff.zip")
 }
 
-func (fu FileUtility) ChangesPath(fileName, userId string, version int) string {
-	directory := fu.VersionPath(fileName, userId, version)
+//ChangesPath ...
+func (fu FileUtility) ChangesPath(fileName, userID string, version int) string {
+	directory := fu.VersionPath(fileName, userID, version)
 
 	return path.Join(directory, "changes.txt")
 }
 
-func (fu FileUtility) KeyPath(fileName, userId string, version int) string {
-	directory := fu.VersionPath(fileName, userId, version)
+//KeyPath ...
+func (fu FileUtility) KeyPath(fileName, userID string, version int) string {
+	directory := fu.VersionPath(fileName, userID, version)
 
 	return path.Join(directory, "key.txt")
 }
 
-func (fu FileUtility) GetCorrectName(fileName, userId string) string {
+//GetCorrectName ...
+func (fu FileUtility) GetCorrectName(fileName, userID string) string {
 	baseName := fu.GetFileName(fileName, true)
 	ext := fu.GetFileExtension(fileName, false)
 
@@ -165,7 +182,7 @@ func (fu FileUtility) GetCorrectName(fileName, userId string) string {
 	index := 1
 
 	for {
-		if file_utility.ExistFile(fu.StoragePath(fileName, userId)) {
+		if file_utility.ExistFile(fu.StoragePath(fileName, userID)) {
 			name = fmt.Sprintf("%s(%d)%s", baseName, index, ext)
 			index++
 		}
@@ -175,6 +192,7 @@ func (fu FileUtility) GetCorrectName(fileName, userId string) string {
 	return name
 }
 
+//GetInternalExtension ...
 func (fu FileUtility) GetInternalExtension(fileType string) string {
 	switch {
 	case FileTypeText == fileType:
@@ -188,6 +206,7 @@ func (fu FileUtility) GetInternalExtension(fileType string) string {
 	}
 }
 
+//CleanFolderRecursive ...
 func (fu FileUtility) CleanFolderRecursive(floder string, me bool) error {
 	if err := os.RemoveAll(floder); err != nil {
 		return err
@@ -200,6 +219,7 @@ func (fu FileUtility) CleanFolderRecursive(floder string, me bool) error {
 	return nil
 }
 
+//AllowUploadExtension ...
 func (fu FileUtility) AllowUploadExtension(ext string) bool {
 	if fu.cfg.EditedDocs.IndexOf(ext) != -1 ||
 		fu.cfg.ViewedDocs.IndexOf(ext) != -1 ||
