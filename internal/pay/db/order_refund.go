@@ -8,12 +8,13 @@ import (
 	"yumi/pkg/external/dbc"
 )
 
-//退款订单
+//OrderRefund 退款订单
 type OrderRefund struct {
-	SeqId int64 `db:"seq_id"`
+	SeqID int64 `db:"seq_id"`
 	trade.OrderRefund
 }
 
+//New ...
 func (m *OrderRefund) New(code string) (trade.DataOrderRefund, error) {
 	if code == "" {
 		return &OrderRefund{}, nil
@@ -50,16 +51,18 @@ func (m *OrderRefund) New(code string) (trade.DataOrderRefund, error) {
 	return &or, nil
 }
 
+//Data ...
 func (m *OrderRefund) Data() trade.OrderRefund {
 	return m.OrderRefund
 }
 
+//RefundCount ...
 type RefundCount struct {
 	Count     int `db:"count"`
 	RefundFee int `db:"refund_fee"`
 }
 
-//已退款总金额
+//GetRefundFee 已退款总金额
 func (m *OrderRefund) GetRefundFee(orderPayCode string) (int, int, error) {
 	sqlStr := `
 		SELECT 
@@ -79,7 +82,7 @@ func (m *OrderRefund) GetRefundFee(orderPayCode string) (int, int, error) {
 	return fee.Count, fee.RefundFee, nil
 }
 
-//是否正在提起退款
+//ExistRefundingOrSubmitted 是否正在提起退款
 func (m *OrderRefund) ExistRefundingOrSubmitted(orderPayCode string) (bool, error) {
 	sqlStr := `
 		SELECT 
@@ -92,16 +95,16 @@ func (m *OrderRefund) ExistRefundingOrSubmitted(orderPayCode string) (bool, erro
 			"status" = ? 
 		OR 
 			"status" = ?`
-	seqId := 0
-	if err := dbc.Get().Get(&seqId, sqlStr, orderPayCode, trade.Submitted, trade.Refunding); err != nil {
+	seqID := 0
+	if err := dbc.Get().Get(&seqID, sqlStr, orderPayCode, trade.Submitted, trade.Refunding); err != nil {
 		return false, ecode.ServerErr(err)
-	} else {
-		return seqId != 0, nil
 	}
+	
+	return seqID != 0, nil
 }
 
-//提交订单
-func (m *OrderRefund) Submit(code, orderPayCode string, serialNum int, notifyUrl string, refundAccountGuid string, refundWay trade.Way,
+//Submit 提交订单
+func (m *OrderRefund) Submit(code, orderPayCode string, serialNum int, notifyURL string, refundAccountGUID string, refundWay trade.Way,
 	outRefundNo string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		INSERT 
@@ -111,7 +114,7 @@ func (m *OrderRefund) Submit(code, orderPayCode string, serialNum int, notifyUrl
 			"refund_fee", "refund_desc", "submit_time", "timeout_express", "status") 
 			VALUES 
 			(?, ?, ?, ?, ?,  ?, ?, ?, ?, ?,  ?, ?)`
-	if _, err := dbc.Get().Insert(sqlStr, code, orderPayCode, serialNum, notifyUrl, refundAccountGuid,
+	if _, err := dbc.Get().Insert(sqlStr, code, orderPayCode, serialNum, notifyURL, refundAccountGUID,
 		refundWay, outRefundNo, refundFee, refundDesc, submitTime, timeoutExpress, status); err != nil {
 		return ecode.ServerErr(err)
 	}
@@ -119,7 +122,7 @@ func (m *OrderRefund) Submit(code, orderPayCode string, serialNum int, notifyUrl
 	return nil
 }
 
-//更新订单状态（待支付->已提交）
+//SetSubmitted 更新订单状态（待支付->已提交）
 func (m *OrderRefund) SetSubmitted(status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -129,13 +132,13 @@ func (m *OrderRefund) SetSubmitted(status trade.OrderStatus) error {
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置退款中
+//SetRefunding 设置退款中
 func (m *OrderRefund) SetRefunding(status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -145,13 +148,13 @@ func (m *OrderRefund) SetRefunding(status trade.OrderStatus) error {
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置取消订单
+//SetCancelled 设置取消订单
 func (m *OrderRefund) SetCancelled(cancelTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -162,14 +165,14 @@ func (m *OrderRefund) SetCancelled(cancelTime time.Time, status trade.OrderStatu
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, cancelTime, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, cancelTime, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置订单错误
-func (m *OrderRefund) SetRefunded(refundId string, refundedTime time.Time, status trade.OrderStatus) error {
+//SetRefunded 设置订单错误
+func (m *OrderRefund) SetRefunded(refundID string, refundedTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_refund 
@@ -180,13 +183,13 @@ func (m *OrderRefund) SetRefunded(refundId string, refundedTime time.Time, statu
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, refundId, refundedTime, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, refundID, refundedTime, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置订单错误
+//SetError 设置订单错误
 func (m *OrderRefund) SetError(errorTime time.Time, remarks string, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -198,7 +201,7 @@ func (m *OrderRefund) SetError(errorTime time.Time, remarks string, status trade
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, errorTime, status, remarks, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, errorTime, status, remarks, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil

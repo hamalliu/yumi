@@ -6,16 +6,20 @@ import (
 	"yumi/pkg/external/pay/wxpay"
 )
 
-const WxPay_NATIVE2 = trade.Way("wxpay_native2")
+//WxPayNATIVE2 ...
+const WxPayNATIVE2 = trade.Way("wxpay_native2")
 
+//WxNative2 ...
 type WxNative2 struct {
 	InternalWxPay
 }
 
+//GetWxNative2 ...
 func GetWxNative2() WxNative2 {
 	return WxNative2{}
 }
 
+//Pay ...
 func (wxn1 WxNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息
@@ -30,17 +34,19 @@ func (wxn1 WxNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyUrl,
+		NotifyUrl:      op.NotifyURL,
 		ProductId:      op.OutTradeNo,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIp,
+		SpbillCreateIp: op.SpbillCreateIP,
 	}
-	if retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeNative, wxMch, wxorder); err != nil {
+
+	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeNative, wxMch, wxorder)
+	if err != nil {
 		return ret, ecode.ServerErr(err)
-	} else {
-		ret.AppId = wxMch.AppId
-		ret.MchId = wxMch.MchId
-		ret.Data = retuo.CodeUrl
-		return ret, nil
 	}
+	
+	ret.AppID = wxMch.AppId
+	ret.MchID = wxMch.MchId
+	ret.Data = retuo.CodeUrl
+	return ret, nil
 }

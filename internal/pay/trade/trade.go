@@ -2,46 +2,59 @@ package trade
 
 import "net/http"
 
+//Status ...
 type Status string
 
 const (
+	//Success ...
 	Success  Status = "SUCCESS"  //成功
+	//Closed ...
 	Closed   Status = "CLOSED"   //关闭
+	//Finished ...
 	Finished Status = "FINISHED" //完成
+	//ERROR ...
 	ERROR    Status = "ERROR"    //错误（异常）
 
+	//NotPay ...
 	NotPay           Status = "NOTPAY"           //未支付
+	//RefundProcessing ...
 	RefundProcessing Status = "REFUNDPROCESSING" //退款处理中
 )
 
+//ReturnPay ...
 type ReturnPay struct {
-	AppId string
-	MchId string
+	AppID string
+	MchID string
 	Data  string
 }
 
+//ReturnQueryPay ...
 type ReturnQueryPay struct {
-	BuyerLogonId  string
-	TransactionId string
+	BuyerLogonID  string
+	TransactionID string
 	TradeStatus   Status
 }
 
+//ReturnPayNotify ...
 type ReturnPayNotify struct {
 	OrderPayCode string
 	ReqData      interface{}
 }
 
+//ReturnQueryRefund ...
 type ReturnQueryRefund struct {
-	RefundId      string
-	RefundLogonId string
+	RefundID      string
+	RefundLogonID string
 	TradeStatus   Status
 }
 
+//ReturnRefundNotify ...
 type ReturnRefundNotify struct {
 	OrderRefundCode string
 	ReqData         interface{}
 }
 
+//Trade ...
 type Trade interface {
 	Pay(op OrderPay) (ReturnPay, error)
 	PayNotifyReq(req *http.Request) (ReturnPayNotify, error)
@@ -56,10 +69,12 @@ type Trade interface {
 	RefundNotifyResp(err error, resp http.ResponseWriter)
 }
 
+//Way ...
 type Way string
 
 var trades map[Way]Trade
 
+//RegisterTrade ...
 func RegisterTrade(way Way, trade Trade) {
 	if trades == nil {
 		trades = make(map[Way]Trade)
@@ -71,6 +86,7 @@ func getTrade(tradeWay Way) Trade {
 	return trades[tradeWay]
 }
 
+//Merchant ...
 type Merchant interface {
 	BuildOutTradeNo()
 }

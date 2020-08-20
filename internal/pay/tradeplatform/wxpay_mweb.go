@@ -2,22 +2,25 @@ package tradeplatform
 
 import (
 	"encoding/json"
-	"yumi/pkg/ecode"
 
+	"yumi/pkg/ecode"
 	"yumi/internal/pay/trade"
 	"yumi/pkg/external/pay/wxpay"
 )
 
-const WxPay_MWEB = trade.Way("wxpay_mweb")
+//WxPayMWEB ...
+const WxPayMWEB = trade.Way("wxpay_mweb")
 
 var mweb WxMweb
 
+//WxMweb ...
 type WxMweb struct {
 	InternalWxPay
 	conf      Config
 	sceneInfo string
 }
 
+//Init ...
 func Init(conf Config) {
 	mweb.conf = conf
 	bytes, err := json.Marshal(conf)
@@ -27,20 +30,24 @@ func Init(conf Config) {
 	mweb.sceneInfo = string(bytes)
 }
 
+//GetWxMweb ...
 func GetWxMweb() WxMweb {
 	return mweb
 }
 
+//Config ...
 type Config struct {
 	H5Info H5Info `json:"h5_info"`
 }
 
+//H5Info ...
 type H5Info struct {
 	Type    string `json:"type"`     //场景类型
-	WapUrl  string `json:"wap_url"`  //WAP网站URL地址
+	WapURL  string `json:"wap_url"`  //WAP网站URL地址
 	WapName string `json:"wap_name"` //WAP网站名
 }
 
+//Pay ...
 func (wxn1 WxMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息
@@ -57,17 +64,18 @@ func (wxn1 WxMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyUrl,
+		NotifyUrl:      op.NotifyURL,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIp,
+		SpbillCreateIp: op.SpbillCreateIP,
 		SceneInfo:      wxn1.sceneInfo,
 	}
-	if retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeNative, wxMch, wxorder); err != nil {
+
+	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeNative, wxMch, wxorder)
+	if err != nil {
 		return ret, ecode.ServerErr(err)
-	} else {
-		ret.AppId = wxMch.AppId
-		ret.MchId = wxMch.MchId
-		ret.Data = retuo.MwebUrl
-		return ret, nil
 	}
+	ret.AppID = wxMch.AppId
+	ret.MchID = wxMch.MchId
+	ret.Data = retuo.MwebUrl
+	return ret, nil
 }

@@ -28,7 +28,7 @@ func TestPay(t *testing.T) {
 	notifyUrl := "http:120.24.183.196:20192/signin"
 
 	t.Log(code)
-	if intf, err := Pay(code, tradeplatform.WxPay_NATIVE2, "125.71.211.25", notifyUrl, time.Now().Add(time.Minute*30)); err != nil {
+	if intf, err := Pay(code, tradeplatform.WxPayNATIVE2, "125.71.211.25", notifyUrl, time.Now().Add(time.Minute*30)); err != nil {
 		t.Error(err)
 	} else {
 		t.Log(intf)

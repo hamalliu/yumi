@@ -11,18 +11,22 @@ import (
 	"yumi/utils"
 )
 
-const WxPay_JSAPI = trade.Way("wxpay_jsapi")
+//WxPayJSAPI ...
+const WxPayJSAPI = trade.Way("wxpay_jsapi")
 
+//WxJsapi ...
 type WxJsapi struct {
 	InternalWxPay
 }
 
+//GetWxJsapi ...
 func GetWxJsapi() WxJsapi {
 	return WxJsapi{}
 }
 
+//Wxh5PayRequest ...
 type Wxh5PayRequest struct {
-	AppId     string `json:"appId"`
+	AppID     string `json:"appId"`
 	TimeStamp string `json:"timeStamp"`
 	NonceStr  string `json:"nonceStr"`
 	Package   string `json:"package"`
@@ -30,23 +34,26 @@ type Wxh5PayRequest struct {
 	PaySign   string `json:"paySign"`
 }
 
-func mashalWxh5PayRequest(appId, prePayId, privateKey string) (string, error) {
+//mashalWxh5PayRequest ...
+func mashalWxh5PayRequest(appID, prePayID, privateKey string) (string, error) {
 	var req Wxh5PayRequest
 
-	req.AppId = appId
+	req.AppID = appID
 	req.TimeStamp = fmt.Sprintf("%d", time.Now().Unix())
 	req.NonceStr = utils.CreateRandomStr(30, utils.ALPHANUM)
-	req.Package = fmt.Sprintf("prepay_id=%s", prePayId)
+	req.Package = fmt.Sprintf("prepay_id=%s", prePayID)
 	req.SignType = "MD5"
 	req.PaySign = wxpay.Buildsign(&req, wxpay.FieldTagKeyJson, privateKey)
 
-	if reqBytes, err := json.Marshal(&req); err != nil {
+	reqBytes, err := json.Marshal(&req)
+	if err != nil {
 		return "", err
-	} else {
-		return string(reqBytes), nil
 	}
+	
+	return string(reqBytes), nil
 }
 
+//Pay ...
 func (wxn1 WxJsapi) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息
@@ -61,20 +68,22 @@ func (wxn1 WxJsapi) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyUrl,
+		NotifyUrl:      op.NotifyURL,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIp,
+		SpbillCreateIp: op.SpbillCreateIP,
 	}
-	if retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeJsapi, wxMch, wxorder); err != nil {
+
+	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeJsapi, wxMch, wxorder)
+	if err != nil {
 		return ret, ecode.ServerErr(err)
-	} else {
-		ret.AppId = wxMch.AppId
-		ret.MchId = wxMch.MchId
-		if dataStr, err := mashalWxh5PayRequest(wxMch.AppId, retuo.PrepayId, wxMch.PrivateKey); err != nil {
-			return ret, err
-		} else {
-			ret.Data = dataStr
-		}
-		return ret, nil
 	}
+	ret.AppID = wxMch.AppId
+	ret.MchID = wxMch.MchId
+	dataStr, err := mashalWxh5PayRequest(wxMch.AppId, retuo.PrepayId, wxMch.PrivateKey)
+	if err != nil {
+		return ret, err
+	}
+
+	ret.Data = dataStr
+	return ret, nil
 }

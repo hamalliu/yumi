@@ -6,16 +6,20 @@ import (
 	"yumi/pkg/external/pay/wxpay"
 )
 
-const WxPay_NATIVE1 = trade.Way("wxpay_native1")
+//WxPayNATIVE1 ...
+const WxPayNATIVE1 = trade.Way("wxpay_native1")
 
+//WxNative1 ...
 type WxNative1 struct {
 	InternalWxPay
 }
 
+//GetWxNative1 ...
 func GetWxNative1() WxNative1 {
 	return WxNative1{}
 }
 
+//Pay ...
 func (wxn1 WxNative1) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 
@@ -25,14 +29,15 @@ func (wxn1 WxNative1) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		return ret, err
 	}
 
-	if bizUrl, err := wxpay.GetDefault().BizPayShortUrl(wxMch, op.OutTradeNo); err != nil {
+	bizURL, err := wxpay.GetDefault().BizPayShortUrl(wxMch, op.OutTradeNo)
+	if err != nil {
 		return ret, ecode.ServerErr(err)
-	} else {
-		ret.AppId = wxMch.AppId
-		ret.MchId = wxMch.MchId
-		ret.Data = bizUrl
-		return ret, nil
 	}
+	
+	ret.AppID = wxMch.AppId
+	ret.MchID = wxMch.MchId
+	ret.Data = bizURL
+	return ret, nil
 }
 
 //func (wxpay WxNative1) PrepayNotify(mch wxpay.Merchant, req wxpay.ReqPrepayNotify) wxpay.RespPrepayNotify {

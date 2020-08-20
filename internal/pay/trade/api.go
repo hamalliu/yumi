@@ -38,14 +38,14 @@ func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIP, notifyURL s
 	}
 
 	e.op.PayExpire = payExpire
-	e.op.SpbillCreateIp = clientIP
-	e.op.NotifyUrl = notifyURL
+	e.op.SpbillCreateIP = clientIP
+	e.op.NotifyURL = notifyURL
 
 	tp, err := trade.Pay(e.op)
 	if err != nil {
 		return "", err
 	}
-	if err := e.dataOp.SetWaitPay(tradeWay, tp.AppId, tp.MchId, clientIP, payExpire, WaitPay); err != nil {
+	if err := e.dataOp.SetWaitPay(tradeWay, tp.AppID, tp.MchID, clientIP, payExpire, WaitPay); err != nil {
 		return "", err
 	}
 
@@ -140,7 +140,7 @@ func PaySuccess(code string) (res Status, err error) {
 			return "", err
 		}
 		if tpq.TradeStatus == Success {
-			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
+			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionID, tpq.BuyerLogonID, Paid); err != nil {
 				return "", err
 			}
 		}
@@ -229,7 +229,7 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 			return "", ""
 		}
 		if tpq.TradeStatus == Success {
-			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionId, tpq.BuyerLogonId, Paid); err != nil {
+			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionID, tpq.BuyerLogonID, Paid); err != nil {
 				err = fmt.Errorf("服务器内部错误")
 				trade.PayNotifyResp(err, resp)
 				return "", ""
@@ -330,7 +330,7 @@ func RefundSuccess(code string) (res Status, err error) {
 			return "", err
 		}
 		if ret.TradeStatus == Success {
-			if err := e.dataOr.SetRefunded(ret.RefundId, time.Now(), Refunded); err != nil {
+			if err := e.dataOr.SetRefunded(ret.RefundID, time.Now(), Refunded); err != nil {
 				log.Error(err)
 				return "", err
 			}

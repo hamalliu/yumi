@@ -11,45 +11,52 @@ import (
 	"yumi/utils"
 )
 
-const WxPay_APP = trade.Way("wxpay_app")
+//WxPayAPP ...
+const WxPayAPP = trade.Way("wxpay_app")
 
+//WxApp ...
 type WxApp struct {
 	InternalWxPay
 }
 
+//GetWxApp ...
 func GetWxApp() WxApp {
 	return WxApp{}
 }
 
+//WxAppPayRequest ...
 type WxAppPayRequest struct {
-	AppId     string `json:"appId"`
+	AppID     string `json:"appId"`
 	TimeStamp string `json:"timeStamp"`
 	NonceStr  string `json:"nonceStr"`
 	Package   string `json:"package"`
-	PartnerId string `json:"partnerid"`
-	PrepayId  string `json:"prepayid"`
+	PartnerID string `json:"partnerid"`
+	PrepayID  string `json:"prepayid"`
 	SignType  string `json:"signType"`
 	PaySign   string `json:"paySign"`
 }
 
-func mashalWxAppPayRequest(appId, mchId, privateKey, prePayId string) (string, error) {
+//mashalWxAppPayRequest ...
+func mashalWxAppPayRequest(appID, mchID, privateKey, prePayID string) (string, error) {
 	var req WxAppPayRequest
 
-	req.AppId = appId
-	req.PartnerId = mchId
+	req.AppID = appID
+	req.PartnerID = mchID
 	req.TimeStamp = fmt.Sprintf("%d", time.Now().Unix())
 	req.NonceStr = utils.CreateRandomStr(30, utils.ALPHANUM)
-	req.Package = fmt.Sprintf("prepay_id=%s", prePayId)
+	req.Package = fmt.Sprintf("prepay_id=%s", prePayID)
 	req.SignType = "MD5"
 	req.PaySign = wxpay.Buildsign(&req, wxpay.FieldTagKeyJson, privateKey)
 
-	if reqBytes, err := json.Marshal(&req); err != nil {
+	reqBytes, err := json.Marshal(&req)
+	if err != nil {
 		return "", err
-	} else {
-		return string(reqBytes), nil
 	}
+	
+	return string(reqBytes), nil
 }
 
+//Pay ...
 func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息
@@ -64,20 +71,23 @@ func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyUrl,
+		NotifyUrl:      op.NotifyURL,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIp,
+		SpbillCreateIp: op.SpbillCreateIP,
 	}
-	if retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder); err != nil {
+
+	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder)
+	if err != nil {
 		return ret, ecode.ServerErr(err)
-	} else {
-		ret.AppId = wxMch.AppId
-		ret.MchId = wxMch.MchId
-		if dataStr, err := mashalWxAppPayRequest(wxMch.AppId, wxMch.MchId, wxMch.PrivateKey, retuo.PrepayId); err != nil {
-			return ret, ecode.ServerErr(err)
-		} else {
-			ret.Data = dataStr
-		}
-		return ret, nil
 	}
+
+	ret.AppID = wxMch.AppId
+	ret.MchID = wxMch.MchId
+	dataStr, err := mashalWxAppPayRequest(wxMch.AppId, wxMch.MchId, wxMch.PrivateKey, retuo.PrepayId)
+	if err != nil {
+		return ret, ecode.ServerErr(err)
+	}
+	
+	ret.Data = dataStr
+	return ret, nil
 }

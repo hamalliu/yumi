@@ -8,12 +8,13 @@ import (
 	"yumi/pkg/external/dbc"
 )
 
-//支付订单
+//OrderPay 支付订单
 type OrderPay struct {
-	SeqId int64 `db:"seq_id"`
+	SeqID int64 `db:"seq_id"`
 	trade.OrderPay
 }
 
+//New ...
 func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
 	if code == "" {
 		return &OrderPay{}, nil
@@ -56,13 +57,13 @@ func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
 	return &op, nil
 }
 
-//支付订单数据
+//Data 支付订单数据
 func (m *OrderPay) Data() trade.OrderPay {
 	return m.OrderPay
 }
 
-//提交
-func (m *OrderPay) Submit(buyerAccountGuid, sellerKey, outTradeNo, notifyUrl string, totalFee int, body, detail string,
+//Submit 提交
+func (m *OrderPay) Submit(buyerAccountGUID, sellerKey, outTradeNo, notifyURL string, totalFee int, body, detail string,
 	timeoutExpress, submitTime time.Time, code string, status trade.OrderStatus) error {
 	sqlStr := `
 		INSERT 
@@ -73,8 +74,8 @@ func (m *OrderPay) Submit(buyerAccountGuid, sellerKey, outTradeNo, notifyUrl str
 		VALUES 
 			(?, ?, ?, ?, ?,  ?, ?, ?, ?, ?, ?)`
 	var err error
-	if m.SeqId, err = dbc.Get().Insert(sqlStr,
-		code, buyerAccountGuid, sellerKey, outTradeNo, notifyUrl, totalFee, body, detail, timeoutExpress, submitTime,
+	if m.SeqID, err = dbc.Get().Insert(sqlStr,
+		code, buyerAccountGUID, sellerKey, outTradeNo, notifyURL, totalFee, body, detail, timeoutExpress, submitTime,
 		status); err != nil {
 		return ecode.ServerErr(err)
 	}
@@ -82,8 +83,8 @@ func (m *OrderPay) Submit(buyerAccountGuid, sellerKey, outTradeNo, notifyUrl str
 	return nil
 }
 
-//设置支付方式
-func (m *OrderPay) SetWaitPay(payWay trade.Way, appId, mchId, spbillCreateIp string, payExpire time.Time,
+//SetWaitPay 设置支付方式
+func (m *OrderPay) SetWaitPay(payWay trade.Way, appID, mchID, spbillCreateIP string, payExpire time.Time,
 	status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -97,14 +98,14 @@ func (m *OrderPay) SetWaitPay(payWay trade.Way, appId, mchId, spbillCreateIp str
 		    "status" = ?
 		WHERE 
 			"seq_id" = ?`
-	if _, err := dbc.Get().Exec(sqlStr, payWay, appId, mchId, spbillCreateIp, payExpire, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, payWay, appID, mchID, spbillCreateIP, payExpire, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//支付成功，更新订单状态（待支付->已支付）
-func (m *OrderPay) SetSuccess(payTime time.Time, transactionId, buyerLogonId string, status trade.OrderStatus) error {
+//SetSuccess 支付成功，更新订单状态（待支付->已支付）
+func (m *OrderPay) SetSuccess(payTime time.Time, transactionID, buyerLogonID string, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -116,13 +117,13 @@ func (m *OrderPay) SetSuccess(payTime time.Time, transactionId, buyerLogonId str
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, payTime, transactionId, buyerLogonId, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, payTime, transactionID, buyerLogonID, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置取消订单
+//SetCancelled 设置取消订单
 func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -133,13 +134,13 @@ func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.OrderStatus) 
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, cancelTime, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, cancelTime, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置订单错误
+//SetError 设置订单错误
 func (m *OrderPay) SetError(errorTime time.Time, remarks string, status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -151,14 +152,14 @@ func (m *OrderPay) SetError(errorTime time.Time, remarks string, status trade.Or
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, errorTime, status, remarks, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, errorTime, status, remarks, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//设置商户订单号
-func (m *OrderPay) SetOutTradeNo(outTradeNo, notifyUrl string) error {
+//SetOutTradeNo 设置商户订单号
+func (m *OrderPay) SetOutTradeNo(outTradeNo, notifyURL string) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -167,13 +168,13 @@ func (m *OrderPay) SetOutTradeNo(outTradeNo, notifyUrl string) error {
 			"notify_url" = ? 
 		WHERE 
 			"seq_id" = ?`
-	if _, err := dbc.Get().Exec(sqlStr, outTradeNo, notifyUrl, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, outTradeNo, notifyURL, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
-//关闭订单，更新订单状态（待支付->已提交）
+//SetSubmitted 关闭订单，更新订单状态（待支付->已提交）
 func (m *OrderPay) SetSubmitted(status trade.OrderStatus) error {
 	sqlStr := `
 		UPDATE 
@@ -183,12 +184,13 @@ func (m *OrderPay) SetSubmitted(status trade.OrderStatus) error {
 		WHERE 
 			"seq_id" = ?
 		`
-	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqId); err != nil {
+	if _, err := dbc.Get().Exec(sqlStr, status, m.SeqID); err != nil {
 		return ecode.ServerErr(err)
 	}
 	return nil
 }
 
+//GetOrderPayCodesSubmittedAndWaitPay ...
 func GetOrderPayCodesSubmittedAndWaitPay() ([]string, error) {
 	sqlStr := `
 		SELECT 

@@ -5,15 +5,17 @@ import (
 	"yumi/pkg/external/dbc"
 )
 
+//WxPayMerchant ...
 type WxPayMerchant struct {
-	SeqId      int64  `db:"seq_id" json:"seq_id"`
+	SeqID      int64  `db:"seq_id" json:"seq_id"`
 	SellerKey  string `db:"seller_key" json:"seller_key"`   //卖家key
-	AppId      string `db:"app_id" json:"app_id"`           //开发平台唯一id
-	MchId      string `db:"mch_id" json:"mch_id"`           //开发平台唯一id
+	AppID      string `db:"app_id" json:"app_id"`           //开发平台唯一id
+	MchID      string `db:"mch_id" json:"mch_id"`           //开发平台唯一id
 	PrivateKey string `db:"private_key" json:"private_key"` //私钥
 	Secret     string `db:"secret" json:"secret"`           //AppSecret（Secret）是APPID对应的接口密码，用于获取接口调用凭证access_token时使用
 }
 
+//GetWxPayMerchantBySellerKey ...
 func GetWxPayMerchantBySellerKey(sellerKey string) (mch WxPayMerchant, err error) {
 	sqlStr := `
 		SELECT 
@@ -33,7 +35,8 @@ func GetWxPayMerchantBySellerKey(sellerKey string) (mch WxPayMerchant, err error
 	return
 }
 
-func GetWxPayMerchantByMchId(mchId string) (mch WxPayMerchant, err error) {
+//GetWxPayMerchantByMchID ...
+func GetWxPayMerchantByMchID(mchID string) (mch WxPayMerchant, err error) {
 	sqlStr := `
 		SELECT 
 			seq_id, 
@@ -46,7 +49,7 @@ func GetWxPayMerchantByMchId(mchId string) (mch WxPayMerchant, err error) {
 			wx_pay_merchants 
 		WHERE 
 			mch_id = ?`
-	if err = dbc.Get().Get(&mch, sqlStr, mchId); err != nil {
+	if err = dbc.Get().Get(&mch, sqlStr, mchID); err != nil {
 		return mch, ecode.ServerErr(err)
 	}
 

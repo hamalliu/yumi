@@ -5,14 +5,16 @@ import (
 	"yumi/pkg/external/dbc"
 )
 
+//AliPayMerchant ...
 type AliPayMerchant struct {
-	SeqId      int64  `db:"seq_id" json:"seq_id"`
-	AppId      string `db:"app_id" json:"seller_key"`       //商户id
+	SeqID      int64  `db:"seq_id" json:"seq_id"`
+	AppID      string `db:"app_id" json:"app_id"`       //商户id
 	SellerKey  string `db:"seller_key" json:"seller_key"`   //卖家key
 	PrivateKey string `db:"private_key" json:"private_key"` //私钥
 	PublicKey  string `db:"public_key" json:"public_key"`   //公钥
 }
 
+//GetAliPayMerchantBySellerKey ...
 func GetAliPayMerchantBySellerKey(sellerKey string) (mch AliPayMerchant, err error) {
 	sqlStr := `
 		SELECT 
