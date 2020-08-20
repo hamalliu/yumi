@@ -1,4 +1,4 @@
-package api_doc
+package apidoc
 
 import (
 	"yumi/pkg/net/gin"

@@ -1,4 +1,4 @@
-package api_model
+package apimodel
 
 type ReqSample struct {
 	SampleName    string `json:"sample_name" binding:"required"`

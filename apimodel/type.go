@@ -1,4 +1,4 @@
-package api_model
+package apimodel
 
 import (
 	"database/sql/driver"
