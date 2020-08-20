@@ -12,11 +12,11 @@ import (
 	"path"
 	"time"
 
-	"yumi/api_model"
+	"yumi/apimodel"
 	"yumi/internal/onlyoffice"
 	"yumi/pkg/conf"
 	"yumi/pkg/ecode"
-	"yumi/pkg/file_utility"
+	"yumi/pkg/fileutility"
 	"yumi/pkg/log"
 	"yumi/pkg/net/gin"
 	"yumi/pkg/net/gin/binding"
@@ -45,7 +45,7 @@ func Upload(c *gin.Context) {
 	}
 
 	user := c.Get(valuer.KeyUser).User()
-	fileName := onlyoffice.Get().GetCorrectName(mulfh.Filename, user.UserId)
+	fileName := onlyoffice.Get().GetCorrectName(mulfh.Filename, user.UserID)
 	ext := onlyoffice.Get().GetFileExtension(fileName, false)
 
 	if onlyoffice.Get().AllowUploadExtension(ext) {
@@ -53,7 +53,7 @@ func Upload(c *gin.Context) {
 		return
 	}
 
-	storagePath := onlyoffice.Get().StoragePath(fileName, user.UserId)
+	storagePath := onlyoffice.Get().StoragePath(fileName, user.UserID)
 	if osf, err = os.OpenFile(storagePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0744); err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
@@ -65,7 +65,7 @@ func Upload(c *gin.Context) {
 	_ = mulf.Close()
 	_ = osf.Close()
 
-	if err := onlyoffice.Get().SaveCreateInfo(fileName, user.UserId, user.UserName); err != nil {
+	if err := onlyoffice.Get().SaveCreateInfo(fileName, user.UserID, user.UserName); err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
@@ -76,26 +76,26 @@ func Upload(c *gin.Context) {
 
 //Sample 从样品中复制文件，用于新建文件
 func Sample(c *gin.Context) {
-	reqm := api_model.ReqSample{}
+	reqm := apimodel.ReqSample{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
 
-	reqm.FileName = onlyoffice.Get().GetCorrectName(reqm.FileName+reqm.FileExtension, user.UserId)
-	filePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserId)
+	reqm.FileName = onlyoffice.Get().GetCorrectName(reqm.FileName+reqm.FileExtension, user.UserID)
+	filePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)
 	sampleFile := ""
 	if reqm.SampleName == "" {
 		reqm.SampleName = "new"
 	}
 	sampleFile = path.Join(conf.Get().OnlyOffice.Document.SamplesPath, reqm.SampleName+reqm.FileExtension)
-	if err := file_utility.CopyFile(sampleFile, filePath); err != nil {
+	if err := fileutility.CopyFile(sampleFile, filePath); err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 
-	if err := onlyoffice.Get().SaveCreateInfo(reqm.FileName, user.UserId, user.UserName); err != nil {
+	if err := onlyoffice.Get().SaveCreateInfo(reqm.FileName, user.UserID, user.UserName); err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
@@ -124,14 +124,14 @@ func renderError(c *gin.Context, err error) {
 
 //Editor 按配置加载数据，返回office编辑模板
 func Editor(c *gin.Context) {
-	reqm := api_model.ReqEditor{}
+	reqm := apimodel.ReqEditor{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
 	confOo := conf.Get().OnlyOffice
-	history, historyData, version, err := onlyoffice.Get().GetHistory(reqm.FileName, user.UserId)
+	history, historyData, version, err := onlyoffice.Get().GetHistory(reqm.FileName, user.UserID)
 	if err != nil {
 		renderError(c, err)
 	}
@@ -140,8 +140,8 @@ func Editor(c *gin.Context) {
 		File: onlyoffice.File{
 			Name:    reqm.FileName,
 			Ext:     onlyoffice.Get().GetFileExtension(reqm.FileName, true),
-			Uri:     onlyoffice.Get().GetFileUri(reqm.FileName, user.UserId),
-			Key:     onlyoffice.Get().GenerateKey(reqm.FileName, user.UserId),
+			URI:     onlyoffice.Get().GetFileURI(reqm.FileName, user.UserID),
+			Key:     onlyoffice.Get().GenerateKey(reqm.FileName, user.UserID),
 			Version: version,
 			Created: time.Now().Format("2006-01-02 15:04:05"),
 		},
@@ -153,10 +153,10 @@ func Editor(c *gin.Context) {
 			Address: "",
 			Www:     "",
 		},
-		GobackUrl:    "",
+		GobackURL:    "",
 		Mode:         reqm.Mode,
-		CallbackUrl:  getCallbackURL(c, reqm.FileName, user.UserId),
-		UserId:       user.UserId,
+		CallbackURL:  getCallbackURL(c, reqm.FileName, user.UserID),
+		UserID:       user.UserID,
 		UserName:     user.UserName,
 		Type:         reqm.Type,
 		DocumentType: onlyoffice.Get().GetFileType(reqm.FileName),
@@ -196,27 +196,27 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 	downloadExt := onlyoffice.Get().GetFileExtension(downloadURI, false)
 
 	if curExt != downloadExt {
-		key := onlyoffice.Get().GenerateRevisionId(downloadURI)
+		key := onlyoffice.Get().GenerateRevisionID(downloadURI)
 
-		resp, err := onlyoffice.Get().GetConvertUri(downloadURI, downloadExt, curExt, key, true)
+		resp, err := onlyoffice.Get().GetConvertURI(downloadURI, downloadExt, curExt, key, true)
 		if err != nil {
 			log.Error(err)
 			goto Error
 		}
 		if resp.Error != 0 {
-			err := onlyoffice.Get().ConvertUriErrorMessage(resp.Error)
+			err := onlyoffice.Get().ConvertURIErrorMessage(resp.Error)
 			log.Error(err)
 			goto Error
 		}
-		save(c, body, resp.FileUrl, fileName, userID)
+		save(c, body, resp.FileURL, fileName, userID)
 	} else {
 		storagePath := onlyoffice.Get().StoragePath(fileName, userID)
 
-		if file_utility.ExistFile(storagePath) {
+		if fileutility.ExistFile(storagePath) {
 			historyPath := onlyoffice.Get().HistoryPath(fileName, userID, false)
 			if historyPath == "" {
 				historyPath = onlyoffice.Get().HistoryPath(fileName, userID, true)
-				err := file_utility.CreateDir(historyPath)
+				err := fileutility.CreateDir(historyPath)
 				if err != nil {
 					log.Error(err)
 					goto Error
@@ -226,7 +226,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 			countVersion := onlyoffice.Get().CountHistoryVersion(fileName, userID)
 			version := countVersion + 1
 			versionPath := onlyoffice.Get().VersionPath(fileName, userID, version)
-			err := file_utility.CreateDir(versionPath)
+			err := fileutility.CreateDir(versionPath)
 			if err != nil {
 				log.Error(err)
 				goto Error
@@ -241,7 +241,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 					log.Error(err)
 					goto Error
 				}
-				err = file_utility.WriteFile(resp.Body, diffPath)
+				err = fileutility.WriteFile(resp.Body, diffPath)
 				if err != nil {
 					log.Error(err)
 					goto Error
@@ -257,7 +257,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 				changesStr = fmt.Sprintf("%v", body["history"])
 			}
 			changesPath := onlyoffice.Get().ChangesPath(fileName, userID, version)
-			err = file_utility.WriteFile(bytes.NewBuffer([]byte(changesStr)), changesPath)
+			err = fileutility.WriteFile(bytes.NewBuffer([]byte(changesStr)), changesPath)
 			if err != nil {
 				log.Error(err)
 				goto Error
@@ -266,7 +266,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 			//key
 			key := body["key"].(string)
 			pathKey := onlyoffice.Get().KeyPath(fileName, userID, version)
-			err = file_utility.WriteFile(bytes.NewBuffer([]byte(key)), pathKey)
+			err = fileutility.WriteFile(bytes.NewBuffer([]byte(key)), pathKey)
 			if err != nil {
 				log.Error(err)
 				goto Error
@@ -274,7 +274,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 
 			//prev
 			prevPath := onlyoffice.Get().PrevFilePath(fileName, userID, version)
-			err = file_utility.CopyFile(storagePath, prevPath)
+			err = fileutility.CopyFile(storagePath, prevPath)
 			if err != nil {
 				log.Error(err)
 				goto Error
@@ -286,7 +286,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 				log.Error(err)
 				goto Error
 			}
-			err = file_utility.WriteFile(resp.Body, storagePath)
+			err = fileutility.WriteFile(resp.Body, storagePath)
 			if err != nil {
 				log.Error(err)
 				goto Error
@@ -317,24 +317,24 @@ func forceSave(c *gin.Context, body map[string]interface{}, downloadURI, fileNam
 	downloadExt := onlyoffice.Get().GetFileExtension(downloadURI, false)
 
 	if curExt != downloadExt {
-		key := onlyoffice.Get().GenerateRevisionId(downloadURI)
+		key := onlyoffice.Get().GenerateRevisionID(downloadURI)
 
-		resp, err := onlyoffice.Get().GetConvertUri(downloadURI, downloadExt, curExt, key, true)
+		resp, err := onlyoffice.Get().GetConvertURI(downloadURI, downloadExt, curExt, key, true)
 		if err != nil {
 			log.Error(err)
 			goto Error
 		}
 		if resp.Error != 0 {
-			err := onlyoffice.Get().ConvertUriErrorMessage(resp.Error)
+			err := onlyoffice.Get().ConvertURIErrorMessage(resp.Error)
 			log.Error(err)
 			goto Error
 		}
-		forceSave(c, body, resp.FileUrl, fileName, userID)
+		forceSave(c, body, resp.FileURL, fileName, userID)
 	} else {
 		forceSavePath := onlyoffice.Get().ForcesavePath(fileName, userID, false)
 		if forceSavePath == "" {
 			forceSavePath = onlyoffice.Get().ForcesavePath(fileName, userID, true)
-			err := file_utility.CreateDir(forceSavePath)
+			err := fileutility.CreateDir(forceSavePath)
 			if err != nil {
 				log.Error(err)
 				goto Error
@@ -347,7 +347,7 @@ func forceSave(c *gin.Context, body map[string]interface{}, downloadURI, fileNam
 			goto Error
 		}
 
-		err = file_utility.WriteFile(resp.Body, forceSavePath)
+		err = fileutility.WriteFile(resp.Body, forceSavePath)
 		if err != nil {
 			log.Error(err)
 			goto Error
@@ -398,7 +398,7 @@ func track(c *gin.Context, body map[string]interface{}, fileName, userID string)
 
 //Track onlyoffice的回调处理
 func Track(c *gin.Context) {
-	reqm := api_model.ReqTrack{}
+	reqm := apimodel.ReqTrack{}
 	bodyMap := make(map[string]interface{})
 
 	if err := c.BindWith(&reqm, binding.Query); err != nil {
@@ -439,10 +439,10 @@ func Track(c *gin.Context) {
 			goto Error
 		}
 
-		track(c, body, reqm.FileName, reqm.UserId)
+		track(c, body, reqm.FileName, reqm.UserID)
 	}
 
-	track(c, bodyMap, reqm.FileName, reqm.UserId)
+	track(c, bodyMap, reqm.FileName, reqm.UserID)
 
 Error:
 	c.Writer.Write([]byte("{\"error\":1}"))
@@ -451,19 +451,19 @@ Error:
 
 //Convert 转换格式为open office xml格式
 func Convert(c *gin.Context) {
-	reqm := api_model.ReqConvert{}
+	reqm := apimodel.ReqConvert{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
 
-	fileURI := onlyoffice.Get().GetFileUri(reqm.FileName, user.UserId)
+	fileURI := onlyoffice.Get().GetFileURI(reqm.FileName, user.UserID)
 	fileExt := onlyoffice.Get().GetFileExtension(reqm.FileName, false)
 	fileType := onlyoffice.Get().GetFileType(reqm.FileName)
 	internalFileExt := onlyoffice.Get().GetInternalExtension(fileType)
-	key := fileURI + file_utility.GetModTime(onlyoffice.Get().StoragePath(reqm.FileName, user.UserId)).Format("2006-01-02 15-04-05")
-	key = onlyoffice.Get().GenerateRevisionId(key)
+	key := fileURI + fileutility.GetModTime(onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)).Format("2006-01-02 15-04-05")
+	key = onlyoffice.Get().GenerateRevisionID(key)
 
 	//是已存换类型就直接返回
 	if conf.Get().OnlyOffice.Document.ConvertedDocs.IndexOf(fileExt) != -1 {
@@ -471,24 +471,24 @@ func Convert(c *gin.Context) {
 		return
 	}
 
-	resp, err := onlyoffice.Get().GetConvertUri(fileURI, fileExt, internalFileExt, key, true)
+	resp, err := onlyoffice.Get().GetConvertURI(fileURI, fileExt, internalFileExt, key, true)
 	if err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 	if resp.Error != 0 {
-		c.JSON(nil, ecode.ServerErr(onlyoffice.Get().ConvertUriErrorMessage(resp.Error)))
+		c.JSON(nil, ecode.ServerErr(onlyoffice.Get().ConvertURIErrorMessage(resp.Error)))
 		return
 	}
 
-	file, err := http.Get(resp.FileUrl)
+	file, err := http.Get(resp.FileURL)
 	if err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 
-	correctName := onlyoffice.Get().GetCorrectName(onlyoffice.Get().GetFileName(reqm.FileName, true)+internalFileExt, user.UserId)
-	correctStoragePath := onlyoffice.Get().StoragePath(correctName, user.UserId)
+	correctName := onlyoffice.Get().GetCorrectName(onlyoffice.Get().GetFileName(reqm.FileName, true)+internalFileExt, user.UserID)
+	correctStoragePath := onlyoffice.Get().StoragePath(correctName, user.UserID)
 	destf, err := os.Create(correctStoragePath)
 	if err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
@@ -502,15 +502,15 @@ func Convert(c *gin.Context) {
 	}
 	_ = destf.Close()
 
-	storagePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserId)
+	storagePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)
 	err = os.Remove(storagePath)
 	if err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
 
-	historyPath := onlyoffice.Get().HistoryPath(reqm.FileName, user.UserId, true)
-	correctHistoryPath := onlyoffice.Get().HistoryPath(correctName, user.UserId, true)
+	historyPath := onlyoffice.Get().HistoryPath(reqm.FileName, user.UserID, true)
+	correctHistoryPath := onlyoffice.Get().HistoryPath(correctName, user.UserID, true)
 	err = os.Rename(historyPath, correctHistoryPath)
 	if err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
@@ -531,16 +531,16 @@ func Convert(c *gin.Context) {
 
 //Download 下载文件
 func Download(c *gin.Context) {
-	reqm := api_model.ReqDownload{}
+	reqm := apimodel.ReqDownload{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
 
-	filePath := onlyoffice.Get().ForcesavePath(reqm.FileName, user.UserId, false)
+	filePath := onlyoffice.Get().ForcesavePath(reqm.FileName, user.UserID, false)
 	if filePath == "" {
-		filePath = onlyoffice.Get().StoragePath(reqm.FileName, user.UserId)
+		filePath = onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)
 	}
 
 	c.FileAttachment(filePath, reqm.FileName)
@@ -550,7 +550,7 @@ func Download(c *gin.Context) {
 
 //DeleteFile 删除自己目录下的文件
 func DeleteFile(c *gin.Context) {
-	reqm := api_model.ReqDownload{}
+	reqm := apimodel.ReqDownload{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
@@ -558,20 +558,20 @@ func DeleteFile(c *gin.Context) {
 	user := c.Get(valuer.KeyUser).User()
 
 	if reqm.FileName != "" {
-		storagePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserId)
+		storagePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)
 		if err := os.Remove(storagePath); err != nil {
 			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
 
-		historyPath := onlyoffice.Get().HistoryPath(reqm.FileName, user.UserId, true)
+		historyPath := onlyoffice.Get().HistoryPath(reqm.FileName, user.UserID, true)
 		if err := onlyoffice.Get().CleanFolderRecursive(historyPath, true); err != nil {
 			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
 	} else {
 		//delete all
-		if err := onlyoffice.Get().CleanFolderRecursive(onlyoffice.Get().StoragePath("", user.UserId), false); err != nil {
+		if err := onlyoffice.Get().CleanFolderRecursive(onlyoffice.Get().StoragePath("", user.UserID), false); err != nil {
 			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}

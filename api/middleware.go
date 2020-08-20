@@ -25,7 +25,7 @@ func FillSession(c *gin.Context) {
 	userID := header.UserID(c.Request)
 	s, ok := session.GetUser(userID)
 	if ok {
-		c.Set(valuer.KeyUser, valuer.User{UserId: s.UserID, UserName: s.UserName})
+		c.Set(valuer.KeyUser, valuer.User{UserID: s.UserID, UserName: s.UserName})
 	} else {
 		//TODO
 	}
