@@ -63,7 +63,7 @@ func GetUser(user string) (Session, bool) {
 		if u.LastHeart.Before(now) {
 			return empty, false
 		}
-		
+
 		return u, true
 	}
 	return empty, false

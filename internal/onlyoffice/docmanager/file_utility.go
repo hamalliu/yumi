@@ -13,9 +13,9 @@ import (
 
 const (
 	//FileTypeText ...
-	FileTypeText         = "text"
+	FileTypeText = "text"
 	//FileTypeSpreadsheet ...
-	FileTypeSpreadsheet  = "spreadsheet"
+	FileTypeSpreadsheet = "spreadsheet"
 	//FileTypePresentation ...
 	FileTypePresentation = "presentation"
 )
@@ -73,7 +73,7 @@ func (fu FileUtility) GetFileExtension(fileName string, withoutDot bool) string 
 	if withoutDot {
 		return fileName[s+1:]
 	}
-	
+
 	return fileName[s:]
 }
 
