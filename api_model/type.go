@@ -1,4 +1,4 @@
-package model
+package api_model
 
 import (
 	"database/sql/driver"
@@ -8,15 +8,15 @@ import (
 
 const (
 	//DayTimeFormat ...
-	DayTimeFormat         = "2006-01-02"
+	DayTimeFormat = "2006-01-02"
 	//SecondTimeFormat ...
-	SecondTimeFormat      = "2006-01-02 15-04-05"
+	SecondTimeFormat = "2006-01-02 15-04-05"
 	//MillisecondTimeFormat ...
 	MillisecondTimeFormat = "2006-01-02 15-04-05.999"
 	//MicrosecondTimeFormat ...
 	MicrosecondTimeFormat = "2006-01-02 15-04-05.999999"
 	//NanosecondTimeFormat ...
-	NanosecondTimeFormat  = "2006-01-02 15-04-05.999999999"
+	NanosecondTimeFormat = "2006-01-02 15-04-05.999999999"
 )
 
 //DayTime ...
