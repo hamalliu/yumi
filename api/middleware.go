@@ -22,10 +22,10 @@ func DebugLog(c *gin.Context) {
 
 //FillSession ...
 func FillSession(c *gin.Context) {
-	userID := header.UserId(c.Request)
+	userID := header.UserID(c.Request)
 	s, ok := session.GetUser(userID)
 	if ok {
-		c.Set(valuer.KeyUser, valuer.User{UserId: s.UserId, UserName: s.UserName})
+		c.Set(valuer.KeyUser, valuer.User{UserId: s.UserID, UserName: s.UserName})
 	} else {
 		//TODO
 	}

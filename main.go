@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"yumi/api"
-	"yumi/api_doc"
+	"yumi/apidoc"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
 	"yumi/pkg/net/gin"
@@ -35,7 +35,7 @@ func main() {
 
 	//debug模式下，开启接口文档
 	if conf.IsDebug() {
-		api_doc.Mount(router)
+		apidoc.Mount(router)
 	}
 
 	//启动服务
