@@ -4,14 +4,19 @@ import (
 	"crypto/rand"
 )
 
+//RandType ...
 type RandType string
 
 const (
+	//ALPHANUM ...
 	ALPHANUM RandType = "alphanum"
+	//ALPHA ...
 	ALPHA    RandType = "alpha"
+	//NUMBER ...
 	NUMBER   RandType = "number"
 )
 
+//CreateRandomStr ...
 func CreateRandomStr(strSize int, randType RandType) string {
 	var dictionary string
 	if randType == ALPHANUM {
@@ -32,6 +37,7 @@ func CreateRandomStr(strSize int, randType RandType) string {
 	return string(bytes)
 }
 
+//GetNonceStr ...
 func GetNonceStr() string {
 	return CreateRandomStr(30, ALPHANUM)
 }

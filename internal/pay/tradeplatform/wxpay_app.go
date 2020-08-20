@@ -46,7 +46,7 @@ func mashalWxAppPayRequest(appID, mchID, privateKey, prePayID string) (string, e
 	req.NonceStr = utils.CreateRandomStr(30, utils.ALPHANUM)
 	req.Package = fmt.Sprintf("prepay_id=%s", prePayID)
 	req.SignType = "MD5"
-	req.PaySign = wxpay.Buildsign(&req, wxpay.FieldTagKeyJson, privateKey)
+	req.PaySign = wxpay.Buildsign(&req, wxpay.FieldTagKeyJSON, privateKey)
 
 	reqBytes, err := json.Marshal(&req)
 	if err != nil {
@@ -71,9 +71,9 @@ func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyURL,
+		NotifyURL:      op.NotifyURL,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIP,
+		SpbillCreateIP: op.SpbillCreateIP,
 	}
 
 	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder)
@@ -81,9 +81,9 @@ func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		return ret, ecode.ServerErr(err)
 	}
 
-	ret.AppID = wxMch.AppId
-	ret.MchID = wxMch.MchId
-	dataStr, err := mashalWxAppPayRequest(wxMch.AppId, wxMch.MchId, wxMch.PrivateKey, retuo.PrepayId)
+	ret.AppID = wxMch.AppID
+	ret.MchID = wxMch.MchID
+	dataStr, err := mashalWxAppPayRequest(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}

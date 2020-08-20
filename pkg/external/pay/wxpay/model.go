@@ -2,7 +2,7 @@ package wxpay
 
 import "time"
 
-//二维码下单传入数据
+//UnifiedOrder 二维码下单传入数据
 type UnifiedOrder struct {
 	//商品描述：商品简单描述，该字段请按照规范传递，
 	// https://pay.weixin.qq.com/wiki/doc/api/native.php?chapter=4_2
@@ -27,19 +27,19 @@ type UnifiedOrder struct {
 	GoodsTag string
 
 	//通知地址：异步接收微信支付结果通知的回调地址，通知url必须为外网可访问的url，不能携带参数。
-	NotifyUrl string `NATIVE:"true" MWEB:"true" APP:"true" JSAPI:"true"`
+	NotifyURL string `NATIVE:"true" MWEB:"true" APP:"true" JSAPI:"true"`
 
 	//商品ID
-	ProductId string `NATIVE:"true"`
+	ProductID string `NATIVE:"true"`
 
 	//指定支付方式：上传此参数no_credit--可限制用户不能使用信用卡支付
 	LimitPay string
 
 	//用户标识
-	OpendId string `JSAPI:"true"`
+	OpendID string `JSAPI:"true"`
 
 	//用户请求的客户端ip
-	SpbillCreateIp string `NATIVE:"true" MWEB:"true" APP:"true" JSAPI:"true"`
+	SpbillCreateIP string `NATIVE:"true" MWEB:"true" APP:"true" JSAPI:"true"`
 
 	//支付过期时间
 	PayExpire time.Time `NATIVE:"true" MWEB:"true" APP:"true" JSAPI:"true"`
@@ -88,17 +88,18 @@ type UnifiedOrder struct {
 	SceneInfo string `MWEB:"true"`
 }
 
+//ReturnUnifiedOrder ...
 type ReturnUnifiedOrder struct {
 	TradeType string
-	PrepayId  string
-	MwebUrl   string
-	CodeUrl   string
+	PrepayID  string
+	MwebURL   string
+	CodeURL   string
 }
 
-//查询订单返回数据
+//OrderQuery 查询订单返回数据
 type OrderQuery struct {
 	DeviceInfo         string //设备号
-	OpenId             string //用户标识
+	OpenID             string //用户标识
 	IsSubscribe        string //是否关注公众账号
 	TradeType          string //交易类型
 	TradeState         string //交易状态
@@ -111,18 +112,18 @@ type OrderQuery struct {
 	CouponFee          int    //代金券金额
 	CouponCount        int    //代金券使用数量
 	CouponType         string //代金券类型
-	CouponId           string //代金券ID
+	CouponID           string //代金券ID
 	CouponFeen         int    //单个代金券支付金额
-	TransactionId      string //微信支付订单号
+	TransactionID      string //微信支付订单号
 	OutTradeNo         string //商户订单号
 	Attach             string //附加数据
 	TimeEnd            string //支付完成时间
 	TradeStateDesc     string //交易状态描述
 }
 
-//申请退款传入数据
+//Refund 申请退款传入数据
 type Refund struct {
-	TransactionId string //微信支付订单号
+	TransactionID string //微信支付订单号
 	OutTradeNo    string //商户订单号
 	OutRefundNo   string `require:"true"` //商户退款单号
 	TotalFee      int    `require:"true"` //订单金额
@@ -130,16 +131,16 @@ type Refund struct {
 	RefundFeeType string //退款货币种类
 	RefundDesc    string //退款原因
 	RefundAccount string //退款资金来源
-	NotifyUrl     string //退款结果通知url
+	NotifyURL     string //退款结果通知url
 	CertP12       []byte `require:"true"`
 }
 
-//申请退款返回数据
+//RefundReturn 申请退款返回数据
 type RefundReturn struct {
-	TransactionId       string //微信支付订单号
+	TransactionID       string //微信支付订单号
 	OutTradeNo          string //商户订单号
 	OutRefundNo         string //商户退款单号
-	RefundId            string //微信退款单号
+	RefundID            string //微信退款单号
 	RefundFee           int    //退款金额
 	SettlementRefundFee int    //应结退款金额
 	TotalFee            int    //标价金额
@@ -152,22 +153,22 @@ type RefundReturn struct {
 	CouponRefundFee     int    //代金券退款总金额
 	CouponRefundFeen    int    //单个代金券退款金额
 	CouponRefundCount   int    //退款代金券使用数量
-	CouponRefundId      string //退款代金券ID
+	CouponRefundID      string //退款代金券ID
 }
 
-//退款查询传入数据
+//RefundQuery 退款查询传入数据
 type RefundQuery struct {
-	TransactionId string //微信支付订单号
+	TransactionID string //微信支付订单号
 	OutTradeNo    string //商户订单号
 	OutRefundNo   string //商户退款单号
-	RefundId      string //微信退款单号
+	RefundID      string //微信退款单号
 	Offset        int    //偏移量
 }
 
-//退款查询返回数据
+//RefundQueryReturn 退款查询返回数据
 type RefundQueryReturn struct {
 	TotalRefundCount     int    //订单总退款次数
-	TransactionId        string //微信订单号
+	TransactionID        string //微信订单号
 	OutTradeNo           string //商户订单号
 	TotalFee             int    //订单金额
 	SettlementTotalFee   int    //应结订单金额
@@ -190,7 +191,7 @@ type RefundQueryReturn struct {
 	RefundSuccessTimen   string //退款成功时间
 }
 
-//下载对账单传入数据
+//DownLoadBill 下载对账单传入数据
 type DownLoadBill struct {
 	//对账单日期：下载对账单的日期，格式：20140603
 	BillDate string `require:"true"`
@@ -210,16 +211,16 @@ type DownLoadBill struct {
 	TarType string
 }
 
-//账单
+//DownloadBillReturn 账单
 type DownloadBillReturn struct {
 	TradeDate            string //交易时间
-	AppId                string //公众账号ID
-	MchId                string //商户号
-	SubMchId             string //子商户号
+	AppID                string //公众账号ID
+	MchID                string //商户号
+	SubMchID             string //子商户号
 	DeviceInfo           string //设备号
-	TransactionId        string //微信订单号
+	TransactionID        string //微信订单号
 	OutTradeNo           string //商户订单号
-	OpenId               string //用户标识
+	OpenID               string //用户标识
 	TradeType            string //交易类型
 	TradeState           string //交易状态
 	BankType             string //付款银行
@@ -240,7 +241,7 @@ type DownloadBillReturn struct {
 	Rate                 string //费率
 }
 
-//账单统计数据
+//DownloadBillStatisticsReturn 账单统计数据
 type DownloadBillStatisticsReturn struct {
 	TotalTransactions      string //总交易单数
 	TotalTransactionValue  string //总交易额

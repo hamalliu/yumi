@@ -23,26 +23,40 @@ import (
  */
 
 const (
-	FieldTagKeyXml  = "xml"
-	FieldTagKeyJson = "json"
+	//FieldTagKeyXML ...
+	FieldTagKeyXML = "xml"
+	//FieldTagKeyJSON ...
+	FieldTagKeyJSON = "json"
 )
 
 const (
+	//ReturnCodeSuccess ...
 	ReturnCodeSuccess = "SUCCESS"
-	ReturnCodeFail    = "FAIL"
+	//ReturnCodeFail ...
+	ReturnCodeFail = "FAIL"
 )
 
 const (
-	TradeStateSuccess     = "SUCCESS"
-	TradeStateRefund      = "REFUND"
-	TradeStateNotpay      = "NOTPAY"
-	TradeStateClosed      = "CLOSED"
-	TradeStateRevoked     = "REVOKED"
-	TradeStateUserPaying  = "USERPAYING"
-	TradeStatePayError    = "PAYERROR"
+	//TradeStateSuccess ...
+	TradeStateSuccess = "SUCCESS"
+	//TradeStateRefund ...
+	TradeStateRefund = "REFUND"
+	//TradeStateNotpay ...
+	TradeStateNotpay = "NOTPAY"
+	//TradeStateClosed ...
+	TradeStateClosed = "CLOSED"
+	//TradeStateRevoked ...
+	TradeStateRevoked = "REVOKED"
+	//TradeStateUserPaying ...
+	TradeStateUserPaying = "USERPAYING"
+	//TradeStatePayError ...
+	TradeStatePayError = "PAYERROR"
+	//TradeStateRefundClose ...
 	TradeStateRefundClose = "REFUNDCLOSE"
-	TradeStateProcessing  = "PROCESSING"
-	TradeStateChange      = "CHANGE"
+	//TradeStateProcessing ...
+	TradeStateProcessing = "PROCESSING"
+	//TradeStateChange ...
+	TradeStateChange = "CHANGE"
 )
 
 const (
@@ -50,100 +64,112 @@ const (
 	dateFormat = "20060102"
 )
 
+//TradeType ...
 type TradeType string
 
 const (
-	TradeTypeJsapi  TradeType = "JSAPI"
+	//TradeTypeJsapi ...
+	TradeTypeJsapi TradeType = "JSAPI"
+	//TradeTypeNative ...
 	TradeTypeNative TradeType = "NATIVE"
-	TradeTypeMweb   TradeType = "MWEB"
-	TradeTypeApp    TradeType = "APP"
+	//TradeTypeMweb ...
+	TradeTypeMweb TradeType = "MWEB"
+	//TradeTypeApp ...
+	TradeTypeApp TradeType = "APP"
 )
 
-type PayApi struct {
+//PayAPI ...
+type PayAPI struct {
 	//生成支付二维码url
-	BizPayUrlUrl string
+	BizPayURLURL string
 
 	//统一下单url
-	UnifiedOrderUrl string
+	UnifiedOrderURL string
 
 	//统一下单url（备用域名）
-	UnifiedOrderUrl2 string
+	UnifiedOrderURL2 string
 
 	//查询订单url
-	OrderQueryUrl string
+	OrderQueryURL string
 
 	//查询订单url（备用域名）
-	OrderQueryUrl2 string
+	OrderQueryURL2 string
 
 	//关闭订单url
-	CloseOrderUrl string
+	CloseOrderURL string
 
 	//关闭订单url（备用域名）
-	CloseOrderUrl2 string
+	CloseOrderURL2 string
 
 	//申请退款url
-	RefundUrl string
+	RefundURL string
 
 	//查询退款url
-	RefundQueryUrl string
+	RefundQueryURL string
 
 	//下载对账单url
-	DownloadBillUrl string
+	DownloadBillURL string
 
 	//下载资金账单url
-	DownloadFundFlowUrl string
+	DownloadFundFlowURL string
 
 	//交易保障url
-	PayitilReportUrl string
+	PayitilReportURL string
 
 	//转换短链接url
-	ShortUrlUrl string
+	ShortURLURL string
 
 	//拉取订单评价数据url
-	BatchQueryCommentUrl string
+	BatchQueryCommentURL string
 
 	//
-	Oauth2AuthorizeUrl string
+	Oauth2AuthorizeURL string
 
 	//
-	Oauth2AccessTokenUrl string
+	Oauth2AccessTokenURL string
 }
 
-var payapi = PayApi{
-	BizPayUrlUrl:         "weixin://wxpay/bizpayurl",
-	UnifiedOrderUrl:      "https://api.mch.weixin.qq.com/pay/unifiedorder",
-	UnifiedOrderUrl2:     "https://api2.mch.weixin.qq.com/pay/unifiedorder",
-	OrderQueryUrl:        "https://api.mch.weixin.qq.com/pay/orderquery",
-	OrderQueryUrl2:       "https://api2.mch.weixin.qq.com/pay/orderquery",
-	CloseOrderUrl:        "https://api.mch.weixin.qq.com/pay/closeorder",
-	CloseOrderUrl2:       "https://api2.mch.weixin.qq.com/pay/closeorder",
-	RefundUrl:            "https://api.mch.weixin.qq.com/secapi/pay/refund",
-	RefundQueryUrl:       "https://api.mch.weixin.qq.com/pay/refundquery",
-	DownloadBillUrl:      "https://api.mch.weixin.qq.com/pay/downloadbill",
-	DownloadFundFlowUrl:  "https://api.mch.weixin.qq.com/pay/downloadfundflow",
-	PayitilReportUrl:     "https://api.mch.weixin.qq.com/payitil/report",
-	ShortUrlUrl:          "https://api.mch.weixin.qq.com/tools/shorturl",
-	BatchQueryCommentUrl: "https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment",
-	Oauth2AuthorizeUrl:   "https://open.weixin.qq.com/connect/oauth2/authorize",
-	Oauth2AccessTokenUrl: "https://api.weixin.qq.com/sns/oauth2/access_token",
+var payapi = PayAPI{
+	BizPayURLURL:         "weixin://wxpay/bizpayurl",
+	UnifiedOrderURL:      "https://api.mch.weixin.qq.com/pay/unifiedorder",
+	UnifiedOrderURL2:     "https://api2.mch.weixin.qq.com/pay/unifiedorder",
+	OrderQueryURL:        "https://api.mch.weixin.qq.com/pay/orderquery",
+	OrderQueryURL2:       "https://api2.mch.weixin.qq.com/pay/orderquery",
+	CloseOrderURL:        "https://api.mch.weixin.qq.com/pay/closeorder",
+	CloseOrderURL2:       "https://api2.mch.weixin.qq.com/pay/closeorder",
+	RefundURL:            "https://api.mch.weixin.qq.com/secapi/pay/refund",
+	RefundQueryURL:       "https://api.mch.weixin.qq.com/pay/refundquery",
+	DownloadBillURL:      "https://api.mch.weixin.qq.com/pay/downloadbill",
+	DownloadFundFlowURL:  "https://api.mch.weixin.qq.com/pay/downloadfundflow",
+	PayitilReportURL:     "https://api.mch.weixin.qq.com/payitil/report",
+	ShortURLURL:          "https://api.mch.weixin.qq.com/tools/shorturl",
+	BatchQueryCommentURL: "https://api.mch.weixin.qq.com/billcommentsp/batchquerycomment",
+	Oauth2AuthorizeURL:   "https://open.weixin.qq.com/connect/oauth2/authorize",
+	Oauth2AccessTokenURL: "https://api.weixin.qq.com/sns/oauth2/access_token",
 }
 
-func GetDefault() PayApi {
+//GetDefault ...
+func GetDefault() PayAPI {
 	return payapi
 }
 
+//Oauth2AuthorizeScope ...
 type Oauth2AuthorizeScope string
 
 const (
-	Oauth2AuthorizeScope_SnsapiBase     Oauth2AuthorizeScope = "snsapi_base"
-	Oauth2AuthorizeScope_SnsapiUserInfo Oauth2AuthorizeScope = "snsapi_userinfo"
+	//Oauth2AuthorizeScopeSnsapiBase ...
+	Oauth2AuthorizeScopeSnsapiBase Oauth2AuthorizeScope = "snsapi_base"
+	//Oauth2AuthorizeScopeSnsapiUserInfo ...
+	Oauth2AuthorizeScopeSnsapiUserInfo Oauth2AuthorizeScope = "snsapi_userinfo"
 )
 
+//ResponseError ...
 type ResponseError struct {
 	ErrorCode int    `json:"errorcode"`
 	ErrorMsg  string `json:"errormsg"`
 }
 
+//AccessToken ...
 type AccessToken struct {
 	ResponseError
 	AccessToken  string `json:"access_token"`
@@ -153,84 +179,83 @@ type AccessToken struct {
 	Scope        string `json:"scope"`
 }
 
-//网页授权（jsapi获取openid）:构建前端浏览器访问微信oath2 url
-func (p PayApi) BuildOauth2AuthorizeUrl(mch Merchant, redirectUrl string, scope Oauth2AuthorizeScope) (reqUrl string, state string) {
+//BuildOauth2AuthorizeURL 网页授权（jsapi获取openid）:构建前端浏览器访问微信oath2 url
+func (p PayAPI) BuildOauth2AuthorizeURL(mch Merchant, redirectURL string, scope Oauth2AuthorizeScope) (reqURL string, state string) {
 	vals := make(url2.Values)
-	vals["appid"] = append(vals["appid"], mch.AppId)
-	vals["redirect_url"] = append(vals["redirect_url"], mch.AppId)
+	vals["appid"] = append(vals["appid"], mch.AppID)
+	vals["redirect_url"] = append(vals["redirect_url"], mch.AppID)
 	vals["response_type"] = append(vals["response_type"], "code")
 	vals["scope"] = append(vals["scope"], string(scope))
 	state = internal.CreateRandomStr(20, internal.ALPHANUM)
 	vals["state"] = append(vals["state"], state)
 
-	reqUrl = fmt.Sprintf("%s?%s#wechat_redirect", p.Oauth2AuthorizeUrl, vals.Encode())
+	reqURL = fmt.Sprintf("%s?%s#wechat_redirect", p.Oauth2AuthorizeURL, vals.Encode())
 
 	return
 }
 
-//网页授权（jsapi获取openid）: 通过code获取AccessToken数据
-func (p PayApi) Oauth2AuthorizeRedirectUrlHandler(mch Merchant, code string) (AccessToken, error) {
+//Oauth2AuthorizeRedirectURLHandler 网页授权（jsapi获取openid）: 通过code获取AccessToken数据
+func (p PayAPI) Oauth2AuthorizeRedirectURLHandler(mch Merchant, code string) (AccessToken, error) {
 	vals := make(url2.Values)
-	vals["appid"] = append(vals["appid"], mch.AppId)
+	vals["appid"] = append(vals["appid"], mch.AppID)
 	vals["secret"] = append(vals["secret"], mch.AppSecret)
 	vals["code"] = append(vals["code"], code)
 	vals["grant_type"] = append(vals["grant_type"], "authorization_code")
-	reqUrl := fmt.Sprintf("%s?%s", p.Oauth2AccessTokenUrl, vals.Encode())
+	reqURL := fmt.Sprintf("%s?%s", p.Oauth2AccessTokenURL, vals.Encode())
 
 	ret := AccessToken{}
-	req, err := http.NewRequest(http.MethodGet, reqUrl, nil)
+	req, err := http.NewRequest(http.MethodGet, reqURL, nil)
 	if err != nil {
 		return ret, err
 	}
 	var cli http.Client
-	if resp, err := cli.Do(req); err != nil {
+	resp, err := cli.Do(req)
+	if err != nil {
 		return ret, err
-	} else {
-		if err := json.NewDecoder(resp.Body).Decode(&ret); err != nil {
-			return ret, err
-		} else {
-			if ret.ErrorCode == 40029 {
-				return ret, fmt.Errorf("%s", ret.ErrorMsg)
-			} else {
-				return ret, nil
-			}
-		}
 	}
+	if err := json.NewDecoder(resp.Body).Decode(&ret); err != nil {
+		return ret, err
+	}
+	if ret.ErrorCode == 40029 {
+		return ret, fmt.Errorf("%s", ret.ErrorMsg)
+	}
+
+	return ret, nil
 }
 
-//模式一：生成二维码url
-func (p PayApi) BizPayUrl1(mch Merchant, productId string) (string, error) {
+//BizPayURL1 模式一：生成二维码url
+func (p PayAPI) BizPayURL1(mch Merchant, productID string) (string, error) {
 	//验证参数
-	if productId == "" {
+	if productID == "" {
 		return "", fmt.Errorf("商品id不能为空")
 	}
 	if err := internal.CheckRequire(string(TradeTypeNative), mch); err != nil {
 		return "", err
 	}
 
-	reqModel := BizPayUrl{
-		AppId:     mch.AppId,
-		MchId:     mch.MchId,
+	reqModel := BizPayURL{
+		AppID:     mch.AppID,
+		MchID:     mch.MchID,
 		TimeStamp: fmt.Sprintf("%d", time.Now().Unix()),
 		NonceStr:  internal.CreateRandomStr(30, internal.ALPHANUM),
-		ProductId: productId,
+		ProductID: productID,
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
-	codeUrl := fmt.Sprintf("%s?%s", p.BizPayUrlUrl, BuildPrameter(reqModel))
+	codeURL := fmt.Sprintf("%s?%s", p.BizPayURLURL, BuildPrameter(reqModel))
 
-	return codeUrl, nil
+	return codeURL, nil
 }
 
-//模式二：生成二维码url
-func (p PayApi) BizPayUrl2(codeUrl string) string {
-	codeUrl = fmt.Sprintf("%s?sr=%s", p.BizPayUrlUrl, codeUrl)
-	return codeUrl
+//BizPayURL2 模式二：生成二维码url
+func (p PayAPI) BizPayURL2(codeURL string) string {
+	codeURL = fmt.Sprintf("%s?sr=%s", p.BizPayURLURL, codeURL)
+	return codeURL
 }
 
-//转换短链接
-func (p PayApi) ShortUrl(mch Merchant, url string) (string, error) {
+//ShortURL 转换短链接
+func (p PayAPI) ShortURL(mch Merchant, url string) (string, error) {
 	//验证参数
 	if url == "" {
 		return "", fmt.Errorf("url不能为空")
@@ -239,29 +264,29 @@ func (p PayApi) ShortUrl(mch Merchant, url string) (string, error) {
 		return "", err
 	}
 
-	reqModel := ReqShortUrl{
-		AppId:    mch.AppId,
-		MchId:    mch.MchId,
-		LongUrl:  url,
+	reqModel := ReqShortURL{
+		AppID:    mch.AppID,
+		MchID:    mch.MchID,
+		LongURL:  url,
 		NonceStr: internal.GetNonceStr(),
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
-	respModel := RespShortUrl{}
-	respMap := make(XmlMap)
-	if bs, err := request(&respModel, http.MethodPost, p.ShortUrlUrl, &reqModel, nil); err != nil {
+	respModel := RespShortURL{}
+	respMap := make(XMLMap)
+	bs, err := request(&respModel, http.MethodPost, p.ShortURLURL, &reqModel, nil)
+	if err != nil {
 		return "", err
-	} else {
-		if err := xml.Unmarshal(bs, &respMap); err != nil {
-			return "", err
-		}
+	}
+	if err := xml.Unmarshal(bs, &respMap); err != nil {
+		return "", err
 	}
 
 	if respModel.ReturnCode == ReturnCodeSuccess {
 		//验签
-		if respModel.Sign != Buildsign(respMap, FieldTagKeyXml, mch.PrivateKey) {
+		if respModel.Sign != Buildsign(respMap, FieldTagKeyXML, mch.PrivateKey) {
 			return "", fmt.Errorf("验签失败")
 		}
 
@@ -271,21 +296,21 @@ func (p PayApi) ShortUrl(mch Merchant, url string) (string, error) {
 		}
 
 		//成功
-		return respModel.ShortUrl, nil
-	} else {
-		//失败
-		return "", fmt.Errorf("%s", respModel.ReturnMsg)
+		return respModel.ShortURL, nil
 	}
+
+	//失败
+	return "", fmt.Errorf("%s", respModel.ReturnMsg)
 }
 
-//模式一：直接生成二维码短链接
-func (p PayApi) BizPayShortUrl(mch Merchant, productId string) (string, error) {
-	codeUrl, err := p.BizPayUrl1(mch, productId)
+//BizPayShortURL 模式一：直接生成二维码短链接
+func (p PayAPI) BizPayShortURL(mch Merchant, productID string) (string, error) {
+	codeURL, err := p.BizPayURL1(mch, productID)
 	if err != nil {
 		return "", err
 	}
 
-	return p.ShortUrl(mch, codeUrl)
+	return p.ShortURL(mch, codeURL)
 }
 
 //统一下单
@@ -294,8 +319,8 @@ func (p PayApi) BizPayShortUrl(mch Merchant, productId string) (string, error) {
  */
 func getNativePayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
-		AppId:          mch.AppId,
-		MchId:          mch.MchId,
+		AppID:          mch.AppID,
+		MchID:          mch.MchID,
 		DeviceInfo:     "WEB",
 		NonceStr:       internal.GetNonceStr(),
 		Body:           order.Body,
@@ -303,13 +328,13 @@ func getNativePayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 		Attach:         order.Attach,
 		OutTradeNo:     order.OutTradeNo,
 		TotalFee:       order.TotalFee,
-		SpbillCreateIp: order.SpbillCreateIp,
+		SpbillCreateIP: order.SpbillCreateIP,
 		TimeStart:      time.Now().Format(timeFormat),
 		TimeExpire:     order.PayExpire.Format(timeFormat),
 		GoodsTag:       order.GoodsTag,
-		NotifyUrl:      order.NotifyUrl,
+		NotifyURL:      order.NotifyURL,
 		TradeType:      string(TradeTypeNative),
-		ProductId:      order.ProductId,
+		ProductID:      order.ProductID,
 		LimitPay:       order.LimitPay,
 		Receipt:        "Y",
 		SceneInfo:      order.SceneInfo,
@@ -318,19 +343,19 @@ func getNativePayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 
 func getAppPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
-		AppId:          mch.AppId,
-		MchId:          mch.MchId,
+		AppID:          mch.AppID,
+		MchID:          mch.MchID,
 		NonceStr:       internal.GetNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
 		OutTradeNo:     order.OutTradeNo,
 		TotalFee:       order.TotalFee,
-		SpbillCreateIp: order.SpbillCreateIp,
+		SpbillCreateIP: order.SpbillCreateIP,
 		TimeStart:      time.Now().Format(timeFormat),
 		TimeExpire:     order.PayExpire.Format(timeFormat),
 		GoodsTag:       order.GoodsTag,
-		NotifyUrl:      order.NotifyUrl,
+		NotifyURL:      order.NotifyURL,
 		TradeType:      string(TradeTypeApp),
 		LimitPay:       order.LimitPay,
 		Receipt:        "Y",
@@ -339,21 +364,21 @@ func getAppPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 
 func getMwebPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
-		AppId:          mch.AppId,
-		MchId:          mch.MchId,
+		AppID:          mch.AppID,
+		MchID:          mch.MchID,
 		NonceStr:       internal.GetNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
 		OutTradeNo:     order.OutTradeNo,
 		TotalFee:       order.TotalFee,
-		SpbillCreateIp: order.SpbillCreateIp,
+		SpbillCreateIP: order.SpbillCreateIP,
 		TimeStart:      time.Now().Format(timeFormat),
 		TimeExpire:     order.PayExpire.Format(timeFormat),
 		GoodsTag:       order.GoodsTag,
-		NotifyUrl:      order.NotifyUrl,
+		NotifyURL:      order.NotifyURL,
 		TradeType:      string(TradeTypeMweb),
-		ProductId:      order.ProductId,
+		ProductID:      order.ProductID,
 		LimitPay:       order.LimitPay,
 		Receipt:        "Y",
 		SceneInfo:      order.SceneInfo,
@@ -362,28 +387,29 @@ func getMwebPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 
 func getJsapiPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
-		AppId:          mch.AppId,
-		MchId:          mch.MchId,
+		AppID:          mch.AppID,
+		MchID:          mch.MchID,
 		NonceStr:       internal.GetNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
 		OutTradeNo:     order.OutTradeNo,
 		TotalFee:       order.TotalFee,
-		SpbillCreateIp: order.SpbillCreateIp,
+		SpbillCreateIP: order.SpbillCreateIP,
 		TimeStart:      time.Now().Format(timeFormat),
 		TimeExpire:     order.PayExpire.Format(timeFormat),
 		GoodsTag:       order.GoodsTag,
-		NotifyUrl:      order.NotifyUrl,
+		NotifyURL:      order.NotifyURL,
 		TradeType:      string(TradeTypeJsapi),
 		LimitPay:       order.LimitPay,
-		OpenId:         order.OpendId,
+		OpenID:         order.OpendID,
 		Receipt:        "Y",
 		SceneInfo:      order.SceneInfo,
 	}
 }
 
-func (p PayApi) UnifiedOrder(tradeType TradeType, mch Merchant, order UnifiedOrder) (ReturnUnifiedOrder, error) {
+//UnifiedOrder ...
+func (p PayAPI) UnifiedOrder(tradeType TradeType, mch Merchant, order UnifiedOrder) (ReturnUnifiedOrder, error) {
 	//验证参数
 	if err := internal.CheckRequire(string(TradeTypeNative), order); err != nil {
 		return ReturnUnifiedOrder{}, err
@@ -407,23 +433,23 @@ func (p PayApi) UnifiedOrder(tradeType TradeType, mch Merchant, order UnifiedOrd
 		reqModel = getNativePayReq(mch, order)
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
 	respModel := RespUnifiedOrder{}
-	respMap := make(XmlMap)
-	if bs, err := request(&respModel, http.MethodPost, p.UnifiedOrderUrl, &reqModel, nil); err != nil {
+	respMap := make(XMLMap)
+	bs, err := request(&respModel, http.MethodPost, p.UnifiedOrderURL, &reqModel, nil)
+	if err != nil {
 		return ReturnUnifiedOrder{}, err
-	} else {
-		if err := xml.Unmarshal(bs, &respMap); err != nil {
-			fmt.Println(err)
-			return ReturnUnifiedOrder{}, err
-		}
+	}
+	if err := xml.Unmarshal(bs, &respMap); err != nil {
+		fmt.Println(err)
+		return ReturnUnifiedOrder{}, err
 	}
 
 	if respModel.ReturnCode == ReturnCodeSuccess {
 		//验签
-		if respModel.Sign != Buildsign(respMap, FieldTagKeyXml, mch.PrivateKey) {
+		if respModel.Sign != Buildsign(respMap, FieldTagKeyXML, mch.PrivateKey) {
 			return ReturnUnifiedOrder{}, fmt.Errorf("验签失败")
 		}
 
@@ -439,23 +465,22 @@ func (p PayApi) UnifiedOrder(tradeType TradeType, mch Merchant, order UnifiedOrd
 		//成功
 		returnModel := ReturnUnifiedOrder{
 			TradeType: respModel.TradeType,
-			PrepayId:  respModel.PrepayId,
-			CodeUrl:   respModel.CodeUrl,
-			MwebUrl:   respModel.MwebUrl,
+			PrepayID:  respModel.PrepayID,
+			CodeURL:   respModel.CodeURL,
+			MwebURL:   respModel.MwebURL,
 		}
 		return returnModel, nil
-	} else {
-		//失败
-		return ReturnUnifiedOrder{}, fmt.Errorf("%s", respModel.ReturnMsg)
 	}
+	//失败
+	return ReturnUnifiedOrder{}, fmt.Errorf("%s", respModel.ReturnMsg)
 }
 
-//查询订单
-func (p PayApi) OrderQuery(mch Merchant, transactionId, outTradeNo string) (OrderQuery, error) {
+//OrderQuery 查询订单
+func (p PayAPI) OrderQuery(mch Merchant, transactionID, outTradeNo string) (OrderQuery, error) {
 	order := OrderQuery{}
 
 	//验证参数
-	if transactionId == "" && outTradeNo == "" {
+	if transactionID == "" && outTradeNo == "" {
 		return order, fmt.Errorf("微信订单号，商户订单号不能同时为空")
 	}
 	if err := internal.CheckRequire("", mch); err != nil {
@@ -463,29 +488,29 @@ func (p PayApi) OrderQuery(mch Merchant, transactionId, outTradeNo string) (Orde
 	}
 
 	reqModel := ReqOrderQuery{
-		AppId:         mch.AppId,
-		MchId:         mch.MchId,
-		TransactionId: transactionId,
+		AppID:         mch.AppID,
+		MchID:         mch.MchID,
+		TransactionID: transactionID,
 		OutTradeNo:    outTradeNo,
 		NonceStr:      internal.GetNonceStr(),
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
 	respModel := RespOrderQuery{}
-	respMap := make(XmlMap)
-	if bs, err := request(&respModel, http.MethodPost, p.OrderQueryUrl, &reqModel, nil); err != nil {
+	respMap := make(XMLMap)
+	bs, err := request(&respModel, http.MethodPost, p.OrderQueryURL, &reqModel, nil)
+	if err != nil {
 		return order, err
-	} else {
-		if err := xml.Unmarshal(bs, &respMap); err != nil {
-			return order, err
-		}
+	}
+	if err := xml.Unmarshal(bs, &respMap); err != nil {
+		return order, err
 	}
 
 	if respModel.ReturnCode == ReturnCodeSuccess {
 		//验签
-		if respModel.Sign != Buildsign(respMap, FieldTagKeyXml, mch.PrivateKey) {
+		if respModel.Sign != Buildsign(respMap, FieldTagKeyXML, mch.PrivateKey) {
 			return order, fmt.Errorf("验签失败")
 		}
 
@@ -496,7 +521,7 @@ func (p PayApi) OrderQuery(mch Merchant, transactionId, outTradeNo string) (Orde
 
 		//成功
 		order.DeviceInfo = respModel.DeviceInfo
-		order.OpenId = respModel.OpenId
+		order.OpenID = respModel.OpenID
 		order.IsSubscribe = respModel.IsSubscribe
 		order.TradeType = respModel.TradeType
 		order.TradeState = respModel.TradeState
@@ -509,22 +534,21 @@ func (p PayApi) OrderQuery(mch Merchant, transactionId, outTradeNo string) (Orde
 		order.CouponFee = respModel.CouponFee
 		order.CouponCount = respModel.CouponCount
 		order.CouponType = respModel.CouponType
-		order.CouponId = respModel.CouponId
+		order.CouponID = respModel.CouponID
 		order.CouponFeen = respModel.CouponFeen
-		order.TransactionId = respModel.TransactionId
+		order.TransactionID = respModel.TransactionID
 		order.OutTradeNo = respModel.OutTradeNo
 		order.Attach = respModel.Attach
 		order.TimeEnd = respModel.TimeEnd
 		order.TradeStateDesc = respModel.TradeStateDesc
 		return order, nil
-	} else {
-		//失败
-		return order, fmt.Errorf("%s", respModel.ReturnMsg)
 	}
+	//失败
+	return order, fmt.Errorf("%s", respModel.ReturnMsg)
 }
 
-//关闭订单
-func (p PayApi) CloseOrder(mch Merchant, outTradeNo string) error {
+//CloseOrder 关闭订单
+func (p PayAPI) CloseOrder(mch Merchant, outTradeNo string) error {
 	//验证参数
 	if outTradeNo == "" {
 		return fmt.Errorf("商户订单号")
@@ -534,28 +558,28 @@ func (p PayApi) CloseOrder(mch Merchant, outTradeNo string) error {
 	}
 
 	reqModel := ReqCloseOrder{
-		AppId:      mch.AppId,
-		MchId:      mch.MchId,
+		AppID:      mch.AppID,
+		MchID:      mch.MchID,
 		OutTradeNo: outTradeNo,
 		NonceStr:   internal.GetNonceStr(),
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
 	respModel := RespCloseOrder{}
-	respMap := make(XmlMap)
-	if bs, err := request(&respModel, http.MethodPost, p.CloseOrderUrl, &reqModel, nil); err != nil {
+	respMap := make(XMLMap)
+	bs, err := request(&respModel, http.MethodPost, p.CloseOrderURL, &reqModel, nil)
+	if err != nil {
 		return err
-	} else {
-		if err := xml.Unmarshal(bs, &respMap); err != nil {
-			return err
-		}
+	}
+	if err := xml.Unmarshal(bs, &respMap); err != nil {
+		return err
 	}
 
 	if respModel.ReturnCode == ReturnCodeSuccess {
 		//验签
-		if respModel.Sign != Buildsign(respMap, FieldTagKeyXml, mch.PrivateKey) {
+		if respModel.Sign != Buildsign(respMap, FieldTagKeyXML, mch.PrivateKey) {
 			return fmt.Errorf("验签失败")
 		}
 
@@ -566,14 +590,13 @@ func (p PayApi) CloseOrder(mch Merchant, outTradeNo string) error {
 
 		//成功
 		return nil
-	} else {
-		//失败
-		return fmt.Errorf("%s", respModel.ReturnMsg)
 	}
+	//失败
+	return fmt.Errorf("%s", respModel.ReturnMsg)
 }
 
-//申请退款
-func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
+//Refund 申请退款
+func (p PayAPI) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 	retn := RefundReturn{}
 
 	//验证参数
@@ -585,36 +608,36 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 	}
 
 	reqModel := ReqRefund{
-		AppId:         mch.AppId,
-		MchId:         mch.MchId,
+		AppID:         mch.AppID,
+		MchID:         mch.MchID,
 		NonceStr:      internal.GetNonceStr(),
-		TransactionId: refund.TransactionId,
+		TransactionID: refund.TransactionID,
 		OutTradeNo:    refund.OutTradeNo,
 		OutRefundNo:   refund.OutRefundNo,
 		TotalFee:      refund.TotalFee,
 		RefundFee:     refund.RefundFee,
 		RefundDesc:    refund.RefundDesc,
 		RefundAccount: refund.RefundAccount,
-		NotifyUrl:     refund.NotifyUrl,
+		NotifyURL:     refund.NotifyURL,
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
 	respModel := RespRefund{}
-	respMap := make(XmlMap)
-	tr := getPkcs12(mch.MchId, refund.CertP12)
-	if bs, err := request(&respModel, http.MethodPost, p.RefundUrl, &reqModel, &tr); err != nil {
+	respMap := make(XMLMap)
+	tr := getPkcs12(mch.MchID, refund.CertP12)
+	bs, err := request(&respModel, http.MethodPost, p.RefundURL, &reqModel, &tr)
+	if err != nil {
 		return retn, err
-	} else {
-		if err := xml.Unmarshal(bs, &respMap); err != nil {
-			return retn, err
-		}
+	}
+	if err := xml.Unmarshal(bs, &respMap); err != nil {
+		return retn, err
 	}
 
 	if respModel.ReturnCode == ReturnCodeSuccess {
 		//验签
-		if respModel.Sign != Buildsign(respMap, FieldTagKeyXml, mch.PrivateKey) {
+		if respModel.Sign != Buildsign(respMap, FieldTagKeyXML, mch.PrivateKey) {
 			return retn, fmt.Errorf("验签失败")
 		}
 
@@ -624,10 +647,10 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 		}
 
 		//成功
-		retn.TransactionId = respModel.TransactionId
+		retn.TransactionID = respModel.TransactionID
 		retn.OutTradeNo = respModel.OutTradeNo
 		retn.OutRefundNo = respModel.OutRefundNo
-		retn.RefundId = respModel.RefundId
+		retn.RefundID = respModel.RefundID
 		retn.RefundFee = respModel.RefundFee
 		retn.SettlementRefundFee = respModel.SettlementRefundFee
 		retn.TotalFee = respModel.TotalFee
@@ -640,23 +663,22 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 		retn.CouponRefundFee = respModel.CouponRefundFee
 		retn.CouponRefundFeen = respModel.CouponRefundFeen
 		retn.CouponRefundCount = respModel.CouponRefundCount
-		retn.CouponRefundId = respModel.CouponRefundId
+		retn.CouponRefundID = respModel.CouponRefundID
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.ReturnMsg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.ReturnMsg)
 }
 
-//查询退款
-func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryReturn, error) {
+//RefundQuery 查询退款
+func (p PayAPI) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryReturn, error) {
 	retn := RefundQueryReturn{}
 
 	//验证参数
 	if refundQuery.OutRefundNo == "" &&
 		refundQuery.OutTradeNo == "" &&
-		refundQuery.TransactionId == "" &&
-		refundQuery.RefundId == "" {
+		refundQuery.TransactionID == "" &&
+		refundQuery.RefundID == "" {
 		return retn, fmt.Errorf("微信订单号，商户订单号，商户退款单号，微信退款单号不能全为空")
 	}
 	if err := internal.CheckRequire("", mch); err != nil {
@@ -664,36 +686,36 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 	}
 
 	reqModel := ReqRefundQuery{
-		AppId:         mch.AppId,
-		MchId:         mch.MchId,
+		AppID:         mch.AppID,
+		MchID:         mch.MchID,
 		NonceStr:      internal.GetNonceStr(),
-		TransactionId: refundQuery.TransactionId,
+		TransactionID: refundQuery.TransactionID,
 		OutTradeNo:    refundQuery.OutTradeNo,
 		OutRefundNo:   refundQuery.OutRefundNo,
-		RefundId:      refundQuery.RefundId,
+		RefundID:      refundQuery.RefundID,
 		Offset:        refundQuery.Offset,
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
 	respModel := RespRefundQuery{}
-	respMap := make(XmlMap)
-	if bs, err := request(&respModel, http.MethodPost, p.RefundQueryUrl, &reqModel, nil); err != nil {
+	respMap := make(XMLMap)
+	bs, err := request(&respModel, http.MethodPost, p.RefundQueryURL, &reqModel, nil)
+	if err != nil {
 		return retn, err
-	} else {
-		if err := xml.Unmarshal(bs, &respMap); err != nil {
-			return retn, err
-		}
-		respModel.RefundStatusn = respMap[fmt.Sprintf("refund_status_%d", reqModel.Offset)]
-		respModel.RefundAccountn = respMap[fmt.Sprintf("refund_account_%d", reqModel.Offset)]
-		respModel.RefundRecvAccoutn = respMap[fmt.Sprintf("refund_recv_accout_%d", reqModel.Offset)]
-		respModel.RefundSuccessTimen = respMap[fmt.Sprintf("refund_success_time_%d", reqModel.Offset)]
 	}
+	if err := xml.Unmarshal(bs, &respMap); err != nil {
+		return retn, err
+	}
+	respModel.RefundStatusn = respMap[fmt.Sprintf("refund_status_%d", reqModel.Offset)]
+	respModel.RefundAccountn = respMap[fmt.Sprintf("refund_account_%d", reqModel.Offset)]
+	respModel.RefundRecvAccoutn = respMap[fmt.Sprintf("refund_recv_accout_%d", reqModel.Offset)]
+	respModel.RefundSuccessTimen = respMap[fmt.Sprintf("refund_success_time_%d", reqModel.Offset)]
 
 	if respModel.ReturnCode == ReturnCodeSuccess {
 		//验签
-		if respModel.Sign != Buildsign(respMap, FieldTagKeyXml, mch.PrivateKey) {
+		if respModel.Sign != Buildsign(respMap, FieldTagKeyXML, mch.PrivateKey) {
 			return retn, fmt.Errorf("验签失败")
 		}
 
@@ -704,7 +726,7 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 
 		//成功
 		retn.TotalRefundCount = respModel.TotalRefundCount
-		retn.TransactionId = respModel.TransactionId
+		retn.TransactionID = respModel.TransactionID
 		retn.OutTradeNo = respModel.OutTradeNo
 		retn.TotalFee = respModel.TotalFee
 		retn.SettlementTotalFee = respModel.SettlementTotalFee
@@ -726,10 +748,9 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 		retn.RefundRecvAccoutn = respModel.RefundRecvAccoutn
 		retn.RefundSuccessTimen = respModel.RefundSuccessTimen
 		return retn, nil
-	} else {
-		//失败
-		return retn, fmt.Errorf("%s", respModel.ReturnMsg)
 	}
+	//失败
+	return retn, fmt.Errorf("%s", respModel.ReturnMsg)
 }
 
 //下载对账单
@@ -739,13 +760,13 @@ func unmashalToBillAll(items []string) (DownloadBillReturn, error) {
 		return bill, fmt.Errorf("无法识别账单格式，请重新查看微信native开发文档")
 	}
 	bill.TradeDate = items[0][1:]
-	bill.AppId = items[1][1:]
-	bill.MchId = items[2][1:]
-	bill.SubMchId = items[3][1:]
+	bill.AppID = items[1][1:]
+	bill.MchID = items[2][1:]
+	bill.SubMchID = items[3][1:]
 	bill.DeviceInfo = items[4][1:]
-	bill.TransactionId = items[5][1:]
+	bill.TransactionID = items[5][1:]
 	bill.OutTradeNo = items[6][1:]
-	bill.OpenId = items[7][1:]
+	bill.OpenID = items[7][1:]
 	bill.TradeType = items[8][1:]
 	bill.TradeState = items[9][1:]
 	bill.BankType = items[10][1:]
@@ -772,13 +793,13 @@ func unmashalToBillSuccess(items []string) (DownloadBillReturn, error) {
 		return bill, fmt.Errorf("无法识别账单格式，请重新查看微信native开发文档")
 	}
 	bill.TradeDate = items[0][1:]
-	bill.AppId = items[1][1:]
-	bill.MchId = items[2][1:]
-	bill.SubMchId = items[3][1:]
+	bill.AppID = items[1][1:]
+	bill.MchID = items[2][1:]
+	bill.SubMchID = items[3][1:]
 	bill.DeviceInfo = items[4][1:]
-	bill.TransactionId = items[5][1:]
+	bill.TransactionID = items[5][1:]
 	bill.OutTradeNo = items[6][1:]
-	bill.OpenId = items[7][1:]
+	bill.OpenID = items[7][1:]
 	bill.TradeType = items[8][1:]
 	bill.TradeState = items[9][1:]
 	bill.BankType = items[10][1:]
@@ -799,13 +820,13 @@ func unmashalToBillRefund(items []string) (DownloadBillReturn, error) {
 		return bill, fmt.Errorf("无法识别账单格式，请重新查看微信native开发文档")
 	}
 	bill.TradeDate = items[0][1:]
-	bill.AppId = items[1][1:]
-	bill.MchId = items[2][1:]
-	bill.SubMchId = items[3][1:]
+	bill.AppID = items[1][1:]
+	bill.MchID = items[2][1:]
+	bill.SubMchID = items[3][1:]
 	bill.DeviceInfo = items[4][1:]
-	bill.TransactionId = items[5][1:]
+	bill.TransactionID = items[5][1:]
 	bill.OutTradeNo = items[6][1:]
-	bill.OpenId = items[7][1:]
+	bill.OpenID = items[7][1:]
 	bill.TradeType = items[8][1:]
 	bill.TradeState = items[9][1:]
 	bill.BankType = items[10][1:]
@@ -865,23 +886,23 @@ func parseBill(billByte []byte, billType, tarType string) ([]DownloadBillReturn,
 			items := strings.Split(entrys[i], ",")
 			switch billType {
 			case "ALL":
-				if bill, err := unmashalToBillAll(items); err != nil {
+				bill, err := unmashalToBillAll(items)
+				if err != nil {
 					return nil, billStatistics, err
-				} else {
-					bills = append(bills, bill)
 				}
+				bills = append(bills, bill)
 			case "SUCCESS":
-				if bill, err := unmashalToBillSuccess(items); err != nil {
+				bill, err := unmashalToBillSuccess(items)
+				if err != nil {
 					return nil, billStatistics, err
-				} else {
-					bills = append(bills, bill)
 				}
+				bills = append(bills, bill)
 			case "REFUND", "RECHARGE_REFUND":
-				if bill, err := unmashalToBillRefund(items); err != nil {
+				bill, err := unmashalToBillRefund(items)
+				if err != nil {
 					return nil, billStatistics, err
-				} else {
-					bills = append(bills, bill)
 				}
+				bills = append(bills, bill)
 			default:
 				return nil, billStatistics, fmt.Errorf("未识别的参数账单类型")
 			}
@@ -900,7 +921,8 @@ func parseBill(billByte []byte, billType, tarType string) ([]DownloadBillReturn,
 	return bills, billStatistics, nil
 }
 
-func (p PayApi) DownloadBill(mch Merchant, dwnBill DownLoadBill) ([]DownloadBillReturn, DownloadBillStatisticsReturn, error) {
+//DownloadBill ...
+func (p PayAPI) DownloadBill(mch Merchant, dwnBill DownLoadBill) ([]DownloadBillReturn, DownloadBillStatisticsReturn, error) {
 	billStatistics := DownloadBillStatisticsReturn{}
 
 	//验证参数
@@ -915,19 +937,19 @@ func (p PayApi) DownloadBill(mch Merchant, dwnBill DownLoadBill) ([]DownloadBill
 	}
 
 	reqModel := ReqDownloadBill{
-		AppId:    mch.AppId,
-		MchId:    mch.MchId,
+		AppID:    mch.AppID,
+		MchID:    mch.MchID,
 		NonceStr: internal.GetNonceStr(),
 		BillDate: dwnBill.BillDate,
 		BillType: dwnBill.BillType,
 		TarType:  dwnBill.TarType,
 	}
 	//生成签名
-	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXml, mch.PrivateKey)
+	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
 
 	//发起请求
 	respModel := RespDownloadBill{}
-	body, err := request(&respModel, http.MethodPost, p.DownloadBillUrl, &reqModel, nil)
+	body, err := request(&respModel, http.MethodPost, p.DownloadBillURL, &reqModel, nil)
 	if err != nil {
 		return nil, billStatistics, err
 	}
@@ -936,37 +958,36 @@ func (p PayApi) DownloadBill(mch Merchant, dwnBill DownLoadBill) ([]DownloadBill
 		//失败
 		return nil, billStatistics, fmt.Errorf("%s", respModel.ReturnMsg)
 
-	} else {
-		//成功
-		//解析数据流
-		return parseBill(body, dwnBill.BillType, dwnBill.TarType)
 	}
+	//成功
+	//解析数据流
+	return parseBill(body, dwnBill.BillType, dwnBill.TarType)
 }
 
-//交易保障
-func (p PayApi) DownloadFundFlow(mch Merchant) error {
+//DownloadFundFlow 交易保障
+func (p PayAPI) DownloadFundFlow(mch Merchant) error {
 	//TODO
 	return nil
 }
 
-//下载资金账单
-func (p PayApi) PayitilReport(mch Merchant) error {
+//PayitilReport 下载资金账单
+func (p PayAPI) PayitilReport(mch Merchant) error {
 	//TODO
 	return nil
 }
 
-//拉取订单评价数据
-func (p PayApi) BatchQueryComment(mch Merchant) error {
+//BatchQueryComment 拉取订单评价数据
+func (p PayAPI) BatchQueryComment(mch Merchant) error {
 	//TODO
 	return nil
 }
 
-func getPkcs12(mchId string, p12 []byte) http.Transport {
+func getPkcs12(mchID string, p12 []byte) http.Transport {
 	//rootCAs := x509.NewCertPool()
-	//_, xcert, err := pkcs12.Decode(p12, mchId)
+	//_, xcert, err := pkcs12.Decode(p12, mchID)
 	//rootCAs.AddCert(xcert)
 
-	pemBlock, err := pkcs12.ToPEM(p12, mchId)
+	pemBlock, err := pkcs12.ToPEM(p12, mchID)
 	if err != nil {
 		panic(err)
 	}

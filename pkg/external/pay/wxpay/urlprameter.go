@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+//BuildPrameter ...
 func BuildPrameter(xmlStruct interface{}) string {
 	var tempArr []string
 	temString := ""

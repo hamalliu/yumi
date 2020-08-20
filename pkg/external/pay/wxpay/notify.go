@@ -14,33 +14,35 @@ import (
 	"yumi/pkg/external/pay/internal"
 )
 
+//CheckPrePayNotify ...
 func CheckPrePayNotify(mch Merchant, req ReqPrepayNotify) error {
-	if mch.AppId != req.AppId {
+	if mch.AppID != req.AppID {
 		return fmt.Errorf("公众号不一致")
 	}
-	if mch.MchId != req.MchId {
+	if mch.MchID != req.MchID {
 		return fmt.Errorf("商户号不一致")
 	}
 
 	//验签
-	if req.Sign != Buildsign(req, FieldTagKeyXml, mch.PrivateKey) {
+	if req.Sign != Buildsign(req, FieldTagKeyXML, mch.PrivateKey) {
 		return fmt.Errorf("签名错误")
 	}
 
 	return nil
 }
 
+//CheckPayNotify ...
 func CheckPayNotify(mch Merchant, totalFee int, outTradeNo string, req ReqPayNotify) error {
 	if req.ReturnCode == ReturnCodeSuccess {
-		if mch.AppId != req.AppId {
+		if mch.AppID != req.AppID {
 			return fmt.Errorf("公众号不一致")
 		}
-		if mch.MchId != req.MchId {
+		if mch.MchID != req.MchID {
 			return fmt.Errorf("商户号不一致")
 		}
 
 		//验签
-		if req.Sign != Buildsign(req, FieldTagKeyXml, mch.PrivateKey) {
+		if req.Sign != Buildsign(req, FieldTagKeyXML, mch.PrivateKey) {
 			return fmt.Errorf("签名错误")
 		}
 
@@ -64,26 +66,27 @@ func CheckPayNotify(mch Merchant, totalFee int, outTradeNo string, req ReqPayNot
 		}
 
 		return nil
-	} else {
-		return fmt.Errorf("%s", req.ReturnMsg)
 	}
+	
+	return fmt.Errorf("%s", req.ReturnMsg)
 }
 
+//CheckRefundNotify ...
 func CheckRefundNotify(mch Merchant, req ReqRefundNotify) error {
 	if req.ReturnCode == ReturnCodeSuccess {
-		if mch.AppId != req.AppId {
+		if mch.AppID != req.AppID {
 			return fmt.Errorf("公众号不一致")
 		}
-		if mch.MchId != req.MchId {
+		if mch.MchID != req.MchID {
 			return fmt.Errorf("商户号不一致")
 		}
 		return nil
-
-	} else {
-		return fmt.Errorf("%s", req.ReturnMsg)
 	}
+
+	return fmt.Errorf("%s", req.ReturnMsg)
 }
 
+//GetRefundNotify ...
 func GetRefundNotify(req *http.Request) (ReqRefundNotify, error) {
 	ret := ReqRefundNotify{}
 	err := xml.NewDecoder(req.Body).Decode(&ret)
@@ -94,6 +97,7 @@ func GetRefundNotify(req *http.Request) (ReqRefundNotify, error) {
 	return ret, nil
 }
 
+//DecryptoRefundNotify ...
 func DecryptoRefundNotify(mch Merchant, info string) (ReqRefundNotifyEncryptInfo, error) {
 	ret := ReqRefundNotifyEncryptInfo{}
 	infoBytes, err := ioutil.ReadAll(base64.NewDecoder(base64.StdEncoding, bytes.NewBuffer([]byte(info))))

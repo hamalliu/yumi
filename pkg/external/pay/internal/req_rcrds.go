@@ -8,19 +8,22 @@ import (
 	"time"
 )
 
+//ReqRcrd ...
 type ReqRcrd struct {
 	f *File
 }
 
+//NewReqRcrd ...
 func NewReqRcrd(name string) *ReqRcrd {
 	f := newFile(name, defaultMemory, true)
 
 	return &ReqRcrd{f}
 }
 
-func (rr *ReqRcrd) AddRcrds(method, reqUrl string, reqHeader http.Header, reqBody []byte, respHeader http.Header, respBody []byte) {
+//AddRcrds ...
+func (rr *ReqRcrd) AddRcrds(method, reqURL string, reqHeader http.Header, reqBody []byte, respHeader http.Header, respBody []byte) {
 	_, _ = rr.f.WriteString(time.Now().Format("2006-01-02 15:04:05.999: ") + method + " reqUrl: ")
-	_, _ = rr.f.WriteString(reqUrl)
+	_, _ = rr.f.WriteString(reqURL)
 	_, _ = rr.f.WriteString("\n")
 
 	_, _ = rr.f.WriteString("reqHeader:\n")
@@ -53,6 +56,7 @@ const dateFormat = "2006-01-02"
 const timeFormat = "2006-01-02 15-03-04.999"
 const defaultMemory = 32 << 20 // 32 MB
 
+//File ...
 type File struct {
 	mux sync.Mutex
 	f   *os.File
@@ -86,6 +90,7 @@ func (m *File) Write(b []byte) (int, error) {
 	return m.f.Write(b)
 }
 
+//WriteString ...
 func (m *File) WriteString(str string) (int, error) {
 	var (
 		err error
@@ -101,6 +106,7 @@ func (m *File) WriteString(str string) (int, error) {
 	return m.f.WriteString(str)
 }
 
+//Sync ...
 func (m *File) Sync() error {
 	return m.f.Sync()
 }

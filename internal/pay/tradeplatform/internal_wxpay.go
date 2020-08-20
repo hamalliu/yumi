@@ -93,7 +93,7 @@ func (iwp InternalWxPay) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay
 			return ret, ecode.ServerErr(err)
 		}
 	}
-	ret.TransactionID = resp.TransactionId
+	ret.TransactionID = resp.TransactionID
 	switch resp.TradeState {
 	case wxpay.TradeStateSuccess:
 		ret.TradeStatus = trade.Success
@@ -134,13 +134,13 @@ func (iwp InternalWxPay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 	}
 
 	rfd := wxpay.Refund{
-		TransactionId: op.TransactionID,
+		TransactionID: op.TransactionID,
 		OutTradeNo:    op.OutTradeNo,
 		OutRefundNo:   or.Code, //商户退款单号就是退款订单的唯一编码
 		TotalFee:      op.TotalFee,
 		RefundFee:     or.RefundFee,
 		RefundDesc:    or.RefundDesc,
-		NotifyUrl:     or.NotifyURL,
+		NotifyURL:     or.NotifyURL,
 		CertP12:       getP12(),
 	}
 
@@ -149,7 +149,7 @@ func (iwp InternalWxPay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 		return ecode.ServerErr(err)
 	}
 	
-	if resp.TransactionId != op.TransactionID ||
+	if resp.TransactionID != op.TransactionID ||
 		resp.OutTradeNo != op.OutTradeNo ||
 		resp.OutRefundNo != or.OutRefundNo {
 		err = fmt.Errorf("订单错误")
@@ -177,7 +177,7 @@ func (iwp InternalWxPay) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefu
 	}
 
 	rq := wxpay.RefundQuery{
-		TransactionId: op.TransactionID,
+		TransactionID: op.TransactionID,
 		OutTradeNo:    op.OutTradeNo,
 		OutRefundNo:   or.OutRefundNo,
 		Offset:        or.SerialNum,
@@ -215,7 +215,7 @@ func (iwp InternalWxPay) RefundNotifyReq(req *http.Request) (trade.ReturnRefundN
 	}
 
 	//获取收款商户信息
-	wxMch, err := iwp.getMch2(n.MchId)
+	wxMch, err := iwp.getMch2(n.MchID)
 	if err != nil {
 		return ret, err
 	}
@@ -271,8 +271,8 @@ func (iwp InternalWxPay) getMch(sellerKey string) (wxpay.Merchant, error) {
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	ret.AppId = mch.AppID
-	ret.MchId = mch.MchID
+	ret.AppID = mch.AppID
+	ret.MchID = mch.MchID
 	ret.PrivateKey = mch.PrivateKey
 
 	return ret, nil
@@ -286,8 +286,8 @@ func (iwp InternalWxPay) getMch2(mchID string) (wxpay.Merchant, error) {
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	ret.AppId = mch.AppID
-	ret.MchId = mch.MchID
+	ret.AppID = mch.AppID
+	ret.MchID = mch.MchID
 	ret.PrivateKey = mch.PrivateKey
 
 	return ret, nil

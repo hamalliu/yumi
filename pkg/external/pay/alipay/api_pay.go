@@ -12,17 +12,23 @@ const (
 )
 
 const (
+	//ReturnCodeSuccess ...
 	ReturnCodeSuccess = "10000"
 )
 
 const (
+	//TradeStatusWaitBuyerPay ...
 	TradeStatusWaitBuyerPay = "WAIT_BUYER_PAY"
+	//TradeStatusSuccess ...
 	TradeStatusSuccess      = "TRADE_SUCCESS"
+	//TradeStatusCloseed ...
 	TradeStatusCloseed      = "TRADE_CLOSED"
+	//TradeStatusFinished ...
 	TradeStatusFinished     = "TRADE_FINISHED"
 )
 
-type PayApi struct {
+//PayAPI ...
+type PayAPI struct {
 	GateWay string
 
 	//统一收单下单并支付页面接口method
@@ -41,7 +47,7 @@ type PayApi struct {
 	TradeCloseMethod string
 
 	//查询对账单下载地址method
-	BillDownloadUrlQueryMethod string
+	BillDownloadURLQueryMethod string
 
 	//请求超时时间
 	Timeout int
@@ -50,40 +56,40 @@ type PayApi struct {
 	//OrderValidity int
 }
 
-var payapi = PayApi{
+var payapi = PayAPI{
 	GateWay:                    "https://openapi.alipay.com/gateway.do",
 	UnifiedOrderMethod:         "alipay.trade.page.pay",
 	RefundMethod:               "alipay.trade.refund",
 	RefundQueryMethod:          "alipay.trade.fastpay.refund.query",
 	TradeQueryMethod:           "alipay.trade.query",
 	TradeCloseMethod:           "alipay.trade.close",
-	BillDownloadUrlQueryMethod: "alipay.data.dataservice.bill.downloadurl.query",
+	BillDownloadURLQueryMethod: "alipay.data.dataservice.bill.downloadurl.query",
 	Timeout:                    15,
 	//OrderValidity:              30,
 }
 
 //GetDefault ...
-func GetDefault() PayApi {
+func GetDefault() PayAPI {
 	return payapi
 }
 
 var req = ReqPublicPrameter{
 	Format:    "JSON",
-	ReturnUrl: "", //TODO
+	ReturnURL: "", //TODO
 	CharSet:   "utf-8",
 	SignType:  "RSA2",
 	Version:   "1.0",
 }
 
 //UnifiedOrder 统一收单下单并支付页面接口
-func (p PayApi) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error) {
+func (p PayAPI) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error) {
 	retn := PagePayReturn{}
 
 	reqModel := req
-	reqModel.AppId = mch.AppId
+	reqModel.AppID = mch.AppID
 	reqModel.Method = p.UnifiedOrderMethod
 	reqModel.Timestamp = time.Now().Format(timeFormat)
-	reqModel.NotifyUrl = order.NotifyUrl
+	reqModel.NotifyURL = order.NotifyURL
 	reqModel.AppAuthToken = order.AppAuthToken
 
 	reqOrder := ReqPagePay{
@@ -133,7 +139,7 @@ func (p PayApi) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error)
 		//成功
 		retn.TradeNo = respModel.TradeNo
 		retn.OutTradeNo = respModel.OutTradeNo
-		retn.SellerId = respModel.SellerId
+		retn.SellerID = respModel.SellerID
 		retn.TotalAmount = respModel.TotalAmount
 		retn.MerchantOrderNo = respModel.MerchantOrderNo
 
@@ -144,7 +150,7 @@ func (p PayApi) UnifiedOrder(mch Merchant, order PagePay) (PagePayReturn, error)
 }
 
 //TradeQuery 统一收单线下交易查询
-func (p PayApi) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, error) {
+func (p PayAPI) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, error) {
 	retn := TradeQueryReturn{}
 
 	if query.TradeNo == "" && query.OutTradeNo == "" {
@@ -152,7 +158,7 @@ func (p PayApi) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, er
 	}
 
 	reqModel := req
-	reqModel.AppId = mch.AppId
+	reqModel.AppID = mch.AppID
 	reqModel.Method = p.TradeQueryMethod
 	reqModel.Timestamp = time.Now().Format(timeFormat)
 	reqModel.AppAuthToken = query.AppAuthToken
@@ -202,7 +208,7 @@ func (p PayApi) TradeQuery(mch Merchant, query TradeQuery) (TradeQueryReturn, er
 }
 
 //Refund 统一收单交易退款接口
-func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
+func (p PayAPI) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 	retn := RefundReturn{}
 
 	if refund.TradeNo == "" && refund.OutTradeNo == "" {
@@ -210,7 +216,7 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 	}
 
 	reqModel := req
-	reqModel.AppId = mch.AppId
+	reqModel.AppID = mch.AppID
 	reqModel.Method = p.RefundMethod
 	reqModel.Timestamp = time.Now().Format(timeFormat)
 	reqModel.AppAuthToken = refund.AppAuthToken
@@ -264,7 +270,7 @@ func (p PayApi) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 }
 
 //RefundQuery 统一收单交易退款查询
-func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryReturn, error) {
+func (p PayAPI) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryReturn, error) {
 	retn := RefundQueryReturn{}
 
 	if refundQuery.TradeNo == "" && refundQuery.OutTradeNo == "" {
@@ -272,7 +278,7 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 	}
 
 	reqModel := req
-	reqModel.AppId = mch.AppId
+	reqModel.AppID = mch.AppID
 	reqModel.Method = p.RefundQueryMethod
 	reqModel.Timestamp = time.Now().Format(timeFormat)
 	reqModel.AppAuthToken = refundQuery.AppAuthToken
@@ -323,7 +329,7 @@ func (p PayApi) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 }
 
 //TradeClose 统一收单交易关闭接口
-func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, error) {
+func (p PayAPI) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, error) {
 	retn := TradeCloseReturn{}
 
 	if close.TradeNo == "" && close.OutTradeNo == "" {
@@ -331,7 +337,7 @@ func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, er
 	}
 
 	reqModel := req
-	reqModel.AppId = mch.AppId
+	reqModel.AppID = mch.AppID
 	reqModel.Method = p.TradeCloseMethod
 	reqModel.Timestamp = time.Now().Format(timeFormat)
 	reqModel.AppAuthToken = close.AppAuthToken
@@ -339,7 +345,7 @@ func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, er
 	reqClose := ReqTradeClose{
 		TradeNo:    close.TradeNo,
 		OutTradeNo: close.OutTradeNo,
-		OperatorId: close.OperatorId,
+		OperatorID: close.OperatorID,
 	}
 
 	dataBytes, err := json.Marshal(&reqClose)
@@ -381,17 +387,17 @@ func (p PayApi) TradeClose(mch Merchant, close TradeClose) (TradeCloseReturn, er
 	return retn, fmt.Errorf("%s", respModel.Msg)
 }
 
-//BillDownloadUrlQuery 查询对账单下载地址
-func (p PayApi) BillDownloadUrlQuery(mch Merchant, bill BillDownloadUrlQuery) (BillDownloadUrlQueryReturn, error) {
-	retn := BillDownloadUrlQueryReturn{}
+//BillDownloadURLQuery 查询对账单下载地址
+func (p PayAPI) BillDownloadURLQuery(mch Merchant, bill BillDownloadURLQuery) (BillDownloadURLQueryReturn, error) {
+	retn := BillDownloadURLQueryReturn{}
 
 	reqModel := req
-	reqModel.AppId = mch.AppId
-	reqModel.Method = p.BillDownloadUrlQueryMethod
+	reqModel.AppID = mch.AppID
+	reqModel.Method = p.BillDownloadURLQueryMethod
 	reqModel.Timestamp = time.Now().Format(timeFormat)
 	reqModel.AppAuthToken = bill.AppAuthToken
 
-	reqBill := ReqBillDownloadUrlQuery{
+	reqBill := ReqBillDownloadURLQuery{
 		BillDate: bill.BillDate,
 		BillType: bill.BillType,
 	}
@@ -410,7 +416,7 @@ func (p PayApi) BillDownloadUrlQuery(mch Merchant, bill BillDownloadUrlQuery) (B
 	req.Sign = sign
 
 	//发起请求
-	respModel := RespBillDownloadUrlQuery{}
+	respModel := RespBillDownloadURLQuery{}
 	if _, err := request(&respModel, http.MethodPost, p.GateWay, &reqModel); err != nil {
 		return retn, err
 	}
@@ -427,7 +433,7 @@ func (p PayApi) BillDownloadUrlQuery(mch Merchant, bill BillDownloadUrlQuery) (B
 		}
 
 		//成功
-		retn = respModel.BillDownloadUrlQueryReturn
+		retn = respModel.BillDownloadURLQueryReturn
 
 		return retn, nil
 	}

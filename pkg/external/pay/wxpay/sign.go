@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-//构建签名
+//Buildsign 构建签名
 func Buildsign(order interface{}, tagKey, bizkey string) string {
 	orderStr := ""
 
@@ -39,7 +39,7 @@ func Buildsign(order interface{}, tagKey, bizkey string) string {
 
 func map2Sgin(content interface{}, bizKey string) (str string) {
 	switch v := content.(type) {
-	case XmlMap:
+	case XMLMap:
 		var buf bytes.Buffer
 		keys := make([]string, 0, len(v))
 

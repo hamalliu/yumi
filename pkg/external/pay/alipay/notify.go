@@ -4,12 +4,13 @@ import (
 	"fmt"
 )
 
-func CheckPayNotify(mch Merchant, sellerId, outTradeNo, totalAmount string, req ReqNotify) error {
+//CheckPayNotify ...
+func CheckPayNotify(mch Merchant, sellerID, outTradeNo, totalAmount string, req ReqNotify) error {
 	if err := NotifyVerify(req, req.Sign, mch.PublicKey); err != nil {
 		return fmt.Errorf("签名错误")
 	}
 
-	if mch.AppId != req.AppId {
+	if mch.AppID != req.AppID {
 		return fmt.Errorf("开发应用id不一致")
 	}
 
@@ -21,7 +22,7 @@ func CheckPayNotify(mch Merchant, sellerId, outTradeNo, totalAmount string, req 
 		return fmt.Errorf("订单金额不一致")
 	}
 
-	if sellerId != req.SellerId {
+	if sellerID != req.SellerID {
 		return fmt.Errorf("支付宝卖家用户号不一致")
 	}
 

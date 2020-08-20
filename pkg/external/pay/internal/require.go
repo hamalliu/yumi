@@ -5,6 +5,7 @@ import (
 	"reflect"
 )
 
+//CheckRequire ...
 func CheckRequire(key string, obj interface{}) error {
 	if key == "" {
 		key = "require"

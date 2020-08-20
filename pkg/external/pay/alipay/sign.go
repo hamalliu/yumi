@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-//验证回调签名
+//NotifyVerify 验证回调签名
 func NotifyVerify(order interface{}, signData string, pubkey string) error {
 	orderStr := ""
 
@@ -41,6 +41,7 @@ func NotifyVerify(order interface{}, signData string, pubkey string) error {
 	return rsa2Verify(orderStr, signData, pubkey)
 }
 
+//RespVerify ...
 func RespVerify(order interface{}, signData string, pubkey string) error {
 	orderStr := ""
 
@@ -64,6 +65,7 @@ func RespVerify(order interface{}, signData string, pubkey string) error {
 	return rsa2Verify(orderStr, signData, pubkey)
 }
 
+//BuildSign ...
 func BuildSign(order interface{}, key string) (string, error) {
 	orderStr := ""
 
@@ -84,11 +86,12 @@ func BuildSign(order interface{}, key string) (string, error) {
 		panic("params type not supported")
 	}
 
-	if b, err := rsa2Sign([]byte(orderStr), key); err != nil {
+	b, err := rsa2Sign([]byte(orderStr), key)
+	if err != nil {
 		return "", err
-	} else {
-		return base64.StdEncoding.EncodeToString(b), nil
 	}
+
+	return base64.StdEncoding.EncodeToString(b), nil
 }
 
 func respStruct2Sign(content interface{}) string {

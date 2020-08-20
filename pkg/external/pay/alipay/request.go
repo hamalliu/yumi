@@ -62,6 +62,7 @@ func request(respBody interface{}, method, url string, reqBody interface{}) ([]b
 	return nil, nil
 }
 
+//ParseQuery ...
 func ParseQuery(rawQuery string) (ReqNotify, error) {
 	notify := ReqNotify{}
 

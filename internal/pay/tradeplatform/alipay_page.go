@@ -34,7 +34,7 @@ func (alipp AliPagePay) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Subject:        op.Body,
 		Body:           op.Detail,
 		GoodsType:      "0",
-		NotifyUrl:      op.NotifyURL,
+		NotifyURL:      op.NotifyURL,
 		PassbackParams: url.QueryEscape(op.Code), //必须urlencode
 		PayExpire:      op.PayExpire,
 	}
@@ -49,9 +49,9 @@ func (alipp AliPagePay) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	ret.AppID = aliMch.AppId
-	ret.MchID = resp.SellerId
-	ret.Data = string(resp.PagePayHtml)
+	ret.AppID = aliMch.AppID
+	ret.MchID = resp.SellerID
+	ret.Data = string(resp.PagePayHTML)
 	return ret, nil
 }
 
@@ -128,7 +128,7 @@ func (alipp AliPagePay) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay,
 		return ret, ecode.ServerErr(err)
 	}
 	ret.TransactionID = resp.TradeNo
-	ret.BuyerLogonID = resp.BuyerlogonId
+	ret.BuyerLogonID = resp.BuyerlogonID
 
 	switch ret.TradeStatus {
 	case alipay.TradeStatusSuccess:
@@ -151,7 +151,7 @@ func (alipp AliPagePay) TradeClose(op trade.OrderPay) error {
 	tradeClose := alipay.TradeClose{
 		OutTradeNo: op.OutTradeNo,
 		TradeNo:    op.TransactionID,
-		OperatorId: "sys",
+		OperatorID: "sys",
 	}
 
 	//获取收款商户信息
@@ -197,7 +197,7 @@ func (alipp AliPagePay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 	
 	if ret.TradeNo != op.TransactionID ||
 		ret.OutTradeNo != op.OutTradeNo ||
-		ret.BuyerLogonId != op.BuyerLogonID ||
+		ret.BuyerLogonID != op.BuyerLogonID ||
 		ret.RefundFee != refundFee {
 		err = fmt.Errorf("发起退款信息不一致，可能是订单数据被破坏")
 		return ecode.ServerErr(err)
@@ -218,7 +218,7 @@ func (alipp AliPagePay) getMch(sellerKey string) (alipay.Merchant, error) {
 	if err != nil {
 		return ret, err
 	}
-	ret.AppId = mch.AppID
+	ret.AppID = mch.AppID
 	ret.PrivateKey = mch.PrivateKey
 	ret.PublicKey = mch.PublicKey
 

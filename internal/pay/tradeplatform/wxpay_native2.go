@@ -34,19 +34,19 @@ func (wxn1 WxNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyURL,
-		ProductId:      op.OutTradeNo,
+		NotifyURL:      op.NotifyURL,
+		ProductID:      op.OutTradeNo,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIP,
+		SpbillCreateIP: op.SpbillCreateIP,
 	}
 
 	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeNative, wxMch, wxorder)
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	
-	ret.AppID = wxMch.AppId
-	ret.MchID = wxMch.MchId
-	ret.Data = retuo.CodeUrl
+
+	ret.AppID = wxMch.AppID
+	ret.MchID = wxMch.MchID
+	ret.Data = retuo.CodeURL
 	return ret, nil
 }

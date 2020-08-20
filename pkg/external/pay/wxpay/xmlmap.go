@@ -10,10 +10,12 @@ type xmlMapEntry struct {
 	Value   string `xml:",chardata"`
 }
 
-type XmlMap map[string]string
+//XMLMap ...
+type XMLMap map[string]string
 
-func (m *XmlMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	*m = XmlMap{}
+//UnmarshalXML ...
+func (m *XMLMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	*m = XMLMap{}
 	for {
 		var e xmlMapEntry
 
@@ -30,7 +32,7 @@ func (m *XmlMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 }
 
 // MarshalXML allows type H to be used with xml.Marshal.
-func (m XmlMap) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+func (m XMLMap) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start.Name = xml.Name{
 		Space: "",
 		Local: "map",

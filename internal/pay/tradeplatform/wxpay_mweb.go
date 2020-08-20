@@ -64,9 +64,9 @@ func (wxn1 WxMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		Attach:         op.Code,
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
-		NotifyUrl:      op.NotifyURL,
+		NotifyURL:      op.NotifyURL,
 		PayExpire:      op.PayExpire,
-		SpbillCreateIp: op.SpbillCreateIP,
+		SpbillCreateIP: op.SpbillCreateIP,
 		SceneInfo:      wxn1.sceneInfo,
 	}
 
@@ -74,8 +74,8 @@ func (wxn1 WxMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	ret.AppID = wxMch.AppId
-	ret.MchID = wxMch.MchId
-	ret.Data = retuo.MwebUrl
+	ret.AppID = wxMch.AppID
+	ret.MchID = wxMch.MchID
+	ret.Data = retuo.MwebURL
 	return ret, nil
 }

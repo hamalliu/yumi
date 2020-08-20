@@ -29,13 +29,13 @@ func (wxn1 WxNative1) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		return ret, err
 	}
 
-	bizURL, err := wxpay.GetDefault().BizPayShortUrl(wxMch, op.OutTradeNo)
+	bizURL, err := wxpay.GetDefault().BizPayShortURL(wxMch, op.OutTradeNo)
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
 	
-	ret.AppID = wxMch.AppId
-	ret.MchID = wxMch.MchId
+	ret.AppID = wxMch.AppID
+	ret.MchID = wxMch.MchID
 	ret.Data = bizURL
 	return ret, nil
 }
