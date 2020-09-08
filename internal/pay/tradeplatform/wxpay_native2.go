@@ -19,7 +19,7 @@ func GetWxNative2() WxNative2 {
 	return WxNative2{}
 }
 
-//Pay ...
+//Pay 发起支付
 func (wxn1 WxNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息

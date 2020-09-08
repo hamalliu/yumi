@@ -22,7 +22,7 @@ func GetAliPagePay() AliPagePay {
 	return ""
 }
 
-//Pay ...
+//Pay 发起支付
 func (alipp AliPagePay) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 
@@ -77,7 +77,7 @@ func (alipp AliPagePay) PayNotifyCheck(op trade.OrderPay, reqData interface{}) e
 		return err
 	}
 
-	reqNotify, ok := reqData.(alipay.ReqNotify);
+	reqNotify, ok := reqData.(alipay.ReqNotify)
 	if ok {
 		err := fmt.Errorf("转换类型失败，alipagepay")
 		return ecode.ServerErr(err)
@@ -164,7 +164,7 @@ func (alipp AliPagePay) TradeClose(op trade.OrderPay) error {
 	if err != nil {
 		return ecode.ServerErr(err)
 	}
-	
+
 	if ret.TradeNo != op.TransactionID ||
 		ret.OutTradeNo != op.OutTradeNo {
 		err = fmt.Errorf("订单信息不一致")
@@ -194,7 +194,7 @@ func (alipp AliPagePay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 	if err != nil {
 		return ecode.ServerErr(err)
 	}
-	
+
 	if ret.TradeNo != op.TransactionID ||
 		ret.OutTradeNo != op.OutTradeNo ||
 		ret.BuyerLogonID != op.BuyerLogonID ||

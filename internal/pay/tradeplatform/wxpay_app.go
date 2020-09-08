@@ -56,7 +56,7 @@ func mashalWxAppPayRequest(appID, mchID, privateKey, prePayID string) (string, e
 	return string(reqBytes), nil
 }
 
-//Pay ...
+//Pay 发起支付
 func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息

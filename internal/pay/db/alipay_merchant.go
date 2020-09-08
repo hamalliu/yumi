@@ -7,11 +7,15 @@ import (
 
 //AliPayMerchant ...
 type AliPayMerchant struct {
-	SeqID      int64  `db:"seq_id" json:"seq_id"`
-	AppID      string `db:"app_id" json:"app_id"`       //商户id
-	SellerKey  string `db:"seller_key" json:"seller_key"`   //卖家key
-	PrivateKey string `db:"private_key" json:"private_key"` //私钥
-	PublicKey  string `db:"public_key" json:"public_key"`   //公钥
+	SeqID int64 `db:"seq_id" json:"seq_id"`
+	//商户id
+	AppID string `db:"app_id" json:"app_id"`
+	//卖家key
+	SellerKey string `db:"seller_key" json:"seller_key"`
+	//私钥
+	PrivateKey string `db:"private_key" json:"private_key"`
+	//公钥
+	PublicKey string `db:"public_key" json:"public_key"`
 }
 
 //GetAliPayMerchantBySellerKey ...

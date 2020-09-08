@@ -47,7 +47,7 @@ type H5Info struct {
 	WapName string `json:"wap_name"` //WAP网站名
 }
 
-//Pay ...
+//Pay 发起支付
 func (wxn1 WxMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息

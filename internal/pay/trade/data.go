@@ -47,19 +47,32 @@ type OrderPay struct {
 	//用户支付客户端ip
 	SpbillCreateIP string `db:"spbill_create_ip"`
 
-	BuyerAccountGUID string      `db:"buyer_account_guid"` //买家账号guid
-	TotalFee         int         `db:"total_fee"`          //订单总金额，单位为分
-	Body             string      `db:"body"`               //商品描述
-	Detail           string      `db:"detail"`             //商品详情
-	OutTradeNo       string      `db:"out_trade_no"`       //商户订单号
-	SubmitTime       time.Time   `db:"submit_time"`        //下单时间
-	TimeoutExpress   time.Time   `db:"timeout_express"`    //订单过期时间
-	PayTime          time.Time   `db:"pay_time"`           //付款时间
-	PayExpire        time.Time   `db:"pay_expire"`         //未支付过期时间
-	CancelTime       time.Time   `db:"cancel_time"`        //取消时间
-	ErrorTime        time.Time   `db:"error_time"`         //错误时间
-	Status           OrderStatus `db:"status"`             //状态（已提交（用户已提交但未发起支付），待支付，已支付，已取消）
-	Remarks          string      `db:"remarks"`            //备注
+	//买家账号guid
+	BuyerAccountGUID string      `db:"buyer_account_guid"` 
+	//订单总金额，单位为分
+	TotalFee         int         `db:"total_fee"`     
+	//商品描述     
+	Body             string      `db:"body"` 
+	//商品详情              
+	Detail           string      `db:"detail"`
+	//商户订单号             
+	OutTradeNo       string      `db:"out_trade_no"`     
+	//下单时间  
+	SubmitTime       time.Time   `db:"submit_time"` 
+	//订单过期时间       
+	TimeoutExpress   time.Time   `db:"timeout_express"` 
+	//付款时间   
+	PayTime          time.Time   `db:"pay_time"`
+	//未支付过期时间           
+	PayExpire        time.Time   `db:"pay_expire"`         
+	//取消时间
+	CancelTime       time.Time   `db:"cancel_time"`
+	//错误时间        
+	ErrorTime        time.Time   `db:"error_time"`       
+	//状态（已提交（用户已提交但未发起支付），待支付，已支付，已取消）  
+	Status           OrderStatus `db:"status"`
+	//备注             
+	Remarks          string      `db:"remarks"`            
 }
 
 //DataOrderPay 支付数据接口
@@ -101,25 +114,40 @@ func NewDataOrderPay(code string) (DataOrderPay, error) {
 
 // OrderRefund 退款订单
 type OrderRefund struct {
-	Code         string `db:"code"`           //唯一编码
-	OrderPayCode string `db:"order_pay_code"` //支付订单编码
+	//唯一编码
+	Code         string `db:"code"`
+	//支付订单编码           
+	OrderPayCode string `db:"order_pay_code"` 
 
 	//回调url
 	NotifyURL string `db:"notify_url"`
 
-	SerialNum         int         `db:"serial_num"`          //序号（对于支付订单的序号）
-	RefundAccountGUID string      `db:"refund_account_guid"` //退款账号guid
-	RefundWay         Way         `db:"refund_way"`          //必须和支付方式保持一致
-	RefundID          string      `db:"refund_id"`           //三方支付平台退款单号
-	OutRefundNo       string      `db:"out_refund_no"`       //商户退款单号
-	RefundFee         int         `db:"refund_fee"`          //退款金额
-	RefundDesc        string      `db:"refund_desc"`         //退款原因
-	RefundedTime      time.Time   `db:"refunded_time"`       //退款时间
-	SubmitTime        time.Time   `db:"submit_time"`         //提交时间
-	TimeoutExpress    time.Time   `db:"timeout_express"`     //订单过期时间
-	CancelTime        time.Time   `db:"cancel_time"`         //取消订单时间
-	Status            OrderStatus `db:"status"`              //状态（已提交（用户已提交但未发起支付），退款中，已退款）
-	Remarks           string      `db:"remarks"`             //备注
+	//序号（对于支付订单的序号）
+	SerialNum         int         `db:"serial_num"`
+	//退款账号guid          
+	RefundAccountGUID string      `db:"refund_account_guid"`
+	//必须和支付方式保持一致 
+	RefundWay         Way         `db:"refund_way"`
+	//三方支付平台退款单号          
+	RefundID          string      `db:"refund_id"`
+	//商户退款单号           
+	OutRefundNo       string      `db:"out_refund_no"`
+	//退款金额       
+	RefundFee         int         `db:"refund_fee"`
+	//退款原因          
+	RefundDesc        string      `db:"refund_desc"`
+	//退款时间         
+	RefundedTime      time.Time   `db:"refunded_time"`
+	//提交时间       
+	SubmitTime        time.Time   `db:"submit_time"`
+	//订单过期时间         
+	TimeoutExpress    time.Time   `db:"timeout_express"`  
+	//取消订单时间   
+	CancelTime        time.Time   `db:"cancel_time"`
+	//状态（已提交（用户已提交但未发起支付），退款中，已退款）         
+	Status            OrderStatus `db:"status"`
+	//备注              
+	Remarks           string      `db:"remarks"`             
 }
 
 //DataOrderRefund 退款数据接口
