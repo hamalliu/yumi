@@ -51,8 +51,8 @@ func (m *OrderRefund) New(code string) (trade.DataOrderRefund, error) {
 	return &or, nil
 }
 
-//Data ...
-func (m *OrderRefund) Data() trade.OrderRefund {
+//Entity ...
+func (m *OrderRefund) Entity() trade.OrderRefund {
 	return m.OrderRefund
 }
 

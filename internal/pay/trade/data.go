@@ -78,7 +78,7 @@ type OrderPay struct {
 //DataOrderPay 支付数据接口
 type DataOrderPay interface {
 	New(code string) (DataOrderPay, error)
-	Data() OrderPay
+	Entity() OrderPay
 
 	//提交订单
 	Submit(buyerAccountGUID, sellerKey, outTradeNo, notifyURL string, totalFee int, body, detail string, timeoutExpress,
@@ -106,7 +106,7 @@ func RigsterDataOrderPay(src DataOrderPay) {
 }
 
 //NewDataOrderPay 新建支付订单
-func NewDataOrderPay(code string) (DataOrderPay, error) {
+func newDataOrderPay(code string) (DataOrderPay, error) {
 	return op.New(code)
 }
 
@@ -153,7 +153,7 @@ type OrderRefund struct {
 //DataOrderRefund 退款数据接口
 type DataOrderRefund interface {
 	New(code string) (DataOrderRefund, error)
-	Data() OrderRefund
+	Entity() OrderRefund
 
 	//已退款总金额
 	GetRefundFee(orderPayCode string) (int, int, error)
@@ -182,6 +182,6 @@ func RigsterDataOrderRefund(src DataOrderRefund) {
 }
 
 //NewDataOrderRefund 新建一个退款订单对象
-func NewDataOrderRefund(code string) (DataOrderRefund, error) {
+func newDataOrderRefund(code string) (DataOrderRefund, error) {
 	return or.New(code)
 }

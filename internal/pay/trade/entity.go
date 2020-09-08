@@ -2,12 +2,9 @@ package trade
 
 import (
 	"fmt"
-	"strings"
 	"sync"
-	"time"
 
 	"yumi/pkg/log"
-	"yumi/utils"
 )
 
 var (
@@ -17,11 +14,15 @@ var (
 
 //Entity 业务对象
 type Entity struct {
+	// 支付订单业务对象
+	op OrderPay
+	// 支付订单数据接口
 	dataOp DataOrderPay
-	op     OrderPay
 
+	// 退款订单业务对象
+	or OrderRefund
+	// 退款订单数据接口
 	dataOr DataOrderRefund
-	or     OrderRefund
 }
 
 func init() {
@@ -42,14 +43,17 @@ var entityMutex sync.Mutex
 
 //NewEntityByPayCode 加载支付订单数据
 func NewEntityByPayCode(code string) (*Entity, error) {
+	var err error
 	if code == "" {
-		dataOp, err := NewDataOrderPay(code)
+		// code为空视为新的订单
+		e := Entity{}
+		e.dataOp, err = newDataOrderPay(code)
 		if err != nil {
 			return nil, err
 		}
-		e := Entity{dataOp: dataOp}
-		e.op = e.dataOp.Data()
-		e.dataOr, err = NewDataOrderRefund(code)
+		e.op = e.dataOp.Entity()
+		e.dataOr, err = newDataOrderRefund(code)
+		e.or = e.dataOr.Entity()
 		return &e, nil
 	}
 
@@ -60,15 +64,15 @@ func NewEntityByPayCode(code string) (*Entity, error) {
 	entityMutex.Unlock()
 	orderPaySync[code].Lock()
 
-	dataOp, err := NewDataOrderPay(code)
+	e := Entity{}
+	e.dataOp, err = newDataOrderPay(code)
 	if err != nil {
 		orderPaySync[code].Unlock()
 		return nil, err
 	}
-	e := Entity{dataOp: dataOp}
-	e.op = e.dataOp.Data()
-
-	e.dataOr, err = NewDataOrderRefund("")
+	e.op = e.dataOp.Entity()
+	e.dataOr, err = newDataOrderRefund("")
+	e.or = e.dataOr.Entity()
 
 	return &e, nil
 }
@@ -101,26 +105,28 @@ func NewEntityByRefundCode(code string) (*Entity, error) {
 	entityMutex.Unlock()
 	orderRefundSync[code].Lock()
 
-	e := Entity{}
+	// 加载退款订单
 	var err error
-	e.dataOr, err = NewDataOrderRefund(code)
+	e := Entity{}
+	e.dataOr, err = newDataOrderRefund(code)
 	if err != nil {
 		orderRefundSync[code].Unlock()
 		return nil, err
 	}
-	e.or = e.dataOr.Data()
+	e.or = e.dataOr.Entity()
 
+	// 需要加载支付订单，因为有关验证需要支付相关数据
 	if orderPaySync[e.or.OrderPayCode] == nil {
 		orderPaySync[e.or.OrderPayCode] = new(sync.Mutex)
 	}
 	orderPaySync[e.or.OrderPayCode].Lock()
-	e.dataOp, err = NewDataOrderPay(e.or.OrderPayCode)
+	e.dataOp, err = newDataOrderPay(e.or.OrderPayCode)
 	if err != nil {
 		orderPaySync[e.or.OrderPayCode].Unlock()
 		orderRefundSync[code].Unlock()
 		return nil, err
 	}
-	e.op = e.dataOp.Data()
+	e.op = e.dataOp.Entity()
 
 	return &e, nil
 }
@@ -145,32 +151,4 @@ func (e *Entity) ReleaseOrderRefund() error {
 	}
 	orderPaySync[e.or.OrderPayCode].Unlock()
 	return nil
-}
-
-func getOutTradeNo() string {
-	prefix := strings.ReplaceAll(time.Now().Format("06121545.999999"), ".", "")
-	return fmt.Sprintf("%s%s", prefix, utils.CreateRandomStr(10, utils.NUMBER))
-}
-
-//CodeType 生成订单号
-type CodeType uint8
-
-//编码类型
-const (
-	//OrderPayCode 支付订单号
-	OrderPayCode CodeType = iota
-	//OrderRefundCode 退款订单号
-	OrderRefundCode
-)
-
-var count uint64
-
-func getCode(codeType CodeType) string {
-	prefix := strings.ReplaceAll(time.Now().Format("06121545.999"), ".", "")
-	random := utils.CreateRandomStr(3, utils.NUMBER)
-	if count >= 100 {
-		count = 0
-	}
-	count++
-	return fmt.Sprintf("%s%d%d%s", prefix, codeType, count, random)
 }

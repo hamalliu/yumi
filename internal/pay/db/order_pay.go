@@ -57,8 +57,8 @@ func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
 	return &op, nil
 }
 
-//Data 支付订单数据
-func (m *OrderPay) Data() trade.OrderPay {
+//Entity 支付订单数据
+func (m *OrderPay) Entity() trade.OrderPay {
 	return m.OrderPay
 }
 

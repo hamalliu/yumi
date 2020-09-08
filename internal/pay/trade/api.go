@@ -255,6 +255,7 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 	if err != nil {
 		return "", err
 	}
+	defer func() { _ = e.ReleaseOrderRefund() }()
 
 	switch e.op.Status {
 	//支付订单必须为已支付
@@ -275,13 +276,7 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 			return "", ecode.ServerErr(err)
 		}
 
-		code := getCode(OrderRefundCode)
-		outRefundNo := code
-		if err := e.dataOr.Submit(code, orderPayCode, count, notifyURL, refundAccountGUID, e.op.TradeWay, outRefundNo, refundFee,
-			refundDesc, submitTime, timeoutExpress, Submitted); err != nil {
-			return "", err
-		}
-
+		// 获取交易方式
 		trade := getTrade(e.op.TradeWay)
 		if trade == nil {
 			_ = e.dataOr.SetError(time.Now(), "tradeway（交易方式）不存在", Error)
@@ -289,16 +284,22 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 			return "", ecode.ServerErr(err)
 		}
 
-		_ = e.ReleaseOrderPay()
-		e, err := NewEntityByRefundCode(code)
-		if err != nil {
+		// 提交退款订单
+		code := getCode(OrderRefundCode)
+		outRefundNo := code
+		if err := e.dataOr.Submit(code, orderPayCode, count, notifyURL, refundAccountGUID, e.op.TradeWay, outRefundNo, refundFee,
+			refundDesc, submitTime, timeoutExpress, Submitted); err != nil {
 			return "", err
 		}
-		defer func() { _ = e.ReleaseOrderRefund() }()
+		e.dataOr, err = newDataOrderRefund(code)
+		e.or = e.dataOr.Entity()
+		
+		// 退款
 		if err := trade.Refund(e.op, e.or); err != nil {
 			return "", err
 		}
 
+		// 设置退款中
 		if err := e.dataOr.SetRefunding(Refunding); err != nil {
 			return "", err
 		}
