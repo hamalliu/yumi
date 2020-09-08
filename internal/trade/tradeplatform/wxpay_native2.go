@@ -1,7 +1,7 @@
 package tradeplatform
 
 import (
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/pay/wxpay"
 )

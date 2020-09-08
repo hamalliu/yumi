@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/dbc"
 )
@@ -99,7 +99,7 @@ func (m *OrderRefund) ExistRefundingOrSubmitted(orderPayCode string) (bool, erro
 	if err := dbc.Get().Get(&seqID, sqlStr, orderPayCode, trade.Submitted, trade.Refunding); err != nil {
 		return false, ecode.ServerErr(err)
 	}
-	
+
 	return seqID != 0, nil
 }
 

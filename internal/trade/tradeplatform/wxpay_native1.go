@@ -1,7 +1,7 @@
 package tradeplatform
 
 import (
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/pay/wxpay"
 )
@@ -33,7 +33,7 @@ func (wxn1 WxNative1) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	
+
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID
 	ret.Data = bizURL

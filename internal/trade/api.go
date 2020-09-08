@@ -14,11 +14,11 @@ const timeFormat = "2006-01-02 15:04:05.999"
 //SubmitOrderPay 提交支付订单
 func SubmitOrderPay(buyerAccountGUID, sellerKey string, totalFee int, body, detail string,
 	timeoutExpress time.Time) (string, error) {
-	e, err := NewEntityByPayCode("")
+	e, err := newEntityByPayCode("")
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	now := time.Now()
 	code := getCode(OrderPayCode)
@@ -54,11 +54,11 @@ func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIP, notifyURL s
 
 //Pay 发起支付
 func Pay(code string, tradeWay Way, clientIP, notifyURL string, payExpire time.Time) (string, error) {
-	e, err := NewEntityByPayCode(code)
+	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	//订单超时不能发起支付
 	if e.op.TimeoutExpress.Format(timeFormat) < time.Now().Format(timeFormat) {
@@ -97,11 +97,11 @@ func Pay(code string, tradeWay Way, clientIP, notifyURL string, payExpire time.T
 
 //CancelOrderPay 取消支付订单
 func CancelOrderPay(code string) (err error) {
-	e, err := NewEntityByPayCode(code)
+	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	switch e.op.Status {
 	case Submitted:
@@ -123,11 +123,11 @@ func CancelOrderPay(code string) (err error) {
 
 //PaySuccess 查询支付成功（只查询待支付订单）
 func PaySuccess(code string) (res Status, err error) {
-	e, err := NewEntityByPayCode(code)
+	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	switch e.op.Status {
 	case WaitPay:
@@ -156,11 +156,11 @@ func PaySuccess(code string) (res Status, err error) {
 
 //PayStatus 查询支付状态
 func PayStatus(code string) (res Status, err error) {
-	e, err := NewEntityByPayCode(code)
+	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	trade := getTrade(e.op.TradeWay)
 	if trade == nil {
@@ -176,11 +176,11 @@ func PayStatus(code string) (res Status, err error) {
 
 //CloseTrade 关闭交易（只关闭待支付订单）
 func CloseTrade(code string) (err error) {
-	e, err := NewEntityByPayCode(code)
+	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	switch e.op.Status {
 	case WaitPay:
@@ -206,13 +206,13 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 		trade.PayNotifyResp(err, resp)
 		return "", ""
 	}
-	e, err := NewEntityByPayCode(ret.OrderPayCode)
+	e, err := newEntityByPayCode(ret.OrderPayCode)
 	if err != nil {
 		log.Error(err)
 		trade.PayNotifyResp(err, resp)
 		return "", ""
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	switch e.op.Status {
 	case WaitPay:
@@ -251,11 +251,11 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 
 //Refund 提交退款订单（只退款已支付订单）
 func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time) (string, error) {
-	e, err := NewEntityByPayCode(orderPayCode)
+	e, err := newEntityByPayCode(orderPayCode)
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.ReleaseOrderRefund() }()
+	defer func() { _ = e.releaseOrderRefund() }()
 
 	switch e.op.Status {
 	//支付订单必须为已支付
@@ -311,11 +311,11 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 
 //RefundSuccess 退款查询（只查询退款中的订单）
 func RefundSuccess(code string) (res Status, err error) {
-	e, err := NewEntityByRefundCode(code)
+	e, err := newEntityByRefundCode(code)
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.ReleaseOrderRefund() }()
+	defer func() { _ = e.releaseOrderRefund() }()
 
 	switch e.or.Status {
 	case Refunding:
@@ -358,12 +358,12 @@ func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 		trade.RefundNotifyResp(err, resp)
 		return ""
 	}
-	e, err := NewEntityByRefundCode(ret.OrderRefundCode)
+	e, err := newEntityByRefundCode(ret.OrderRefundCode)
 	if err != nil {
 		trade.PayNotifyResp(err, resp)
 		return ""
 	}
-	defer func() { _ = e.ReleaseOrderRefund() }()
+	defer func() { _ = e.releaseOrderRefund() }()
 
 	if err := trade.RefundNotifyCheck(e.op, e.or, ret.ReqData); err != nil {
 		trade.PayNotifyResp(err, resp)
@@ -385,11 +385,11 @@ func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 
 //SetTimeout 将超时订单设置为已取消
 func SetTimeout(code string) error {
-	e, err := NewEntityByPayCode(code)
+	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return err
 	}
-	defer func() { _ = e.ReleaseOrderPay() }()
+	defer func() { _ = e.releaseOrderPay() }()
 
 	if e.op.TimeoutExpress.Format(timeFormat) < time.Now().Format(timeFormat) {
 		return e.dataOp.SetCancelled(time.Now(), Cancelled)

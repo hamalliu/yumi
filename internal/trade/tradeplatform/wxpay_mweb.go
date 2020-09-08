@@ -3,8 +3,8 @@ package tradeplatform
 import (
 	"encoding/json"
 
+	"yumi/internal/trade"
 	"yumi/pkg/ecode"
-	"yumi/internal/pay/trade"
 	"yumi/pkg/external/pay/wxpay"
 )
 

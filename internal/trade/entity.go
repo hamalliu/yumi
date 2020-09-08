@@ -41,8 +41,8 @@ var entityMutex sync.Mutex
  * 供业务对象接口调用，对外不开放
  */
 
-//NewEntityByPayCode 加载支付订单数据
-func NewEntityByPayCode(code string) (*Entity, error) {
+//newEntityByPayCode 加载支付订单数据
+func newEntityByPayCode(code string) (*Entity, error) {
 	var err error
 	if code == "" {
 		// code为空视为新的订单
@@ -77,8 +77,8 @@ func NewEntityByPayCode(code string) (*Entity, error) {
 	return &e, nil
 }
 
-//ReleaseOrderPay 释放支付订单数据
-func (e *Entity) ReleaseOrderPay() error {
+//releaseOrderPay 释放支付订单数据
+func (e *Entity) releaseOrderPay() error {
 	if e.op.Code == "" {
 		return nil
 	}
@@ -92,8 +92,8 @@ func (e *Entity) ReleaseOrderPay() error {
 	return nil
 }
 
-//NewEntityByRefundCode 加载退款订单数据
-func NewEntityByRefundCode(code string) (*Entity, error) {
+//newEntityByRefundCode 加载退款订单数据
+func newEntityByRefundCode(code string) (*Entity, error) {
 	if code == "" {
 		panic(fmt.Errorf("code 不能为空"))
 	}
@@ -131,8 +131,8 @@ func NewEntityByRefundCode(code string) (*Entity, error) {
 	return &e, nil
 }
 
-//ReleaseOrderRefund 释放退款订单数据
-func (e *Entity) ReleaseOrderRefund() error {
+//releaseOrderRefund 释放退款订单数据
+func (e *Entity) releaseOrderRefund() error {
 	if e.op.Code == "" {
 		return nil
 	}

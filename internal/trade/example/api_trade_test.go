@@ -1,11 +1,11 @@
-package pay
+package example
 
 import (
 	"testing"
 	"time"
 
-	"yumi/internal/pay/trade"
-	"yumi/internal/pay/tradeplatform"
+	"yumi/internal/trade"
+	"yumi/internal/trade/tradeplatform"
 )
 
 func TestSubmitOrderPay(t *testing.T) {

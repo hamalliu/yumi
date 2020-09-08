@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"yumi/internal/pay/db"
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade/db"
+	"yumi/internal/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/pay/wxpay"
 )

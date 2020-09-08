@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/pay/wxpay"
 	"yumi/utils"
@@ -52,7 +52,7 @@ func mashalWxAppPayRequest(appID, mchID, privateKey, prePayID string) (string, e
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(reqBytes), nil
 }
 
@@ -87,7 +87,7 @@ func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-	
+
 	ret.Data = dataStr
 	return ret, nil
 }

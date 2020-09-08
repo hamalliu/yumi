@@ -6,7 +6,7 @@ import (
 	"time"
 	"yumi/pkg/ecode"
 
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade"
 	"yumi/pkg/external/pay/wxpay"
 	"yumi/utils"
 )
@@ -49,7 +49,7 @@ func mashalWxh5PayRequest(appID, prePayID, privateKey string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	
+
 	return string(reqBytes), nil
 }
 

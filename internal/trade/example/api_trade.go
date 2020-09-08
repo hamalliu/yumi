@@ -1,12 +1,12 @@
-package pay
+package example
 
 import (
 	"fmt"
 	"net/http"
 	"time"
 
-	"yumi/internal/pay/db"
-	"yumi/internal/pay/trade"
+	"yumi/internal/trade"
+	"yumi/internal/trade/db"
 )
 
 //SubmitOrderPay 提交订单
