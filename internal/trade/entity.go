@@ -7,26 +7,6 @@ import (
 	"yumi/pkg/log"
 )
 
-//Status 订单状态
-type Status string
-
-const (
-	//Submitted "已提交" #包含支付订单和退款订单
-	Submitted Status = "SUBMITTED"
-	//WaitPay "待支付"
-	WaitPay Status = "WAIT_PAY"
-	//Paid "已支付"
-	Paid Status = "PAID"
-	//Cancelled "已取消" #包含支付订单和退款订单
-	Cancelled Status = "CANCELLED"
-	//Refunding "退款中"
-	Refunding Status = "REFUNDING"
-	//Refunded "已退款"
-	Refunded Status = "REFUNDED"
-	//Error "错误" #包含支付订单和退款订单
-	Error Status = "ERROR"
-)
-
 var (
 	orderPaySync    map[string]*sync.Mutex
 	orderRefundSync map[string]*sync.Mutex

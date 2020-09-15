@@ -11,8 +11,8 @@ import (
 
 // 获取商户订单号
 func getOutTradeNo() string {
-	prefix := strings.ReplaceAll(time.Now().Format("06121545.999999"), ".", "")
-	return fmt.Sprintf("%s%s", prefix, utils.CreateRandomStr(10, utils.NUMBER))
+	prefix := strings.ReplaceAll(time.Now().Format("06121545.999999999"), ".", "")
+	return fmt.Sprintf("%s%s", prefix, utils.CreateRandomStr(7, utils.NUMBER))
 }
 
 //CodeType 生成订单号
