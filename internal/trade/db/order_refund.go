@@ -105,7 +105,7 @@ func (m *OrderRefund) ExistRefundingOrSubmitted(orderPayCode string) (bool, erro
 
 //Submit 提交订单
 func (m *OrderRefund) Submit(code, orderPayCode string, serialNum int, notifyURL string, refundAccountGUID string, refundWay trade.Way,
-	outRefundNo string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time, status trade.StatusOrder) error {
+	outRefundNo string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time, status trade.Status) error {
 	sqlStr := `
 		INSERT 
 		INTO 
@@ -123,7 +123,7 @@ func (m *OrderRefund) Submit(code, orderPayCode string, serialNum int, notifyURL
 }
 
 //SetSubmitted 更新订单状态（待支付->已提交）
-func (m *OrderRefund) SetSubmitted(status trade.StatusOrder) error {
+func (m *OrderRefund) SetSubmitted(status trade.Status) error {
 	sqlStr := `
 		UPDATE 
 			order_refund 
@@ -139,7 +139,7 @@ func (m *OrderRefund) SetSubmitted(status trade.StatusOrder) error {
 }
 
 //SetRefunding 设置退款中
-func (m *OrderRefund) SetRefunding(status trade.StatusOrder) error {
+func (m *OrderRefund) SetRefunding(status trade.Status) error {
 	sqlStr := `
 		UPDATE 
 			order_refund 
@@ -155,7 +155,7 @@ func (m *OrderRefund) SetRefunding(status trade.StatusOrder) error {
 }
 
 //SetCancelled 设置取消订单
-func (m *OrderRefund) SetCancelled(cancelTime time.Time, status trade.StatusOrder) error {
+func (m *OrderRefund) SetCancelled(cancelTime time.Time, status trade.Status) error {
 	sqlStr := `
 		UPDATE 
 			order_refund 
@@ -172,7 +172,7 @@ func (m *OrderRefund) SetCancelled(cancelTime time.Time, status trade.StatusOrde
 }
 
 //SetRefunded 设置订单错误
-func (m *OrderRefund) SetRefunded(refundID string, refundedTime time.Time, status trade.StatusOrder) error {
+func (m *OrderRefund) SetRefunded(refundID string, refundedTime time.Time, status trade.Status) error {
 	sqlStr := `
 		UPDATE 
 			order_refund 
@@ -190,7 +190,7 @@ func (m *OrderRefund) SetRefunded(refundID string, refundedTime time.Time, statu
 }
 
 //SetError 设置订单错误
-func (m *OrderRefund) SetError(errorTime time.Time, remarks string, status trade.StatusOrder) error {
+func (m *OrderRefund) SetError(errorTime time.Time, remarks string, status trade.Status) error {
 	sqlStr := `
 		UPDATE 
 			order_refund 

@@ -122,7 +122,7 @@ func CancelOrderPay(code string) (err error) {
 }
 
 //PaySuccess 查询支付成功（只查询待支付订单）
-func PaySuccess(code string) (res StatusOrder, err error) {
+func PaySuccess(code string) (res Status, err error) {
 	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return "", err
@@ -199,7 +199,7 @@ func CloseTrade(code string) (err error) {
 }
 
 //PayNotify 支付通知(待支付时处理通知)
-func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, StatusOrder) {
+func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, Status) {
 	trade := getTrade(way)
 	//解析通知参数
 	ret, err := trade.PayNotifyReq(req)
@@ -311,7 +311,7 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 }
 
 //RefundSuccess 退款查询（只查询退款中的订单）
-func RefundSuccess(code string) (res StatusOrder, err error) {
+func RefundSuccess(code string) (res Status, err error) {
 	e, err := newEntityByRefundCode(code)
 	if err != nil {
 		return "", err
@@ -347,7 +347,7 @@ func RefundSuccess(code string) (res StatusOrder, err error) {
 }
 
 //RefundNotify 退款通知
-func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) StatusOrder {
+func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 	trade := getTrade(way)
 	if trade == nil {
 		err := fmt.Errorf("tradeway（交易方式）不存在")
