@@ -64,7 +64,7 @@ func (m *OrderPay) Entity() trade.OrderPay {
 
 //Submit 提交
 func (m *OrderPay) Submit(buyerAccountGUID, sellerKey, outTradeNo, notifyURL string, totalFee int, body, detail string,
-	timeoutExpress, submitTime time.Time, code string, status trade.OrderStatus) error {
+	timeoutExpress, submitTime time.Time, code string, status trade.StatusOrder) error {
 	sqlStr := `
 		INSERT 
 		INTO 
@@ -85,7 +85,7 @@ func (m *OrderPay) Submit(buyerAccountGUID, sellerKey, outTradeNo, notifyURL str
 
 //SetWaitPay 设置支付方式
 func (m *OrderPay) SetWaitPay(payWay trade.Way, appID, mchID, spbillCreateIP string, payExpire time.Time,
-	status trade.OrderStatus) error {
+	status trade.StatusOrder) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -105,7 +105,7 @@ func (m *OrderPay) SetWaitPay(payWay trade.Way, appID, mchID, spbillCreateIP str
 }
 
 //SetSuccess 支付成功，更新订单状态（待支付->已支付）
-func (m *OrderPay) SetSuccess(payTime time.Time, transactionID, buyerLogonID string, status trade.OrderStatus) error {
+func (m *OrderPay) SetSuccess(payTime time.Time, transactionID, buyerLogonID string, status trade.StatusOrder) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -124,7 +124,7 @@ func (m *OrderPay) SetSuccess(payTime time.Time, transactionID, buyerLogonID str
 }
 
 //SetCancelled 设置取消订单
-func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.OrderStatus) error {
+func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.StatusOrder) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -141,7 +141,7 @@ func (m *OrderPay) SetCancelled(cancelTime time.Time, status trade.OrderStatus) 
 }
 
 //SetError 设置订单错误
-func (m *OrderPay) SetError(errorTime time.Time, remarks string, status trade.OrderStatus) error {
+func (m *OrderPay) SetError(errorTime time.Time, remarks string, status trade.StatusOrder) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 
@@ -175,7 +175,7 @@ func (m *OrderPay) SetOutTradeNo(outTradeNo, notifyURL string) error {
 }
 
 //SetSubmitted 关闭订单，更新订单状态（待支付->已提交）
-func (m *OrderPay) SetSubmitted(status trade.OrderStatus) error {
+func (m *OrderPay) SetSubmitted(status trade.StatusOrder) error {
 	sqlStr := `
 		UPDATE 
 			order_pay 

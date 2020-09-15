@@ -4,24 +4,24 @@ import (
 	"time"
 )
 
-//OrderStatus 订单状态
-type OrderStatus string
+//StatusOrder 订单状态
+type StatusOrder string
 
 const (
 	//Submitted "已提交" #包含支付订单和退款订单
-	Submitted OrderStatus = "SUBMITTED" 
+	Submitted StatusOrder = "SUBMITTED" 
 	//WaitPay "待支付"
-	WaitPay OrderStatus = "WAIT_PAY"
+	WaitPay StatusOrder = "WAIT_PAY"
 	//Paid "已支付"
-	Paid OrderStatus = "PAID"
+	Paid StatusOrder = "PAID"
 	//Cancelled "已取消" #包含支付订单和退款订单
-	Cancelled OrderStatus = "CANCELLED" 
+	Cancelled StatusOrder = "CANCELLED" 
 	//Refunding "退款中"
-	Refunding OrderStatus = "REFUNDING"
+	Refunding StatusOrder = "REFUNDING"
 	//Refunded "已退款"
-	Refunded  OrderStatus = "REFUNDED"  
+	Refunded  StatusOrder = "REFUNDED"  
 	//Error "错误" #包含支付订单和退款订单
-	Error OrderStatus = "ERROR"
+	Error StatusOrder = "ERROR"
 )
 
 //OrderPay 支付订单
@@ -70,7 +70,7 @@ type OrderPay struct {
 	//错误时间        
 	ErrorTime        time.Time   `db:"error_time"`       
 	//状态（已提交（用户已提交但未发起支付），待支付，已支付，已取消）  
-	Status           OrderStatus `db:"status"`
+	Status           StatusOrder `db:"status"`
 	//备注             
 	Remarks          string      `db:"remarks"`            
 }
@@ -82,20 +82,20 @@ type DataOrderPay interface {
 
 	//提交订单
 	Submit(buyerAccountGUID, sellerKey, outTradeNo, notifyURL string, totalFee int, body, detail string, timeoutExpress,
-		submitTime time.Time, code string, status OrderStatus) error
+		submitTime time.Time, code string, status StatusOrder) error
 	//设置待支付
-	SetWaitPay(payWay Way, appID, mchID, spbillCreateIP string, payExpire time.Time, status OrderStatus) error
+	SetWaitPay(payWay Way, appID, mchID, spbillCreateIP string, payExpire time.Time, status StatusOrder) error
 	//支付成功，更新订单状态（待支付->已支付）
-	SetSuccess(payTime time.Time, transactionID, buyerLogonID string, status OrderStatus) error
+	SetSuccess(payTime time.Time, transactionID, buyerLogonID string, status StatusOrder) error
 	//设置取消订单
-	SetCancelled(cancelTime time.Time, status OrderStatus) error
+	SetCancelled(cancelTime time.Time, status StatusOrder) error
 	//设置订单错误
-	SetError(errorTime time.Time, remarks string, status OrderStatus) error
+	SetError(errorTime time.Time, remarks string, status StatusOrder) error
 
 	//设置订单号
 	SetOutTradeNo(outTradeNo, notifyURL string) error
 	//更新订单状态（待支付->已提交）
-	SetSubmitted(status OrderStatus) error
+	SetSubmitted(status StatusOrder) error
 }
 
 var op DataOrderPay
@@ -145,7 +145,7 @@ type OrderRefund struct {
 	//取消订单时间   
 	CancelTime        time.Time   `db:"cancel_time"`
 	//状态（已提交（用户已提交但未发起支付），退款中，已退款）         
-	Status            OrderStatus `db:"status"`
+	Status            StatusOrder `db:"status"`
 	//备注              
 	Remarks           string      `db:"remarks"`             
 }
@@ -161,17 +161,17 @@ type DataOrderRefund interface {
 	ExistRefundingOrSubmitted(orderPayCode string) (bool, error)
 	//提交订单
 	Submit(code, orderPayCode string, serialNum int, notifyURL string, refundAccountGUID string, refundWay Way,
-		outRefundNo string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time, status OrderStatus) error
+		outRefundNo string, refundFee int, refundDesc string, submitTime, timeoutExpress time.Time, status StatusOrder) error
 	//更新订单状态（待支付->已提交）
-	SetSubmitted(status OrderStatus) error
+	SetSubmitted(status StatusOrder) error
 	//设置退款中
-	SetRefunding(status OrderStatus) error
+	SetRefunding(status StatusOrder) error
 	//设置取消订单
-	SetCancelled(cancelTime time.Time, status OrderStatus) error
+	SetCancelled(cancelTime time.Time, status StatusOrder) error
 	//设置已退款
-	SetRefunded(refundID string, refundedTime time.Time, status OrderStatus) error
+	SetRefunded(refundID string, refundedTime time.Time, status StatusOrder) error
 	//设置订单错误
-	SetError(errorTime time.Time, remarks string, status OrderStatus) error
+	SetError(errorTime time.Time, remarks string, status StatusOrder) error
 }
 
 var or DataOrderRefund

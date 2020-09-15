@@ -2,23 +2,23 @@ package trade
 
 import "net/http"
 
-//Status ...
-type Status string
+//StatusTradePlatform ...
+type StatusTradePlatform string
 
 const (
-	//Success 成功
-	Success  Status = "SUCCESS"  
-	//Closed 关闭
-	Closed   Status = "CLOSED"   
-	//Finished 完成
-	Finished Status = "FINISHED" 
-	//ERROR 错误（异常）
-	ERROR    Status = "ERROR"    
+	//StatusTradePlatformSuccess 成功
+	StatusTradePlatformSuccess StatusTradePlatform = "SUCCESS"
+	//StatusTradePlatformClosed 关闭
+	StatusTradePlatformClosed StatusTradePlatform = "CLOSED"
+	//StatusTradePlatformFinished 完成
+	StatusTradePlatformFinished StatusTradePlatform = "FINISHED"
+	//StatusTradePlatformError 错误（异常）
+	StatusTradePlatformError StatusTradePlatform = "ERROR"
 
-	//NotPay 未支付
-	NotPay           Status = "NOTPAY"           
-	//RefundProcessing 退款处理中
-	RefundProcessing Status = "REFUNDPROCESSING" 
+	//StatusTradePlatformNotPay 未支付
+	StatusTradePlatformNotPay StatusTradePlatform = "NOTPAY"
+	//StatusTradePlatformRefundProcessing 退款处理中
+	StatusTradePlatformRefundProcessing StatusTradePlatform = "REFUNDPROCESSING"
 )
 
 //ReturnPay ...
@@ -32,7 +32,7 @@ type ReturnPay struct {
 type ReturnQueryPay struct {
 	BuyerLogonID  string
 	TransactionID string
-	TradeStatus   Status
+	TradeStatus   StatusTradePlatform
 }
 
 //ReturnPayNotify ...
@@ -45,7 +45,7 @@ type ReturnPayNotify struct {
 type ReturnQueryRefund struct {
 	RefundID      string
 	RefundLogonID string
-	TradeStatus   Status
+	TradeStatus   StatusTradePlatform
 }
 
 //ReturnRefundNotify ...

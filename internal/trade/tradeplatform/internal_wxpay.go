@@ -96,12 +96,12 @@ func (iwp InternalWxPay) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay
 	ret.TransactionID = resp.TransactionID
 	switch resp.TradeState {
 	case wxpay.TradeStateSuccess:
-		ret.TradeStatus = trade.Success
+		ret.TradeStatus = trade.StatusTradePlatformSuccess
 	case wxpay.TradeStateNotpay, wxpay.TradeStateUserPaying, wxpay.TradeStatePayError,
 		wxpay.TradeStateRefund, wxpay.TradeStateRevoked:
-		ret.TradeStatus = trade.NotPay
+		ret.TradeStatus = trade.StatusTradePlatformNotPay
 	case wxpay.TradeStateClosed:
-		ret.TradeStatus = trade.Closed
+		ret.TradeStatus = trade.StatusTradePlatformClosed
 	default:
 		err := fmt.Errorf("微信支付状态发生变动，请管理员及时更改")
 		return ret, ecode.ServerErr(err)
@@ -191,13 +191,13 @@ func (iwp InternalWxPay) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefu
 	ret.RefundID = resp.RefundIdn
 	switch resp.RefundStatusn {
 	case wxpay.TradeStateSuccess:
-		ret.TradeStatus = trade.Success
+		ret.TradeStatus = trade.StatusTradePlatformSuccess
 	case wxpay.TradeStateRefundClose:
-		ret.TradeStatus = trade.Closed
+		ret.TradeStatus = trade.StatusTradePlatformClosed
 	case wxpay.TradeStateProcessing:
-		ret.TradeStatus = trade.RefundProcessing
+		ret.TradeStatus = trade.StatusTradePlatformRefundProcessing
 	case wxpay.TradeStateChange:
-		ret.TradeStatus = trade.ERROR
+		ret.TradeStatus = trade.StatusTradePlatformError
 	default:
 		err := fmt.Errorf("微信退款状态未识别 %s", resp.RefundStatusn)
 		return ret, ecode.ServerErr(err)

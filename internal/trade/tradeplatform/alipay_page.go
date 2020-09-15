@@ -132,13 +132,13 @@ func (alipp AliPagePay) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay,
 
 	switch ret.TradeStatus {
 	case alipay.TradeStatusSuccess:
-		ret.TradeStatus = trade.Success
+		ret.TradeStatus = trade.StatusTradePlatformSuccess
 	case alipay.TradeStatusWaitBuyerPay:
-		ret.TradeStatus = trade.NotPay
+		ret.TradeStatus = trade.StatusTradePlatformNotPay
 	case alipay.TradeStatusCloseed:
-		ret.TradeStatus = trade.Closed
+		ret.TradeStatus = trade.StatusTradePlatformClosed
 	case alipay.TradeStatusFinished:
-		ret.TradeStatus = trade.Finished
+		ret.TradeStatus = trade.StatusTradePlatformFinished
 	default:
 		err := fmt.Errorf("支付宝状态发生变动，请管理员及时更改")
 		return ret, ecode.ServerErr(err)

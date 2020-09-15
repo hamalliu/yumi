@@ -29,7 +29,7 @@ func RoundRobinQueryPaySuccess(code string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if status == trade.Success {
+	if status == trade.Paid {
 		return true, nil
 	}
 
@@ -43,14 +43,14 @@ func Problem(code string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if status == trade.NotPay {
+	if status == trade.WaitPay {
 		err := trade.CloseTrade(code)
 		if err != nil {
 			return false, err
 		}
 	}
 
-	if status == trade.Success {
+	if status == trade.Paid {
 		return true, nil
 	}
 
@@ -64,12 +64,12 @@ func Completed(code string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if status == trade.NotPay {
+	if status == trade.WaitPay {
 		err := trade.CloseTrade(code)
 		if err != nil {
 			return false, err
 		}
-	} else if status == trade.Success {
+	} else if status == trade.Paid {
 		return true, nil
 	}
 
@@ -84,7 +84,7 @@ func CancelOrderPay(code string) error {
 //Notify 支付通知(发货的时候必须处理重复的成功通知)
 func Notify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Request) (string, bool) {
 	orderPayCode, tradeStatus := trade.PayNotify(tradeWay, resp, req)
-	if tradeStatus == trade.Success {
+	if tradeStatus == trade.Paid {
 		return orderPayCode, true
 	}
 
@@ -103,7 +103,7 @@ func RefundSuccess(code string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if status == trade.Success {
+	if status == trade.Paid {
 		return true, nil
 	}
 	return false, nil
@@ -112,7 +112,7 @@ func RefundSuccess(code string) (bool, error) {
 //RefundNotify 退款通知
 func RefundNotify(tradeWay trade.Way, resp http.ResponseWriter, req *http.Request) bool {
 	tradeStatus := trade.RefundNotify(tradeWay, resp, req)
-	if tradeStatus == trade.Success {
+	if tradeStatus == trade.Paid {
 		return true
 	}
 
@@ -132,14 +132,14 @@ func CorrectPaySuccess() ([]string, error) {
 		if err != nil {
 			return nil, err
 		}
-		if status == trade.NotPay {
+		if status == trade.WaitPay {
 			err := trade.CloseTrade(code)
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		if status == trade.Success {
+		if status == trade.Paid {
 			shipCodes = append(shipCodes, code)
 		} else {
 			if err := trade.SetTimeout(code); err != nil {

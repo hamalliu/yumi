@@ -77,14 +77,14 @@ func Pay(code string, tradeWay Way, clientIP, notifyURL string, payExpire time.T
 		//查询之前支付状态
 		if tpq, err := trade.QueryPayStatus(e.op); err != nil {
 			return "", err
-		} else if tpq.TradeStatus == NotPay {
+		} else if tpq.TradeStatus == StatusTradePlatformNotPay {
 			//关闭之前支付
 			if err := trade.TradeClose(e.op); err != nil {
 				return "", err
 			}
 			//发起支付
 			return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
-		} else if tpq.TradeStatus == Closed {
+		} else if tpq.TradeStatus == StatusTradePlatformClosed {
 			//发起支付
 			return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
 		} else {
@@ -122,7 +122,7 @@ func CancelOrderPay(code string) (err error) {
 }
 
 //PaySuccess 查询支付成功（只查询待支付订单）
-func PaySuccess(code string) (res Status, err error) {
+func PaySuccess(code string) (res StatusOrder, err error) {
 	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return "", err
@@ -139,23 +139,24 @@ func PaySuccess(code string) (res Status, err error) {
 		if err != nil {
 			return "", err
 		}
-		if tpq.TradeStatus == Success {
+		if tpq.TradeStatus == StatusTradePlatformSuccess {
 			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionID, tpq.BuyerLogonID, Paid); err != nil {
 				return "", err
 			}
+			return Paid, nil
 		}
-		return tpq.TradeStatus, nil
+		return WaitPay, nil
 	case Paid:
-		return Success, nil
+		return Paid, nil
 	case Cancelled:
-		return Closed, nil
+		return Cancelled, nil
 	default:
 		return "", ecode.InvalidQueryPay
 	}
 }
 
 //PayStatus 查询支付状态
-func PayStatus(code string) (res Status, err error) {
+func PayStatus(code string) (res StatusTradePlatform, err error) {
 	e, err := newEntityByPayCode(code)
 	if err != nil {
 		return "", err
@@ -198,7 +199,7 @@ func CloseTrade(code string) (err error) {
 }
 
 //PayNotify 支付通知(待支付时处理通知)
-func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, Status) {
+func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, StatusOrder) {
 	trade := getTrade(way)
 	//解析通知参数
 	ret, err := trade.PayNotifyReq(req)
@@ -228,20 +229,20 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 			trade.PayNotifyResp(err, resp)
 			return "", ""
 		}
-		if tpq.TradeStatus == Success {
+		if tpq.TradeStatus == StatusTradePlatformSuccess {
 			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionID, tpq.BuyerLogonID, Paid); err != nil {
 				err = fmt.Errorf("服务器内部错误")
 				trade.PayNotifyResp(err, resp)
 				return "", ""
 			}
 			trade.PayNotifyResp(nil, resp)
-			return ret.OrderPayCode, Success
+			return ret.OrderPayCode, Paid
 		}
 		log.Error(fmt.Errorf("非法请求"))
-		return "", tpq.TradeStatus
+		return "", WaitPay
 	case Paid:
 		trade.PayNotifyResp(nil, resp)
-		return ret.OrderPayCode, Success
+		return ret.OrderPayCode, Paid
 	default:
 		//返回成功，停止通知
 		trade.PayNotifyResp(nil, resp)
@@ -293,7 +294,7 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 		}
 		e.dataOr, err = newDataOrderRefund(code)
 		e.or = e.dataOr.Entity()
-		
+
 		// 退款
 		if err := trade.Refund(e.op, e.or); err != nil {
 			return "", err
@@ -310,7 +311,7 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 }
 
 //RefundSuccess 退款查询（只查询退款中的订单）
-func RefundSuccess(code string) (res Status, err error) {
+func RefundSuccess(code string) (res StatusOrder, err error) {
 	e, err := newEntityByRefundCode(code)
 	if err != nil {
 		return "", err
@@ -330,22 +331,23 @@ func RefundSuccess(code string) (res Status, err error) {
 		if err != nil {
 			return "", err
 		}
-		if ret.TradeStatus == Success {
+		if ret.TradeStatus == StatusTradePlatformSuccess {
 			if err := e.dataOr.SetRefunded(ret.RefundID, time.Now(), Refunded); err != nil {
 				log.Error(err)
 				return "", err
 			}
+			return Refunded, nil
 		}
-		return ret.TradeStatus, nil
+		return Refunding, nil
 	case Refunded:
-		return "", nil
+		return Refunded, nil
 	default:
 		return "", ecode.InvalidQueryRefund
 	}
 }
 
 //RefundNotify 退款通知
-func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
+func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) StatusOrder {
 	trade := getTrade(way)
 	if trade == nil {
 		err := fmt.Errorf("tradeway（交易方式）不存在")
@@ -375,9 +377,9 @@ func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 		trade.PayNotifyResp(err, resp)
 		return ""
 	}
-	if status == Success {
+	if status == Refunded {
 		trade.RefundNotifyResp(nil, resp)
-		return status
+		return Refunded
 	}
 
 	return status
