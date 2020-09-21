@@ -15,7 +15,7 @@ import (
 
 	"golang.org/x/crypto/pkcs12"
 
-	"yumi/pkg/external/pay/internal"
+	"yumi/pkg/external/trade/internal"
 )
 
 /**
@@ -337,7 +337,7 @@ func getNativePayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 		ProductID:      order.ProductID,
 		LimitPay:       order.LimitPay,
 		Receipt:        "Y",
-		SceneInfo:      order.SceneInfo,
+		SceneInfo:      CData(order.SceneInfo),
 	}
 }
 
@@ -381,7 +381,7 @@ func getMwebPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 		ProductID:      order.ProductID,
 		LimitPay:       order.LimitPay,
 		Receipt:        "Y",
-		SceneInfo:      order.SceneInfo,
+		SceneInfo:      CData(order.SceneInfo),
 	}
 }
 
@@ -404,7 +404,7 @@ func getJsapiPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 		LimitPay:       order.LimitPay,
 		OpenID:         order.OpendID,
 		Receipt:        "Y",
-		SceneInfo:      order.SceneInfo,
+		SceneInfo:      CData(order.SceneInfo),
 	}
 }
 

@@ -40,7 +40,7 @@ type ReqUnifiedOrder struct {
 	LimitPay       string `xml:"limit_pay"`        //指定支付方式
 	OpenID         string `xml:"openid"`           //用户标识
 	Receipt        string `xml:"receipt"`          //电子发票入口开放标识
-	SceneInfo      string `xml:"scene_info"`       //场景信息
+	SceneInfo      CData  `xml:"scene_info"`       //场景信息
 }
 
 //RespUnifiedOrder ...

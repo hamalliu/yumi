@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go v0.37.4 // indirect
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/BurntSushi/toml v0.3.1
+	github.com/FZambia/sentinel v1.1.0 // indirect
 	github.com/acroca/go-symbols v0.1.1 // indirect
 	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d
 	github.com/cihub/seelog v0.0.0-20170130134532-f561c5e57575 // indirect

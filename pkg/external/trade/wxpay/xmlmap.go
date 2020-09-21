@@ -35,7 +35,7 @@ func (m *XMLMap) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
 func (m XMLMap) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start.Name = xml.Name{
 		Space: "",
-		Local: "map",
+		Local: "xml",
 	}
 	if err := e.EncodeToken(start); err != nil {
 		return err
@@ -51,4 +51,32 @@ func (m XMLMap) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	}
 
 	return e.EncodeToken(xml.EndElement{Name: start.Name})
+}
+
+// CData ...
+type CData string
+
+// UnmarshalXML ...
+func (c *CData) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	cdata := struct{
+		Data string `xml:",cdata"`
+	}{}
+
+	if err := d.DecodeElement(&cdata, &start); err != nil {
+		return err
+	}
+	*c = CData(cdata.Data)
+	return nil
+}
+
+// MarshalXML ...
+func (c *CData) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
+	cdata := struct{
+		Data string `xml:",cdata"`
+	}{Data: string(*c)}
+	if err := e.EncodeElement(cdata, start); err != nil {
+		return err
+	}
+
+	return nil
 }

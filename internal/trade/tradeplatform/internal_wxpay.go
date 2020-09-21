@@ -10,7 +10,7 @@ import (
 	"yumi/internal/trade/db"
 	"yumi/internal/trade"
 	"yumi/pkg/ecode"
-	"yumi/pkg/external/pay/wxpay"
+	"yumi/pkg/external/trade/wxpay"
 )
 
 //InternalWxPay ...

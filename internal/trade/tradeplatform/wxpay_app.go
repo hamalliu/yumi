@@ -7,7 +7,7 @@ import (
 
 	"yumi/internal/trade"
 	"yumi/pkg/ecode"
-	"yumi/pkg/external/pay/wxpay"
+	"yumi/pkg/external/trade/wxpay"
 	"yumi/utils"
 )
 

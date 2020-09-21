@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"strings"
 
-	"yumi/pkg/external/pay/internal"
+	"yumi/pkg/external/trade/internal"
 )
 
 //CheckPrePayNotify ...
