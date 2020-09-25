@@ -45,12 +45,14 @@ require (
 	github.com/stamblerre/gocode v1.0.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/swaggo/gin-swagger v1.2.0 // indirect
+	github.com/tal-tech/go-zero v1.0.15 // indirect
 	github.com/ugorji/go/codec v1.1.7
 	github.com/uudashr/gopkgs v2.0.1+incompatible // indirect
+	github.com/wumansgy/goEncrypt v0.0.0-20190822060801-cf9a6f8787e4 // indirect
 	go.uber.org/dig v1.8.0 // indirect
-	golang.org/x/crypto v0.0.0-20200311171314-f7b00557c8c4
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a // indirect
-	golang.org/x/text v0.3.2
+	golang.org/x/text v0.3.3
 	gopkg.in/go-playground/validator.v8 v8.18.2
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/yaml.v2 v2.3.0
