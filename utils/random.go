@@ -7,14 +7,19 @@ import (
 	"time"
 )
 
+// RandType ...
 type RandType string
 
 const (
+	// ALPHANUM ...
 	ALPHANUM RandType = "alphanum"
+	// ALPHA ...
 	ALPHA    RandType = "alpha"
+	// NUMBER ...
 	NUMBER   RandType = "number"
 )
 
+// CreateRandomStr ...
 func CreateRandomStr(strSize int, randType RandType) string {
 	var dictionary string
 	if randType == ALPHANUM {
@@ -35,6 +40,7 @@ func CreateRandomStr(strSize int, randType RandType) string {
 	return string(bytes)
 }
 
+// RandomNumString ...
 func RandomNumString(max int) string {
 	mrand.Seed(time.Now().UnixNano())
 	n := max
@@ -43,5 +49,5 @@ func RandomNumString(max int) string {
 		lmt *= 1
 		n--
 	}
-	return fmt.Sprintf("%0%dd", max, mrand.Intn(lmt))
+	return fmt.Sprintf("%0d%d", max, mrand.Intn(lmt))
 }

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/text/transform"
 )
 
+// UTF2GBK ...
 func UTF2GBK(str string) string {
 	t := transform.NewReader(bytes.NewReader([]byte(str)), simplifiedchinese.GBK.NewEncoder())
 	data, _ := ioutil.ReadAll(t)

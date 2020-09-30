@@ -12,8 +12,10 @@ import (
 	"strings"
 )
 
+// Key ...
 const Key = "buwangchuxinfangdeshizhong,.+-*\\"
 
+// GetKey ...
 func GetKey(key string, size int) string {
 	for {
 		if len(key) < size {
@@ -26,6 +28,7 @@ func GetKey(key string, size int) string {
 	return key
 }
 
+// AesEncrypt ...
 func AesEncrypt(orig string, key []byte) (string, error) {
 	// 转成字节数组
 	origData := []byte(orig)
@@ -56,6 +59,7 @@ func AesEncrypt(orig string, key []byte) (string, error) {
 	return base64.StdEncoding.EncodeToString(cryted), nil
 }
 
+// AesDecrypt ...
 func AesDecrypt(cryted string, key []byte) (string, error) {
 	// 转成字节数组
 	crytedByte, err := base64.StdEncoding.DecodeString(cryted)
@@ -100,7 +104,7 @@ func pKCS7UnPadding(origData []byte) []byte {
 	return origData[:(length - unpadding)]
 }
 
-//desen
+// DesEncrypt ...
 func DesEncrypt(origData, key []byte) (string, error) {
 	block, err := des.NewCipher(key[:8])
 	if err != nil {
@@ -114,7 +118,7 @@ func DesEncrypt(origData, key []byte) (string, error) {
 	return encodeString, nil
 }
 
-//desde
+// DesDecrypt ...
 func DesDecrypt(encodeString string, key []byte) (string, error) {
 	crypted, err := base64.StdEncoding.DecodeString(encodeString)
 	block, err := des.NewCipher(key[:8])
@@ -129,7 +133,7 @@ func DesDecrypt(encodeString string, key []byte) (string, error) {
 	return origDataStr, nil
 }
 
-//3desen
+// TripleDesEncrypt ...
 func TripleDesEncrypt(origData, key []byte) (string, error) {
 	block, err := des.NewTripleDESCipher(key)
 	if err != nil {
@@ -143,7 +147,7 @@ func TripleDesEncrypt(origData, key []byte) (string, error) {
 	return encodeString, nil
 }
 
-//3desde
+// TripleDesDecrypt ...
 func TripleDesDecrypt(encodeString string, key []byte) (string, error) {
 	defer func() {
 		recover()
@@ -161,44 +165,52 @@ func TripleDesDecrypt(encodeString string, key []byte) (string, error) {
 	return origDataStr, nil
 }
 
+// PKCS5Padding ...
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
+// PKCS5UnPadding ...
 func PKCS5UnPadding(origData []byte) []byte {
 	length := len(origData)
 	unpadding := int(origData[length-1])
 	return origData[:(length - unpadding)]
 }
 
+// MD5 ...
 func MD5(data []byte) []byte {
 	md5Ctx := md5.New()
 	md5Ctx.Write(data)
 	return md5Ctx.Sum(nil)
 }
 
+// MD5String ...
 func MD5String(data []byte) string {
 	return hex.EncodeToString(MD5(data))
 }
 
+// Md5LowerString ...
 func Md5LowerString(data []byte) string {
 	ret := strings.ToLower(hex.EncodeToString(MD5(data)))
 	return ret
 }
 
+// Sha1 ...
 func Sha1(data []byte) []byte {
 	h := sha1.New()
 	h.Write(data)
 	return h.Sum(nil)
 }
 
+// Sha1String ...
 func Sha1String(data []byte) string {
 	ret := hex.EncodeToString(Sha1(data))
 	return ret
 }
 
+// Sha1LowerString ...
 func Sha1LowerString(data []byte) string {
 	ret := strings.ToLower(hex.EncodeToString(Sha1(data)))
 	return ret

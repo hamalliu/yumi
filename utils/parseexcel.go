@@ -17,6 +17,7 @@ const (
 	kyExcelCell = "cell"
 )
 
+// ParseExcelToStruct ...
 func ParseExcelToStruct(path string, tabIndex int, structItf interface{}, kyExcel string, keys []int) error {
 	if kyExcel == "" {
 		kyExcel = kyExcelCell

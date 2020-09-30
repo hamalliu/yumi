@@ -16,6 +16,7 @@ import (
 	"github.com/golang/freetype"
 )
 
+// AddTextToImageByPth ...
 func AddTextToImageByPth(srcPth string, drawX, drawY int, text, fntPth string, fntSize float64, rgba64 *color.RGBA64, dstPth string) error {
 
 	//打开源文件
@@ -76,6 +77,7 @@ func AddTextToImageByPth(srcPth string, drawX, drawY int, text, fntPth string, f
 	return nil
 }
 
+// AddImageToImageByPth ...
 func AddImageToImageByPth(bgPth string, t string, r io.Reader, drawX, drawY int, dstPth string) error {
 
 	//编码成png格式，输出到目标路径
@@ -133,6 +135,7 @@ func AddImageToImageByPth(bgPth string, t string, r io.Reader, drawX, drawY int,
 	return nil
 }
 
+// AddTextToImageByReader ...
 func AddTextToImageByReader(src io.Reader, fileType string, drawX, drawY int, text, fntPth string, fntSize float64, rgba64 *color.RGBA64) (*bytes.Buffer, error) {
 	//解码图片
 	var (
@@ -185,6 +188,7 @@ func AddTextToImageByReader(src io.Reader, fileType string, drawX, drawY int, te
 	return &dst, nil
 }
 
+// AddImageToImageByReader ...
 func AddImageToImageByReader(bg io.Reader, t string, r io.Reader, drawX, drawY int) (*bytes.Buffer, error) {
 
 	//编码成png格式，输出到目标路径
