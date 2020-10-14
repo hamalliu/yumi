@@ -4,8 +4,8 @@
 			"path": "."
 		},
 		{
-			"name": "External Libraries",
-			"path": "D:\\code\\go\\pkg\\mod\\github.com"
+			"name": "Learning Libraries",
+			"path": "D:\\code\\go\\pkg\\mod\\github.com\\volatiletech"
 		}
 	],
 	"settings": {}
