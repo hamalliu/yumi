@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "External Libraries",
+			"path": "D:\\code\\go\\pkg\\mod\\github.com"
+		}
+	],
+	"settings": {}
+}

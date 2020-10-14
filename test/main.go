@@ -6,7 +6,7 @@ import (
 	"github.com/huichen/sego"
 )
 
-func main() {
+func testsego() {
 	// 载入词典
 	var segmenter sego.Segmenter
 	segmenter.LoadDictionary("./dictionary.txt")
@@ -19,4 +19,18 @@ func main() {
 	// 处理分词结果
 	// 支持普通模式和搜索模式两种分词，见代码中SegmentsToString函数的注释。
 	fmt.Println(sego.SegmentsToString(segments, false))
+}
+
+func toBytes(value int64) []byte {
+	var result []byte
+	mask := int64(0xFF)
+	shifts := [8]uint16{56, 48, 40, 32, 24, 16, 8, 0}
+	for _, shift := range shifts {
+		result = append(result, byte((value>>shift)&mask))
+	}
+	return result
+}
+
+func main() {
+	fmt.Println(toBytes(255))
 }

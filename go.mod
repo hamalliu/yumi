@@ -48,6 +48,7 @@ require (
 	github.com/tal-tech/go-zero v1.0.15 // indirect
 	github.com/ugorji/go/codec v1.1.7
 	github.com/uudashr/gopkgs v2.0.1+incompatible // indirect
+	github.com/volatiletech/authboss v2.4.1+incompatible // indirect
 	github.com/wumansgy/goEncrypt v0.0.0-20190822060801-cf9a6f8787e4 // indirect
 	go.uber.org/dig v1.8.0 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
