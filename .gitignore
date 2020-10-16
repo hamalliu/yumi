@@ -1,5 +1,5 @@
 *.exe
 tmp.json
 .idea
-logfile
 yumi.code-workspace
+logfile
