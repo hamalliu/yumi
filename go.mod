@@ -37,6 +37,7 @@ require (
 	github.com/mdempsky/gocode v0.0.0-20200405233807-4acdcbdea79d // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/phachon/go-logger v0.0.0-20180912060440-89ff8a2898f6 // indirect
+	github.com/pquerna/otp v1.2.0 // indirect
 	github.com/ramya-rao-a/go-outline v0.0.0-20200117021646-2a048b4510eb // indirect
 	github.com/robfig/cron/v3 v3.0.1
 	github.com/rogpeppe/godef v1.1.2 // indirect
