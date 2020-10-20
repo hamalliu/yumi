@@ -4,6 +4,7 @@ import (
 	"yumi/pkg/net/gin"
 )
 
+// Mount ...
 func Mount(r *gin.RouterGroup) {
 	ar := r.Group("admin")
 
