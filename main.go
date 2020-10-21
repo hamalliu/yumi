@@ -25,7 +25,7 @@ func main() {
 	log.Info("初始化数据库")
 	//dbc.Init(conf.Get().DB)
 
-	log.Info("构建服务")
+	log.Info("构建服务器")
 	srv := gin.NewServer()
 	srv.Use(middeware.Recovery(), middeware.Cors(conf.Get().CORS), middeware.Debug())
 
@@ -39,10 +39,10 @@ func main() {
 	}
 
 	//启动服务
-	log.Info("开始启动服务，侦听地址：" + conf.Get().Server.Addr)
+	log.Info("开始启动服务器，侦听地址：" + conf.Get().Server.Addr)
 	go func() {
 		if err := srv.Run(conf.Get().Server); err != nil {
-			log.Info(fmt.Errorf("启动服务失败: %s", err.Error()))
+			log.Info(fmt.Errorf("启动服务器失败: %s", err.Error()))
 			c <- syscall.SIGINT
 		}
 	}()
@@ -54,9 +54,9 @@ end:
 		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM:
 			err := srv.Shutdown(context.Background())
 			if err != nil {
-				log.Info("server shutdown error:", err.Error())
+				log.Info("关闭服务器失败:", err.Error())
 			} else {
-				log.Info("server shutdown success")
+				log.Info("服务已关闭")
 			}
 			break end
 		case syscall.SIGHUP:

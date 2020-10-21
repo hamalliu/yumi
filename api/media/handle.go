@@ -26,6 +26,7 @@ func UploadMultipart(c *gin.Context) {
 		return
 	}
 
+	// 检查文件大小
 	fds := req.MultipartForm.File["file[]"]
 	l := len(fds)
 	for i := 0; i < l; i++ {
@@ -45,6 +46,7 @@ func UploadMultipart(c *gin.Context) {
 			return
 		}
 
+		// 创建一个不重复的文件名，复制文件
 		suffix := fds[i].Filename[strings.LastIndex(fds[i].Filename, ".")+1:]
 		name := fmt.Sprintf("%d.%s", time.Now().UnixNano(), suffix)
 		path := fmt.Sprintf("%s/%s", conf.Get().Media.StoragePath, name)
@@ -67,6 +69,7 @@ func UploadMultipart(c *gin.Context) {
 		_ = mulf.Close()
 		_ = osf.Close()
 
+		// 添加上传记录
 		operatorid := req.Header.Get("xuid")
 		operator := req.Header.Get("username")
 		if _, err = db.Media().Add(suffix, name, fds[i].Filename, path, operator, operatorid); err != nil {
@@ -92,11 +95,13 @@ func Upload(c *gin.Context) {
 		return
 	}
 
+	// 检查文件大小
 	if mulfh.Size > conf.Get().Media.SingleFileUploadsMaxSize.Size() {
 		c.JSON(nil, ecode.FileSizeTooBig)
 		return
 	}
 
+	// 创建一个不重复的文件名，复制文件
 	suffix := mulfh.Filename[strings.LastIndex(mulfh.Filename, ".")+1:]
 	name := fmt.Sprintf("%d.%s", time.Now().UnixNano(), suffix)
 	path := fmt.Sprintf("%s/%s", conf.Get().Media.StoragePath, name)
@@ -119,6 +124,7 @@ func Upload(c *gin.Context) {
 	_ = mulf.Close()
 	_ = osf.Close()
 
+	// 添加上传记录
 	operatorid := req.Header.Get("xuid")
 	operator := req.Header.Get("username")
 	if _, err = db.Media().Add(suffix, name, mulfh.Filename, path, operator, operatorid); err != nil {
