@@ -56,7 +56,7 @@ end:
 			if err != nil {
 				log.Info("关闭服务器失败:", err.Error())
 			} else {
-				log.Info("服务已关闭")
+				log.Info("服务器已关闭")
 			}
 			break end
 		case syscall.SIGHUP:
