@@ -11,9 +11,9 @@ import (
 	"regexp"
 	"strings"
 
-	"yumi/internal/onlyoffice/config"
-	"yumi/internal/onlyoffice/docmanager"
-	"yumi/internal/onlyoffice/docservice"
+	"yumi/usecase/onlyoffice/config"
+	"yumi/usecase/onlyoffice/docmanager"
+	"yumi/usecase/onlyoffice/docservice"
 	"yumi/pkg/conf"
 	"yumi/pkg/fileutility"
 )

@@ -6,7 +6,7 @@ import (
 	"time"
 	"yumi/pkg/ecode"
 
-	"yumi/internal/trade"
+	"yumi/usecase/trade"
 	"yumi/pkg/external/trade/wxpay"
 	"yumi/utils"
 )

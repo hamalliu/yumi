@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"yumi/apimodel"
-	"yumi/internal/onlyoffice"
 	"yumi/pkg/conf"
 	"yumi/pkg/ecode"
 	"yumi/pkg/fileutility"
@@ -21,6 +20,7 @@ import (
 	"yumi/pkg/net/gin"
 	"yumi/pkg/net/gin/binding"
 	"yumi/pkg/valuer"
+	"yumi/usecase/onlyoffice"
 )
 
 //Upload 上传文件

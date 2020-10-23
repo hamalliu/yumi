@@ -3,7 +3,7 @@ package db
 import (
 	"time"
 
-	"yumi/internal/trade"
+	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/dbc"
 )

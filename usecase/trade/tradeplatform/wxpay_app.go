@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"yumi/internal/trade"
+	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/trade/wxpay"
 	"yumi/utils"

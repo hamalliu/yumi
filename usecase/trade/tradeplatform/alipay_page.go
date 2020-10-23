@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"net/url"
 
-	"yumi/internal/trade"
-	"yumi/internal/trade/db"
+	"yumi/usecase/trade"
+	"yumi/usecase/trade/db"
 	"yumi/pkg/ecode"
 	"yumi/pkg/external/trade/alipay"
 )

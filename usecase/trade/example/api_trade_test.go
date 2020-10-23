@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"yumi/internal/trade"
-	"yumi/internal/trade/tradeplatform"
+	"yumi/usecase/trade"
+	"yumi/usecase/trade/tradeplatform"
 )
 
 func TestSubmitOrderPay(t *testing.T) {

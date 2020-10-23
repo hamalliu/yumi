@@ -1,7 +1,7 @@
 package api
 
 import (
-	"yumi/internal/session"
+	"yumi/apistorage/session"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
 	"yumi/pkg/net/gin"

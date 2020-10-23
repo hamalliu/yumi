@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"yumi/internal/trade"
-	"yumi/internal/trade/db"
+	"yumi/usecase/trade"
+	"yumi/usecase/trade/db"
 )
 
 //SubmitOrderPay 提交订单
