@@ -6,7 +6,7 @@ import (
 	"yumi/pkg/log"
 	"yumi/pkg/net/gin"
 	"yumi/pkg/net/gin/header"
-	"yumi/pkg/valuer"
+	"yumi/pkg/net/gin/valuer"
 )
 
 //DebugLog ...
