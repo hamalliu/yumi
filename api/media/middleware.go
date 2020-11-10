@@ -1,6 +1,6 @@
 package media
 
-import "yumi/pkg/net/gin"
+import "yumi/pkg/gin"
 
 // VerifySign 验证文件上传的签名
 func VerifySign(c *gin.Context) {

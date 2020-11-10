@@ -7,7 +7,7 @@ import (
 
 	"yumi/pkg/ecode"
 	"yumi/pkg/log"
-	"yumi/pkg/net/gin"
+	"yumi/pkg/gin"
 )
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.

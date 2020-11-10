@@ -17,9 +17,9 @@ import (
 	"yumi/pkg/ecode"
 	"yumi/pkg/fileutility"
 	"yumi/pkg/log"
-	"yumi/pkg/net/gin"
-	"yumi/pkg/net/gin/binding"
-	"yumi/pkg/net/gin/valuer"
+	"yumi/pkg/gin"
+	"yumi/pkg/gin/binding"
+	"yumi/pkg/gin/valuer"
 	"yumi/usecase/onlyoffice"
 )
 

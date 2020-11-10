@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"yumi/pkg/ecode"
-	"yumi/pkg/net/gin/binding"
-	"yumi/pkg/net/gin/render"
-	"yumi/pkg/net/gin/valuer"
+	"yumi/pkg/gin/binding"
+	"yumi/pkg/gin/render"
+	"yumi/pkg/gin/valuer"
 )
 
 const _abortIndex int8 = math.MaxInt8 / 2

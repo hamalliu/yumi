@@ -4,9 +4,9 @@ import (
 	"yumi/apistorage/session"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
-	"yumi/pkg/net/gin"
-	"yumi/pkg/net/gin/header"
-	"yumi/pkg/net/gin/valuer"
+	"yumi/pkg/gin"
+	"yumi/pkg/gin/header"
+	"yumi/pkg/gin/valuer"
 )
 
 //DebugLog ...

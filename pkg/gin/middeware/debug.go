@@ -6,7 +6,7 @@ import (
 	"io"
 
 	"yumi/pkg/conf"
-	"yumi/pkg/net/gin"
+	"yumi/pkg/gin"
 )
 
 //Debug ...

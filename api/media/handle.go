@@ -11,7 +11,7 @@ import (
 	"yumi/apistorage/db"
 	"yumi/pkg/conf"
 	"yumi/pkg/ecode"
-	"yumi/pkg/net/gin"
+	"yumi/pkg/gin"
 )
 
 //UploadMultipart 多文件上传

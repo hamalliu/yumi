@@ -11,8 +11,8 @@ import (
 	"yumi/apidoc"
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
-	"yumi/pkg/net/gin"
-	"yumi/pkg/net/gin/middeware"
+	"yumi/pkg/gin"
+	"yumi/pkg/gin/middeware"
 )
 
 func main() {

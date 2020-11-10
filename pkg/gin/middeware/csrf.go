@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"yumi/pkg/log"
-	"yumi/pkg/net/gin"
+	"yumi/pkg/gin"
 )
 
 func matchHostSuffix(suffix string) func(*url.URL) bool {

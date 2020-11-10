@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"yumi/pkg/net/gin"
+	"yumi/pkg/gin"
 )
 
 func login(c *gin.Context) {
