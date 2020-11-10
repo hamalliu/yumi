@@ -3,7 +3,7 @@ package tradeplatform
 import (
 	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
-	"yumi/pkg/external/trade/wxpay"
+	"yumi/pkg/trade/wxpay"
 )
 
 //WxPayNATIVE1 ...

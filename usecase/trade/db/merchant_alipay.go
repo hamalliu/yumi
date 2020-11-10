@@ -2,7 +2,7 @@ package db
 
 import (
 	"yumi/pkg/ecode"
-	"yumi/pkg/external/dbc"
+	"yumi/pkg/stores/dbc"
 )
 
 //AliPayMerchant ...

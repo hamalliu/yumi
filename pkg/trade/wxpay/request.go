@@ -10,7 +10,7 @@ import (
 	"reflect"
 	"time"
 
-	"yumi/pkg/external/trade/internal"
+	"yumi/pkg/trade/internal"
 )
 
 var reqRcrd *internal.ReqRcrd

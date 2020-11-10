@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"yumi/pkg/conf"
-	"yumi/pkg/external/dbc/mysqlx"
+	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/pkg/types"
 )
 

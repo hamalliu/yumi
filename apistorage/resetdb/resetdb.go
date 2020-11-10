@@ -2,7 +2,7 @@ package main
 
 import (
 	"yumi/pkg/conf"
-	"yumi/pkg/external/dbc"
+	"yumi/pkg/stores/dbc"
 )
 
 func main() {

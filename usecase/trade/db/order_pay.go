@@ -5,7 +5,7 @@ import (
 
 	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
-	"yumi/pkg/external/dbc"
+	"yumi/pkg/stores/dbc"
 )
 
 //OrderPay 支付订单

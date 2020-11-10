@@ -15,7 +15,7 @@ import (
 
 	"golang.org/x/crypto/pkcs12"
 
-	"yumi/pkg/external/trade/internal"
+	"yumi/pkg/trade/internal"
 )
 
 /**
