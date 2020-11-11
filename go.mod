@@ -19,24 +19,19 @@ require (
 	github.com/issue9/assert v1.4.1 // indirect
 	github.com/jhillyerd/enmime v0.6.0
 	github.com/jmoiron/sqlx v1.2.0
-	github.com/kr/pretty v0.2.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
 	github.com/lestrrat-go/jwx v1.0.2
-	github.com/lib/pq v1.3.0 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
-	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/rs/cors v1.7.0
 	github.com/stretchr/testify v1.6.1 // indirect
+	github.com/tal-tech/go-zero v1.0.26
 	github.com/ugorji/go/codec v1.1.7
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a // indirect
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381 // indirect
 	golang.org/x/text v0.3.3
-	google.golang.org/protobuf v1.25.0 // indirect
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
+	google.golang.org/appengine v1.4.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/yaml.v2 v2.3.0
