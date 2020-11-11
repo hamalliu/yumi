@@ -151,7 +151,7 @@ func (mux *Mux) handleHTTPRequest(c *Context) {
 	return
 }
 
-func (mux *Mux) addRoute(method, code, path string, handlers ...HandlerFunc) {
+func (mux *Mux) addRoute(method, path string, handlers ...HandlerFunc) {
 	if path[0] != '/' {
 		panic("path must begin with '/'")
 	}
@@ -167,7 +167,7 @@ func (mux *Mux) addRoute(method, code, path string, handlers ...HandlerFunc) {
 		mux.trees = append(mux.trees, methodTree{method: method, root: root})
 	}
 
-	root.addRoute(code, path, handlers)
+	root.addRoute(path, handlers)
 }
 
 // UseFunc attachs a global middleware to the router. ie. the middleware attached though UseFunc() will be

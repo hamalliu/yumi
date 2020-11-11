@@ -94,7 +94,6 @@ const (
 )
 
 type node struct {
-	code      string
 	path      string
 	indices   string
 	children  []*node
@@ -131,14 +130,14 @@ func (n *node) incrementChildPrio(pos int) int {
 
 // addRoute adds a node with the given handle to the path.
 // Not concurrency-safe!
-func (n *node) addRoute(code, path string, handlers []HandlerFunc) {
+func (n *node) addRoute(path string, handlers []HandlerFunc) {
 	fullPath := path
 	n.priority++
 	numParams := countParams(path)
 
 	// Empty tree
 	if len(n.path) == 0 && len(n.children) == 0 {
-		n.insertChild(numParams, path, code, fullPath, handlers)
+		n.insertChild(numParams, path, fullPath, handlers)
 		n.nType = root
 		return
 	}
@@ -252,7 +251,7 @@ walk:
 				n.incrementChildPrio(len(n.indices) - 1)
 				n = child
 			}
-			n.insertChild(numParams, path, code, fullPath, handlers)
+			n.insertChild(numParams, path, fullPath, handlers)
 			return
 		}
 
@@ -290,7 +289,7 @@ func findWildcard(path string) (wildcard string, i int, valid bool) {
 	return "", -1, false
 }
 
-func (n *node) insertChild(numParams uint8, path string, code, fullPath string, handlers []HandlerFunc) {
+func (n *node) insertChild(numParams uint8, path string, fullPath string, handlers []HandlerFunc) {
 	for numParams > 0 {
 		// Find prefix until first wildcard
 		wildcard, i, valid := findWildcard(path)
@@ -329,7 +328,6 @@ func (n *node) insertChild(numParams uint8, path string, code, fullPath string, 
 				path:      wildcard,
 				maxParams: numParams,
 				fullPath:  fullPath,
-				code:      code,
 			}
 			n.children = []*node{child}
 			n = child
@@ -345,7 +343,6 @@ func (n *node) insertChild(numParams uint8, path string, code, fullPath string, 
 					maxParams: numParams,
 					priority:  1,
 					fullPath:  fullPath,
-					code:      code,
 				}
 				n.children = []*node{child}
 				n = child
@@ -380,7 +377,6 @@ func (n *node) insertChild(numParams uint8, path string, code, fullPath string, 
 			nType:     catchAll,
 			maxParams: 1,
 			fullPath:  fullPath,
-			code:      code,
 		}
 		// update maxParams of the parent node
 		if n.maxParams < 1 {
@@ -399,7 +395,6 @@ func (n *node) insertChild(numParams uint8, path string, code, fullPath string, 
 			handlers:  handlers,
 			priority:  1,
 			fullPath:  fullPath,
-			code:      code,
 		}
 		n.children = []*node{child}
 
@@ -410,7 +405,6 @@ func (n *node) insertChild(numParams uint8, path string, code, fullPath string, 
 	n.path = path
 	n.handlers = handlers
 	n.fullPath = fullPath
-	n.code = code
 }
 
 // nodeValue holds return values of (*Node).getValue method
@@ -437,7 +431,6 @@ walk: // Outer loop for walking the tree
 			// Check if this node has a handle registered.
 			if value.handlers = n.handlers; value.handlers != nil {
 				value.fullPath = n.fullPath
-				value.code = n.code
 				return
 			}
 
@@ -525,7 +518,6 @@ walk: // Outer loop for walking the tree
 
 				if value.handlers = n.handlers; value.handlers != nil {
 					value.fullPath = n.fullPath
-					value.code = n.code
 					return
 				}
 				if len(n.children) == 1 {
@@ -555,7 +547,6 @@ walk: // Outer loop for walking the tree
 
 				value.handlers = n.handlers
 				value.fullPath = n.fullPath
-				value.code = n.code
 				return
 
 			default:

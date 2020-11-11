@@ -1,4 +1,4 @@
-package middeware
+package middleware
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 	"runtime"
 
 	"yumi/pkg/ecode"
-	"yumi/pkg/log"
 	"yumi/pkg/gin"
+	"yumi/pkg/log"
 )
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.

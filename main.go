@@ -12,7 +12,7 @@ import (
 	"yumi/pkg/conf"
 	"yumi/pkg/log"
 	"yumi/pkg/gin"
-	"yumi/pkg/gin/middeware"
+	"yumi/pkg/gin/middleware"
 )
 
 func main() {
@@ -27,7 +27,7 @@ func main() {
 
 	log.Info("构建服务器")
 	srv := gin.NewServer()
-	srv.Use(middeware.Recovery(), middeware.Cors(conf.Get().CORS), middeware.Debug())
+	srv.Use(middleware.Recovery(), middleware.Cors(conf.Get().CORS), middleware.Debug())
 
 	log.Info("加载路由")
 	router := srv.Group("/")

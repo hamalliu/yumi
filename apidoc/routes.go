@@ -6,5 +6,5 @@ import (
 
 //Mount ...
 func Mount(r *gin.RouterGroup) {
-	r.GET("", "api_doc/*path", APIDoc)
+	r.GET("api_doc/*path", APIDoc)
 }
