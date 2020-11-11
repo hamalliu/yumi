@@ -2,26 +2,24 @@ package middleware
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/rs/cors"
 
-	"yumi/pkg/conf"
 	"yumi/pkg/gin"
 	"yumi/pkg/gin/header"
 )
 
 //Cors ...
-func Cors(corsConf conf.CORS) gin.HandlerFunc {
+func Cors(allowedOrigins []string, maxAge int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		opts := cors.Options{
-			AllowedOrigins:         corsConf.AllowedOrigins,
+			AllowedOrigins:         allowedOrigins,
 			AllowOriginFunc:        nil,
 			AllowOriginRequestFunc: nil,
 			AllowedMethods:         []string{http.MethodGet, http.MethodPost},
 			AllowedHeaders:         header.ReqHeaders(),
 			ExposedHeaders:         header.RespHeaders(),
-			MaxAge:                 int(corsConf.MaxAge.Duration() / time.Second),
+			MaxAge:                 maxAge, 
 			AllowCredentials:       true,
 			OptionsPassthrough:     false,
 			Debug:                  false,

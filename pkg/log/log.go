@@ -77,6 +77,12 @@ func Debug(args ...interface{}) {
 	log.Debug(args)
 }
 
+//Debug3 ...
+func Debug3(args ...interface{}) {
+	log.ExtraCalldepth = 3
+	log.Debug(args)
+}
+
 //Critical2 ...
 func Critical2(args ...interface{}) {
 	criticallog.ExtraCalldepth = 2

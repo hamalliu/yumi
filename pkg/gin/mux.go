@@ -94,6 +94,26 @@ func NewMux() *Mux {
 	return mux
 }
 
+func (mux *Mux) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	c := &Context{
+		Context:  nil,
+		mux:      mux,
+		index:    -1,
+		handlers: nil,
+		Keys:     nil,
+	}
+
+	c.Request = req
+	c.Writer = w
+
+	mux.handleContext(c)
+}
+
+func (mux *Mux) handleContext(c *Context) {
+	mux.handleHTTPRequest(c)
+	c.Next()
+}
+
 func (mux *Mux) handleHTTPRequest(c *Context) {
 	httpMethod := c.Request.Method
 	rPath := c.Request.URL.Path

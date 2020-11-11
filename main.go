@@ -3,16 +3,18 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"yumi/api"
 	"yumi/apidoc"
 	"yumi/pkg/conf"
-	"yumi/pkg/log"
 	"yumi/pkg/gin"
 	"yumi/pkg/gin/middleware"
+	"yumi/pkg/log"
 )
 
 func main() {
@@ -26,11 +28,22 @@ func main() {
 	//dbc.Init(conf.Get().DB)
 
 	log.Info("构建服务器")
-	srv := gin.NewServer()
-	srv.Use(middleware.Recovery(), middleware.Cors(conf.Get().CORS), middleware.Debug())
+	srvconf := conf.Get().Server
+	mux := gin.NewMux()
+	server := http.Server {
+		Handler: mux,
+		Addr: srvconf.Addr,
+		ReadTimeout: srvconf.ReadTimeout.Duration(),
+		WriteTimeout: srvconf.WriteTimeout.Duration(),
+	}
+	mux.Use(
+		middleware.Recovery(), 
+		middleware.Cors(conf.Get().CORS.AllowedOrigins, int(conf.Get().CORS.MaxAge.Duration()/time.Second)), 
+		middleware.Debug(conf.IsDebug()),
+	)
 
 	log.Info("加载路由")
-	router := srv.Group("/")
+	router := mux.Group("/")
 	api.Mount(router)
 
 	//debug模式下，开启接口文档
@@ -41,7 +54,7 @@ func main() {
 	//启动服务
 	log.Info("开始启动服务器，侦听地址：" + conf.Get().Server.Addr)
 	go func() {
-		if err := srv.Run(conf.Get().Server); err != nil {
+		if err := gin.Run(&server); err != nil {
 			log.Info(fmt.Errorf("启动服务器失败: %s", err.Error()))
 			c <- syscall.SIGINT
 		}
@@ -52,7 +65,7 @@ end:
 		s := <-c
 		switch s {
 		case syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM:
-			err := srv.Shutdown(context.Background())
+			err := server.Shutdown(context.Background())
 			if err != nil {
 				log.Info("关闭服务器失败:", err.Error())
 			} else {

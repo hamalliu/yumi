@@ -71,7 +71,7 @@ func (group *RouterGroup) handle(httpMethod, relativePath string, handlers ...Ha
 	injections := group.injections(relativePath)
 	handlers = group.combineHandlers(injections, handlers)
 	group.mux.addRoute(httpMethod, absolutePath, handlers...)
-	log.Info3(fmt.Sprintf("method:%s, path:%s", httpMethod, absolutePath))
+	log.Debug3(fmt.Sprintf("method:%s, path:%s", httpMethod, absolutePath))
 	return group.returnObj()
 }
 

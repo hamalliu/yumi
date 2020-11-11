@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	"yumi/pkg/log"
 	"yumi/pkg/gin"
 )
 
@@ -43,7 +42,6 @@ func CSRF(allowHosts []string, allowPattern []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		referer := c.Request.Header.Get("Referer")
 		if referer == "" {
-			log.Info("The request's Referer or Origin header is empty.")
 			c.AbortWithStatus(403)
 			return
 		}
@@ -57,7 +55,6 @@ func CSRF(allowHosts []string, allowPattern []string) gin.HandlerFunc {
 			}
 		}
 		if illegal {
-			log.Info("The request's Referer header `%s` does not match any of allowed referers.", referer)
 			c.AbortWithStatus(403)
 			return
 		}

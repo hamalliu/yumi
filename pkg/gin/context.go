@@ -33,7 +33,7 @@ type Context struct {
 	index    int8
 	handlers []HandlerFunc
 
-	srv *Server
+	mux *Mux
 
 	// Keys is a key/value pair exclusively for the context of each request.
 	Keys      map[valuer.Key]*valuer.Valuer

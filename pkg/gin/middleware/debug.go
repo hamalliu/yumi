@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"io"
 
-	"yumi/pkg/conf"
 	"yumi/pkg/gin"
 )
 
 //Debug ...
-func Debug() gin.HandlerFunc {
+func Debug(isDebug bool) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if conf.IsDebug() {
+		if isDebug {
 			fmt.Printf("url: %s\n", c.Request.URL.String())
 			fmt.Printf("header: %s\n", c.Request.Header)
 			body := []byte{}
