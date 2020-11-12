@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -42,7 +43,7 @@ func CSRF(allowHosts []string, allowPattern []string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		referer := c.Request.Header.Get("Referer")
 		if referer == "" {
-			c.AbortWithStatus(403)
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
 		illegal := true
@@ -55,7 +56,7 @@ func CSRF(allowHosts []string, allowPattern []string) gin.HandlerFunc {
 			}
 		}
 		if illegal {
-			c.AbortWithStatus(403)
+			c.AbortWithStatus(http.StatusForbidden)
 			return
 		}
 	}

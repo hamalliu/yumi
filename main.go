@@ -27,18 +27,21 @@ func main() {
 	log.Info("初始化数据库")
 	//dbc.Init(conf.Get().DB)
 
+	log.Info("初始化casbin")
+	middleware.InitCasbin("", nil) //TODO:
+
 	log.Info("构建服务器")
 	srvconf := conf.Get().Server
 	mux := gin.NewMux()
-	server := http.Server {
-		Handler: mux,
-		Addr: srvconf.Addr,
-		ReadTimeout: srvconf.ReadTimeout.Duration(),
+	server := http.Server{
+		Handler:      mux,
+		Addr:         srvconf.Addr,
+		ReadTimeout:  srvconf.ReadTimeout.Duration(),
 		WriteTimeout: srvconf.WriteTimeout.Duration(),
 	}
 	mux.Use(
-		middleware.Recovery(), 
-		middleware.Cors(conf.Get().CORS.AllowedOrigins, int(conf.Get().CORS.MaxAge.Duration()/time.Second)), 
+		middleware.Recovery(),
+		middleware.Cors(conf.Get().CORS.AllowedOrigins, int(conf.Get().CORS.MaxAge.Duration()/time.Second)),
 		middleware.Debug(conf.IsDebug()),
 	)
 

@@ -23,8 +23,8 @@ const (
 	noDetailReason = "no detail reason"
 )
 
-// Auth 认证
-func Auth(secret string, opts ...AuthorizeOption) gin.HandlerFunc {
+// AuthToken token认证
+func AuthToken(secret string, opts ...AuthorizeOption) gin.HandlerFunc {
 	var authOpts AuthorizeOptions
 	for _, opt := range opts {
 		opt(&authOpts)
