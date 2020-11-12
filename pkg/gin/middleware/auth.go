@@ -8,6 +8,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 
 	"yumi/pkg/gin"
+	"yumi/pkg/gin/valuer"
 	"yumi/pkg/token"
 )
 
@@ -52,7 +53,14 @@ func Auth(secret string, opts ...AuthorizeOption) gin.HandlerFunc {
 			case jwtAudience, jwtExpire, jwtID, jwtIssueAt, jwtIssuer, jwtNotBefore, jwtSubject:
 				// ignore the standard claims
 			default:
-				c.Context = context.WithValue(c.Context, k, v)
+				key := valuer.SwitchKey(k)
+				if key != "" {
+					// 框架固定的数据
+					c.Set(key, v)
+				} else {
+					// 业务自定义的数据
+					c.Context = context.WithValue(c.Context, k, v)
+				}
 			}
 		}
 
@@ -72,7 +80,7 @@ type (
 	}
 
 	// AuthorizeOption ...
-	AuthorizeOption      func(opts *AuthorizeOptions)
+	AuthorizeOption func(opts *AuthorizeOptions)
 )
 
 // WithPrevSecret ...

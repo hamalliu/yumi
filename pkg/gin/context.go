@@ -91,6 +91,9 @@ func (c *Context) AbortWithStatus(code int) {
 
 // Set ...
 func (c *Context) Set(key valuer.Key, value interface{}) {
+	if key == "" {
+		return
+	}
 	if c.KeysMutex == nil {
 		c.KeysMutex = &sync.RWMutex{}
 	}

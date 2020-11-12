@@ -19,6 +19,16 @@ type User struct {
 	UserName string
 }
 
+// SwitchKey ...
+func SwitchKey(key string) Key {
+	switch key {
+	case "user":
+		return KeyUser
+	default:
+		return ""
+	}
+}
+
 //User ...
 func (v Valuer) User() User {
 	val, ok := v.Value.(User)
