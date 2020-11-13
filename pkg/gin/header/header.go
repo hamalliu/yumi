@@ -7,8 +7,10 @@ import (
 
 const (
 	// http head
-	_httpHeaderRemoteIP   = "x-yumi-real-ip"
-	_httpHeaderRemotePort = "x-yumi-real-port"
+	_httpHeaderRequestURI      = "x-yumi-request-uri"
+	_httpHeaderContentSecurity = "x-yumi-content-security"
+	_httpHeaderRemoteIP        = "x-yumi-real-ip"
+	_httpHeaderRemotePort      = "x-yumi-real-port"
 )
 
 //ReqHeaders ...
@@ -48,3 +50,20 @@ func RemotePort(req *http.Request) (port string) {
 	}
 	return
 }
+
+// ContentSecurity ...
+func ContentSecurity(req *http.Request) (cs string) {
+	if cs = req.Header.Get(_httpHeaderContentSecurity); cs != "" && cs != "null" {
+		return
+	}
+	return
+}
+
+// RequestURI ...
+func RequestURI(req *http.Request) (uri string) {
+	if uri = req.Header.Get(_httpHeaderRequestURI); uri != "" && uri != "null" {
+		return
+	}
+	return
+}
+

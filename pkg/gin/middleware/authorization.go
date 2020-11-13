@@ -115,7 +115,7 @@ func RequiresPermissions(permissions []string, opts ...Option) gin.HandlerFunc {
 					return
 				}
 			}
-			c.AbortWithStatus(401)
+			c.AbortWithStatus(http.StatusUnauthorized)
 		}
 	}
 }

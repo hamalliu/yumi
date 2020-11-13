@@ -28,7 +28,7 @@ require (
 	github.com/maxwellhertz/gin-casbin v1.0.0 // indirect
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7
 	github.com/rs/cors v1.7.0
-	github.com/stretchr/testify v1.6.1 // indirect
+	github.com/stretchr/testify v1.6.1
 	github.com/tal-tech/go-zero v1.0.26
 	github.com/ugorji/go/codec v1.1.7
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
