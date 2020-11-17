@@ -6,5 +6,5 @@ package ecode
 
 var (
 	//NoAllowExtension 不允许的文件类型
-	NoAllowExtension = add(130001) 
+	NoAllowExtension = add(130001, "不允许的文件类型") 
 )

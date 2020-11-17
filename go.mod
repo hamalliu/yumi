@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/BurntSushi/toml v0.3.1
+	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/casbin/casbin/v2 v2.17.0 // indirect
@@ -31,8 +32,10 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tal-tech/go-zero v1.0.26
 	github.com/ugorji/go/codec v1.1.7
+	github.com/unidoc/unioffice-examples v1.7.0 // indirect
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a // indirect
+	golang.org/x/net v0.0.0-20200707034311-ab3426394381
 	golang.org/x/text v0.3.3
 	google.golang.org/appengine v1.4.0
 	gopkg.in/go-playground/validator.v9 v9.31.0

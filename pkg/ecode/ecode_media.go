@@ -6,5 +6,5 @@ package ecode
 
 var (
 	//FileSizeTooBig 文件太大
-	FileSizeTooBig = add(11000) 
+	FileSizeTooBig = add(11000, "文件太大") 
 )

@@ -4,93 +4,30 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-	"sync/atomic"
 
 	"yumi/pkg/log"
 )
-
 var (
-	_messages atomic.Value         // NOTE: stored map[string]map[int]string
-	_codes    = map[int]struct{}{} // register codes.
+	//OK 正确
+	OK = add(0, "正确") 
+
+	//serverErr 服务器错误
+	serverErr = add(500, "服务器错误") 
+	//paramsErr 前端请求参数错误
+	paramsErr = add(501, "请求参数错误") 
 )
 
-// Register register ecode message map.
-func Register(cm map[int]string) {
-	_messages.Store(cm)
-}
+var (
+	_codes = make(map[Code]string) // register codes.
+)
 
-// New new a ecode.Codes by int value.
-// NOTE: ecode must unique in global, the New will check repeat and then panic.
-func New(e int) Code {
-	if e <= 0 {
-		panic("business ecode must greater than zero")
-	}
-	return add(e)
-}
-
-func add(e int) Code {
-	if _, ok := _codes[e]; ok {
+func add(e int, msg string) Code {
+	if _, ok := _codes[Code(e)]; ok {
 		panic(fmt.Sprintf("ecode: %d already exist", e))
 	}
-	_codes[e] = struct{}{}
+	_codes[Code(e)] = msg
 	return Int(e)
 }
-
-// Codes ecode error sinterface which has a code & message.
-type Codes interface {
-	// sometimes Error return Code in string form
-	// NOTE: don't use Error in monitor report even it also work for now
-	Error() string
-	// Code get error code.
-	Code() int
-	// Message get code message.
-	Message() string
-	//Detail get error detail,it may be nil.
-	Details() []interface{}
-	// Equal for compatible.
-	// Deprecated: please use ecode.EqualError.
-	Equal(error) bool
-}
-
-// A Code is an int error code spec.
-type Code int
-
-func (e Code) Error() string {
-	return strconv.FormatInt(int64(e), 10)
-}
-
-// Code return error code
-func (e Code) Code() int { return int(e) }
-
-//ParamsErrMsg 参数错误消息内容
-func (e Code) ParamsErrMsg() string {
-	return "请求参数错误"
-}
-
-// Message return error message
-func (e Code) Message() string {
-	if e == paramsErr {
-		return e.ParamsErrMsg()
-	}
-
-	if cm, ok := _messages.Load().(map[int]string); ok {
-		if msg, ok := cm[e.Code()]; ok {
-			return msg
-		}
-	}
-	return e.Error()
-}
-
-//ParamsErr 参数错误
-func (e Code) ParamsErr(err error) string {
-	if e != paramsErr {
-		return ""
-	}
-	return err.Error()
-}
-
-// Details return details.
-func (e Code) Details() []interface{} { return nil }
 
 // Int parse code int to error.
 func Int(i int) Code { return Code(i) }
@@ -106,6 +43,32 @@ func String(e string) Code {
 		return serverErr
 	}
 	return Code(i)
+}
+
+// A Code is an int error code spec.
+type Code int
+
+func (e Code) Error() string {
+	return strconv.FormatInt(int64(e), 10)
+}
+
+// Code return error code
+func (e Code) Code() int { return int(e) }
+
+// Message return error message
+func (e Code) Message() string {
+	if msg, ok := _codes[e]; ok {
+		return msg
+	}
+	return e.Error()
+}
+
+//ParamsErr 参数错误
+func (e Code) ParamsErr(err error) string {
+	if e != paramsErr {
+		return ""
+	}
+	return err.Error()
 }
 
 //Must 转换err为code，如果失败且不是参数错误就panic
