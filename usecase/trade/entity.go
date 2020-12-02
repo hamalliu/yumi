@@ -133,7 +133,7 @@ func newEntityByRefundCode(code string) (*Entity, error) {
 
 //releaseOrderRefund 释放退款订单数据
 func (e *Entity) releaseOrderRefund() error {
-	if e.op.Code == "" {
+	if e.op.Code == "" || e == nil {
 		return nil
 	}
 

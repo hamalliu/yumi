@@ -23,4 +23,6 @@ var (
 	InvalidQueryRefund = add(120008, "无效退款查询")
 	//InvalidSendRefund 无效退款发起
 	InvalidSendRefund = add(120009, "无效退款发起")
+	// OrderIDDoesNotExist 订单号不存在
+	OrderIDDoesNotExist = add(120010, "订单号不存在")
 )

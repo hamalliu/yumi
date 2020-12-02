@@ -1,11 +1,13 @@
 package db
 
 import (
+	"database/sql"
+	"errors"
 	"time"
 
-	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/stores/dbc"
+	"yumi/usecase/trade"
 )
 
 //OrderRefund 退款订单
@@ -45,7 +47,10 @@ func (m *OrderRefund) New(code string) (trade.DataOrderRefund, error) {
 			`
 	or := OrderRefund{}
 	if err := dbc.Get().Get(&or, sqlStr, code); err != nil {
-		return &OrderRefund{}, ecode.ServerErr(err)
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ecode.OrderIDDoesNotExist
+		}
+		return nil, ecode.ServerErr(err)
 	}
 
 	return &or, nil

@@ -1,11 +1,13 @@
 package db
 
 import (
+	"database/sql"
+	"errors"
 	"time"
 
-	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/stores/dbc"
+	"yumi/usecase/trade"
 )
 
 //OrderPay 支付订单
@@ -51,6 +53,9 @@ func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
 			`
 	op := OrderPay{}
 	if err := dbc.Get().Get(&op, sqlStr, code); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, ecode.OrderIDDoesNotExist
+		}
 		return nil, ecode.ServerErr(err)
 	}
 
