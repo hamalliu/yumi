@@ -6,9 +6,9 @@ import (
 	"time"
 	"yumi/pkg/ecode"
 
-	"yumi/usecase/trade"
+	"yumi/pkg/random"
 	"yumi/pkg/trade/wxpay"
-	"yumi/utils"
+	"yumi/usecase/trade"
 )
 
 //WxPayJSAPI ...
@@ -40,7 +40,7 @@ func mashalWxh5PayRequest(appID, prePayID, privateKey string) (string, error) {
 
 	req.AppID = appID
 	req.TimeStamp = fmt.Sprintf("%d", time.Now().Unix())
-	req.NonceStr = utils.CreateRandomStr(30, utils.ALPHANUM)
+	req.NonceStr = random.Get(30, random.ALPHANUM)
 	req.Package = fmt.Sprintf("prepay_id=%s", prePayID)
 	req.SignType = "MD5"
 	req.PaySign = wxpay.Buildsign(&req, wxpay.FieldTagKeyJSON, privateKey)

@@ -6,13 +6,13 @@ import (
 	"sync/atomic"
 	"time"
 
-	"yumi/utils"
+	"yumi/pkg/random"
 )
 
 // 获取商户订单号
 func getOutTradeNo() string {
 	prefix := strings.ReplaceAll(time.Now().Format("06121545.999999999"), ".", "")
-	return fmt.Sprintf("%s%s", prefix, utils.CreateRandomStr(7, utils.NUMBER))
+	return fmt.Sprintf("%s%s", prefix, random.Get(7, random.NUMBER))
 }
 
 //CodeType 生成订单号
@@ -31,7 +31,7 @@ var count uint64
 // 获取订单号
 func getCode(codeType CodeType) string {
 	prefix := strings.ReplaceAll(time.Now().Format("06121545.999"), ".", "")
-	random := utils.CreateRandomStr(3, utils.NUMBER)
+	random := random.Get(3, random.NUMBER)
 	if count >= 100 {
 		count = 0
 	}

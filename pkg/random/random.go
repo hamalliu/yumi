@@ -1,4 +1,4 @@
-package utils
+package random
 
 import (
 	"crypto/rand"
@@ -14,13 +14,13 @@ const (
 	// ALPHANUM ...
 	ALPHANUM RandType = "alphanum"
 	// ALPHA ...
-	ALPHA    RandType = "alpha"
+	ALPHA RandType = "alpha"
 	// NUMBER ...
-	NUMBER   RandType = "number"
+	NUMBER RandType = "number"
 )
 
-// CreateRandomStr ...
-func CreateRandomStr(strSize int, randType RandType) string {
+// Get ...
+func Get(strSize int, randType RandType) string {
 	var dictionary string
 	if randType == ALPHANUM {
 		dictionary = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -40,8 +40,8 @@ func CreateRandomStr(strSize int, randType RandType) string {
 	return string(bytes)
 }
 
-// RandomNumString ...
-func RandomNumString(max int) string {
+// GetString ...
+func GetString(max int) string {
 	mrand.Seed(time.Now().UnixNano())
 	n := max
 	lmt := 10

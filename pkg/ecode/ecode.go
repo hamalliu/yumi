@@ -14,7 +14,7 @@ var (
 	//serverErr 服务器错误
 	serverErr = add(500, "服务器错误") 
 	//paramsErr 前端请求参数错误
-	paramsErr = add(501, "请求参数错误") 
+	paramsErr = add(400, "请求参数错误") 
 )
 
 var (
