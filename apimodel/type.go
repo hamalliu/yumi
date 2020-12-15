@@ -13,11 +13,11 @@ type Timestamp int64
 func (jt *Timestamp) Scan(src interface{}) (err error) {
 	switch sc := src.(type) {
 	case time.Time:
-		*jt = Time(sc.Unix())
+		*jt = Timestamp(sc.Unix())
 	case string:
 		var i int64
 		i, err = strconv.ParseInt(sc, 10, 64)
-		*jt = Time(i)
+		*jt = Timestamp(i)
 	}
 	return
 }
