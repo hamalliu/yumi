@@ -54,7 +54,7 @@ func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
 	op := OrderPay{}
 	if err := dbc.Get().Get(&op, sqlStr, code); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ecode.OrderIDDoesNotExist
+			return nil, ecode.OrdernoDoesNotExist
 		}
 		return nil, ecode.ServerErr(err)
 	}

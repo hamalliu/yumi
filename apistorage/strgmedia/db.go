@@ -1,22 +1,22 @@
-package db
+package strgmedia
 
 import (
 	"yumi/pkg/ecode"
 	"yumi/pkg/stores/dbc"
 )
 
-//DataMedia ...
-type DataMedia int
+//DBTable ...
+type DBTable int
 
-var media DataMedia
+var media DBTable
 
-//Media ...
-func Media() DataMedia {
+//DB ...
+func DB() DBTable {
 	return media
 }
 
 //Add ...
-func (dm DataMedia) Add(suffix, name, realname, path, operator, operatorid string) (int, error) {
+func (DBTable) Add(suffix, name, realname, path, operator, operatorid string) (int, error) {
 	var (
 		id int64
 
@@ -38,28 +38,28 @@ func (dm DataMedia) Add(suffix, name, realname, path, operator, operatorid strin
 }
 
 //Delete ...
-func (dm DataMedia) Delete() (int, error) {
+func (DBTable) Delete() (int, error) {
 	//TODO
 
 	return 0, nil
 }
 
 //Update ...
-func (dm DataMedia) Update() (int, error) {
+func (DBTable) Update() (int, error) {
 	//TODO
 
 	return 0, nil
 }
 
 //Search ...
-func (dm DataMedia) Search() (int, error) {
+func (DBTable) Search() (int, error) {
 	//TODO
 
 	return 0, nil
 }
 
 //GetItem ...
-func (dm DataMedia) GetItem() (int, error) {
+func (DBTable) GetItem() (int, error) {
 	//TODO
 
 	return 0, nil

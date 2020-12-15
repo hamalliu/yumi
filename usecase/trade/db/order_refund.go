@@ -48,7 +48,7 @@ func (m *OrderRefund) New(code string) (trade.DataOrderRefund, error) {
 	or := OrderRefund{}
 	if err := dbc.Get().Get(&or, sqlStr, code); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, ecode.OrderIDDoesNotExist
+			return nil, ecode.OrdernoDoesNotExist
 		}
 		return nil, ecode.ServerErr(err)
 	}

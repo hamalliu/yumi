@@ -1,4 +1,4 @@
-package db
+package strgmedia
 
 import (
 	"testing"
