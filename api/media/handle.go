@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"yumi/apistorage/strgmedia"
 	"yumi/pkg/conf"
 	"yumi/pkg/ecode"
 	"yumi/pkg/gin"
+	"yumi/usecase/media/data"
 )
 
 //UploadMultipart 多文件上传
@@ -72,7 +72,7 @@ func UploadMultipart(c *gin.Context) {
 		// 添加上传记录
 		operatorid := req.Header.Get("xuid")
 		operator := req.Header.Get("username")
-		if _, err = strgmedia.DB().Add(suffix, name, fds[i].Filename, path, operator, operatorid); err != nil {
+		if _, err = data.DB().Insert(suffix, name, fds[i].Filename, path, operator, operatorid); err != nil {
 			c.JSON(nil, ecode.ServerErr(err))
 			return
 		}
@@ -127,7 +127,7 @@ func Upload(c *gin.Context) {
 	// 添加上传记录
 	operatorid := req.Header.Get("xuid")
 	operator := req.Header.Get("username")
-	if _, err = strgmedia.DB().Add(suffix, name, mulfh.Filename, path, operator, operatorid); err != nil {
+	if _, err = data.DB().Insert(suffix, name, mulfh.Filename, path, operator, operatorid); err != nil {
 		c.JSON(nil, ecode.ServerErr(err))
 		return
 	}
