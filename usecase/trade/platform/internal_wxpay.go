@@ -1,4 +1,4 @@
-package tradeplatform
+package platform
 
 import (
 	"encoding/json"

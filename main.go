@@ -15,6 +15,7 @@ import (
 	"yumi/pkg/gin"
 	"yumi/pkg/gin/middleware"
 	"yumi/pkg/log"
+	"yumi/usecase"
 )
 
 func main() {
@@ -29,6 +30,9 @@ func main() {
 
 	log.Info("初始化casbin")
 	middleware.InitCasbin("", nil) //TODO:
+
+	log.Info("初始化usecase")
+	usecase.Init()
 
 	log.Info("构建服务器")
 	srvconf := conf.Get().Server

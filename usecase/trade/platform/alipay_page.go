@@ -1,4 +1,4 @@
-package tradeplatform
+package platform
 
 import (
 	"fmt"
@@ -12,18 +12,17 @@ import (
 )
 
 //AliPayPage ...
-const AliPayPage = trade.Way("alipay_page")
 
-//AliPagePay ...
-type AliPagePay string
+//AliPayPage ...
+type AliPayPage string
 
-//GetAliPagePay ...
-func GetAliPagePay() AliPagePay {
+//NewAliPayPage ...
+func NewAliPayPage() AliPayPage {
 	return ""
 }
 
 //Pay 发起支付
-func (alipp AliPagePay) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
+func (alipp AliPayPage) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 
 	//下单
@@ -56,7 +55,7 @@ func (alipp AliPagePay) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 }
 
 //PayNotifyReq ...
-func (alipp AliPagePay) PayNotifyReq(req *http.Request) (trade.ReturnPayNotify, error) {
+func (alipp AliPayPage) PayNotifyReq(req *http.Request) (trade.ReturnPayNotify, error) {
 	ret := trade.ReturnPayNotify{}
 
 	rawQuery := req.URL.RawQuery
@@ -71,7 +70,7 @@ func (alipp AliPagePay) PayNotifyReq(req *http.Request) (trade.ReturnPayNotify, 
 }
 
 //PayNotifyCheck ...
-func (alipp AliPagePay) PayNotifyCheck(op trade.OrderPay, reqData interface{}) error {
+func (alipp AliPayPage) PayNotifyCheck(op trade.OrderPay, reqData interface{}) error {
 	aliMch, err := alipp.getMch(op.SellerKey)
 	if err != nil {
 		return err
@@ -89,7 +88,7 @@ func (alipp AliPagePay) PayNotifyCheck(op trade.OrderPay, reqData interface{}) e
 }
 
 //PayNotifyResp ...
-func (alipp AliPagePay) PayNotifyResp(err error, resp http.ResponseWriter) {
+func (alipp AliPayPage) PayNotifyResp(err error, resp http.ResponseWriter) {
 	if err == nil {
 		_, _ = resp.Write([]byte("success"))
 	} else {
@@ -100,7 +99,7 @@ func (alipp AliPagePay) PayNotifyResp(err error, resp http.ResponseWriter) {
 }
 
 //QueryPayStatus ...
-func (alipp AliPagePay) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay, error) {
+func (alipp AliPayPage) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay, error) {
 	ret := trade.ReturnQueryPay{}
 
 	tradeQuery := alipay.TradeQuery{
@@ -147,7 +146,7 @@ func (alipp AliPagePay) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay,
 }
 
 //TradeClose ...
-func (alipp AliPagePay) TradeClose(op trade.OrderPay) error {
+func (alipp AliPayPage) TradeClose(op trade.OrderPay) error {
 	tradeClose := alipay.TradeClose{
 		OutTradeNo: op.OutTradeNo,
 		TradeNo:    op.TransactionID,
@@ -175,7 +174,7 @@ func (alipp AliPagePay) TradeClose(op trade.OrderPay) error {
 }
 
 //Refund ...
-func (alipp AliPagePay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
+func (alipp AliPayPage) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 	//获取收款商户信息
 	aliMch, err := alipp.getMch(op.SellerKey)
 	if err != nil {
@@ -207,11 +206,28 @@ func (alipp AliPagePay) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 }
 
 //QueryRefundStatus ...
-func (alipp AliPagePay) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefund) {
+func (alipp AliPayPage) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefund) (trade.ReturnQueryRefund, error) {
 	//TODO
+	return trade.ReturnQueryRefund{}, nil
 }
 
-func (alipp AliPagePay) getMch(sellerKey string) (alipay.Merchant, error) {
+// RefundNotifyReq ...
+func (alipp AliPayPage) RefundNotifyReq(req *http.Request) (trade.ReturnRefundNotify, error) {
+	// TODO:
+	return trade.ReturnRefundNotify{}, nil
+}
+// RefundNotifyCheck 检查参数
+func (alipp AliPayPage) RefundNotifyCheck(op trade.OrderPay, or trade.OrderRefund, reqData interface{}) error {
+	// TODO:
+	return nil
+}
+
+// RefundNotifyResp 应答
+func (alipp AliPayPage) RefundNotifyResp(err error, resp http.ResponseWriter) {
+
+}
+
+func (alipp AliPayPage) getMch(sellerKey string) (alipay.Merchant, error) {
 	ret := alipay.Merchant{}
 	//获取收款商户信息
 	mch, err := db.GetAliPayMerchantBySellerKey(sellerKey)
@@ -225,6 +241,6 @@ func (alipp AliPagePay) getMch(sellerKey string) (alipay.Merchant, error) {
 	return ret, nil
 }
 
-func (alipp AliPagePay) toPrice(amount int) string {
+func (alipp AliPayPage) toPrice(amount int) string {
 	return fmt.Sprintf("%d.%02d", amount/100, amount%100)
 }

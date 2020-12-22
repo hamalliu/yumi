@@ -1,4 +1,4 @@
-package tradeplatform
+package platform
 
 import (
 	"yumi/usecase/trade"
@@ -6,21 +6,19 @@ import (
 	"yumi/pkg/trade/wxpay"
 )
 
-//WxPayNATIVE2 ...
-const WxPayNATIVE2 = trade.Way("wxpay_native2")
 
-//WxNative2 ...
-type WxNative2 struct {
+//WxPayNative2 ...
+type WxPayNative2 struct {
 	InternalWxPay
 }
 
-//GetWxNative2 ...
-func GetWxNative2() WxNative2 {
-	return WxNative2{}
+//NewWxPayNative2 ...
+func NewWxPayNative2() WxPayNative2 {
+	return WxPayNative2{}
 }
 
 //Pay 发起支付
-func (wxn1 WxNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
+func (wxn1 WxPayNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"yumi/usecase/trade"
-	"yumi/usecase/trade/tradeplatform"
+	"yumi/usecase/trade/platform"
 )
 
 func TestSubmitOrderPay(t *testing.T) {
@@ -28,7 +28,7 @@ func TestPay(t *testing.T) {
 	notifyURL := "http:120.24.183.196:20192/signin"
 
 	t.Log(code)
-	if intf, err := Pay(code, tradeplatform.WxPayNATIVE2, "125.71.211.25", notifyURL, time.Now().Add(time.Minute*30)); err != nil {
+	if intf, err := Pay(code, platform.TradeWayWxPayNATIVE2, "125.71.211.25", notifyURL, time.Now().Add(time.Minute*30)); err != nil {
 		t.Error(err)
 	} else {
 		t.Log(intf)

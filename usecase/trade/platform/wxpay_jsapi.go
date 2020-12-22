@@ -1,47 +1,41 @@
-package tradeplatform
+package platform
 
 import (
 	"encoding/json"
 	"fmt"
 	"time"
-
 	"yumi/pkg/ecode"
+
 	"yumi/pkg/random"
 	"yumi/pkg/trade/wxpay"
 	"yumi/usecase/trade"
 )
 
-//WxPayAPP ...
-const WxPayAPP = trade.Way("wxpay_app")
+//NewWxPayJsapi ...
+func NewWxPayJsapi() WxPayJsapi {
+	return WxPayJsapi{}
+}
 
-//WxApp ...
-type WxApp struct {
+//WxPayJsapi ...
+type WxPayJsapi struct {
 	InternalWxPay
 }
 
-//GetWxApp ...
-func GetWxApp() WxApp {
-	return WxApp{}
-}
-
-//WxAppPayRequest ...
-type WxAppPayRequest struct {
+//RequestWxPayh5 ...
+type RequestWxPayh5 struct {
 	AppID     string `json:"appId"`
 	TimeStamp string `json:"timeStamp"`
 	NonceStr  string `json:"nonceStr"`
 	Package   string `json:"package"`
-	PartnerID string `json:"partnerid"`
-	PrepayID  string `json:"prepayid"`
 	SignType  string `json:"signType"`
 	PaySign   string `json:"paySign"`
 }
 
-//mashalWxAppPayRequest ...
-func mashalWxAppPayRequest(appID, mchID, privateKey, prePayID string) (string, error) {
-	var req WxAppPayRequest
+//mashalWxh5PayRequest ...
+func mashalRequestWxPayh5(appID, prePayID, privateKey string) (string, error) {
+	var req RequestWxPayh5
 
 	req.AppID = appID
-	req.PartnerID = mchID
 	req.TimeStamp = fmt.Sprintf("%d", time.Now().Unix())
 	req.NonceStr = random.Get(30, random.ALPHANUM)
 	req.Package = fmt.Sprintf("prepay_id=%s", prePayID)
@@ -57,7 +51,7 @@ func mashalWxAppPayRequest(appID, mchID, privateKey, prePayID string) (string, e
 }
 
 //Pay 发起支付
-func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
+func (wxn1 WxPayJsapi) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 	ret := trade.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
@@ -76,16 +70,15 @@ func (wxn1 WxApp) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		SpbillCreateIP: op.SpbillCreateIP,
 	}
 
-	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder)
+	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeJsapi, wxMch, wxorder)
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
-
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID
-	dataStr, err := mashalWxAppPayRequest(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
+	dataStr, err := mashalRequestWxPayh5(wxMch.AppID, retuo.PrepayID, wxMch.PrivateKey)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.Data = dataStr
