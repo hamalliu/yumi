@@ -14,11 +14,11 @@ const timeFormat = "2006-01-02 15:04:05.999"
 //SubmitOrderPay 提交支付订单
 func SubmitOrderPay(buyerAccountGUID, sellerKey string, totalFee int, body, detail string,
 	timeoutExpress time.Time) (string, error) {
-	e, err := newEntityByPayCode("")
+	e, err := emptyEntity()
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	now := time.Now()
 	code := getCode(OrderPayCode)
@@ -58,7 +58,7 @@ func Pay(code string, tradeWay Way, clientIP, notifyURL string, payExpire time.T
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	//订单超时不能发起支付
 	if e.op.TimeoutExpress.Format(timeFormat) < time.Now().Format(timeFormat) {
@@ -101,7 +101,7 @@ func CancelOrderPay(code string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	switch e.op.Status {
 	case Submitted:
@@ -127,7 +127,7 @@ func PaySuccess(code string) (res Status, err error) {
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	switch e.op.Status {
 	case WaitPay:
@@ -161,7 +161,7 @@ func PayStatus(code string) (res StatusTradePlatform, err error) {
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	trade := getTrade(e.op.TradeWay)
 	if trade == nil {
@@ -181,7 +181,7 @@ func CloseTrade(code string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	switch e.op.Status {
 	case WaitPay:
@@ -201,6 +201,13 @@ func CloseTrade(code string) (err error) {
 //PayNotify 支付通知(待支付时处理通知)
 func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, Status) {
 	trade := getTrade(way)
+	if trade == nil {
+		err := fmt.Errorf("交易方式不存在：%s", way)
+		log.Error(err)
+		trade.PayNotifyResp(err, resp)
+		return "", ""
+	}
+
 	//解析通知参数
 	ret, err := trade.PayNotifyReq(req)
 	if err != nil {
@@ -213,7 +220,7 @@ func PayNotify(way Way, resp http.ResponseWriter, req *http.Request) (string, St
 		trade.PayNotifyResp(err, resp)
 		return "", ""
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	switch e.op.Status {
 	case WaitPay:
@@ -256,7 +263,7 @@ func Refund(orderPayCode, notifyURL string, refundAccountGUID string, refundFee 
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.releaseOrderRefund() }()
+	defer func() { _ = e.release() }()
 
 	switch e.op.Status {
 	//支付订单必须为已支付
@@ -316,7 +323,7 @@ func RefundSuccess(code string) (res Status, err error) {
 	if err != nil {
 		return "", err
 	}
-	defer func() { _ = e.releaseOrderRefund() }()
+	defer func() { _ = e.release() }()
 
 	switch e.or.Status {
 	case Refunding:
@@ -350,9 +357,10 @@ func RefundSuccess(code string) (res Status, err error) {
 func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 	trade := getTrade(way)
 	if trade == nil {
-		err := fmt.Errorf("tradeway（交易方式）不存在")
+		err := fmt.Errorf("交易方式不存在：%s", way)
 		log.Error(err)
-		panic(err)
+		trade.RefundNotifyResp(err, resp)
+		return ""
 	}
 
 	ret, err := trade.RefundNotifyReq(req)
@@ -365,7 +373,7 @@ func RefundNotify(way Way, resp http.ResponseWriter, req *http.Request) Status {
 		trade.PayNotifyResp(err, resp)
 		return ""
 	}
-	defer func() { _ = e.releaseOrderRefund() }()
+	defer func() { _ = e.release() }()
 
 	if err := trade.RefundNotifyCheck(e.op, e.or, ret.ReqData); err != nil {
 		trade.PayNotifyResp(err, resp)
@@ -391,7 +399,7 @@ func SetTimeout(code string) error {
 	if err != nil {
 		return err
 	}
-	defer func() { _ = e.releaseOrderPay() }()
+	defer func() { _ = e.release() }()
 
 	if e.op.TimeoutExpress.Format(timeFormat) < time.Now().Format(timeFormat) {
 		return e.dataOp.SetCancelled(time.Now(), Cancelled)

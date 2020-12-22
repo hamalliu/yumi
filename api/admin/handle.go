@@ -4,6 +4,14 @@ import (
 	"yumi/pkg/gin"
 )
 
+//ReqBodyLogin ...
+type ReqBodyLogin struct {
+}
+
+//ReqBodyLogout ...
+type ReqBodyLogout struct {
+}
+
 func login(c *gin.Context) {
 
 }

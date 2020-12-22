@@ -1,10 +1,9 @@
 package trade
 
 import (
-	"fmt"
 	"sync"
-
-	"yumi/pkg/log"
+	
+	"yumi/pkg/ecode"
 )
 
 var (
@@ -41,20 +40,25 @@ var entityMutex sync.Mutex
  * 供业务对象接口调用，对外不开放
  */
 
+//emptyEntity 空的业务对象，主要用于新的订单
+func emptyEntity() (*Entity, error) {
+	var err error
+	e := Entity{}
+
+	e.dataOp, err = newDataOrderPay("")
+	if err != nil {
+		return nil, err
+	}
+	e.op = e.dataOp.Entity()
+	e.dataOr, err = newDataOrderRefund("")
+	e.or = e.dataOr.Entity()
+	return &e, nil
+}
+
 //newEntityByPayCode 加载支付订单数据
 func newEntityByPayCode(code string) (*Entity, error) {
-	var err error
 	if code == "" {
-		// code为空视为新的订单
-		e := Entity{}
-		e.dataOp, err = newDataOrderPay(code)
-		if err != nil {
-			return nil, err
-		}
-		e.op = e.dataOp.Entity()
-		e.dataOr, err = newDataOrderRefund(code)
-		e.or = e.dataOr.Entity()
-		return &e, nil
+		return nil, ecode.OrdernoDoesNotExist
 	}
 
 	entityMutex.Lock()
@@ -64,6 +68,7 @@ func newEntityByPayCode(code string) (*Entity, error) {
 	entityMutex.Unlock()
 	orderPaySync[code].Lock()
 
+	var err error
 	e := Entity{}
 	e.dataOp, err = newDataOrderPay(code)
 	if err != nil {
@@ -77,25 +82,10 @@ func newEntityByPayCode(code string) (*Entity, error) {
 	return &e, nil
 }
 
-//releaseOrderPay 释放支付订单数据
-func (e *Entity) releaseOrderPay() error {
-	if e.op.Code == "" {
-		return nil
-	}
-
-	if orderPaySync[e.op.Code] == nil {
-		err := fmt.Errorf("无法释放锁，可能造成死锁")
-		log.Error(err)
-		return err
-	}
-	orderPaySync[e.op.Code].Unlock()
-	return nil
-}
-
 //newEntityByRefundCode 加载退款订单数据
 func newEntityByRefundCode(code string) (*Entity, error) {
 	if code == "" {
-		panic(fmt.Errorf("code 不能为空"))
+		return nil, ecode.OrdernoDoesNotExist
 	}
 
 	entityMutex.Lock()
@@ -131,24 +121,21 @@ func newEntityByRefundCode(code string) (*Entity, error) {
 	return &e, nil
 }
 
-//releaseOrderRefund 释放退款订单数据
-func (e *Entity) releaseOrderRefund() error {
-	if e.op.Code == "" || e == nil {
+//release 释放订单数据
+func (e *Entity) release() error {
+	if e == nil {
 		return nil
 	}
 
-	if orderRefundSync[e.or.Code] == nil {
-		err := fmt.Errorf("无法释放锁，可能造成死锁")
-		log.Error(orderRefundSync, err)
-		return err
+	if e.op.Code != "" && orderPaySync[e.op.Code] != nil {
+		orderPaySync[e.op.Code].Unlock()
 	}
-	orderRefundSync[e.or.Code].Unlock()
+	if e.or.OrderPayCode != "" && orderPaySync[e.or.OrderPayCode] != nil {
+		orderPaySync[e.or.OrderPayCode].Unlock()
+	}
+	if e.or.Code != "" && orderRefundSync[e.or.Code] != nil {
+		orderRefundSync[e.or.Code].Unlock()
+	}
 
-	if orderPaySync[e.or.OrderPayCode] == nil {
-		err := fmt.Errorf("无法释放锁，可能造成死锁")
-		log.Error(orderPaySync, err)
-		return err
-	}
-	orderPaySync[e.or.OrderPayCode].Unlock()
 	return nil
 }

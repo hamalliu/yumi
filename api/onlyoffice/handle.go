@@ -12,7 +12,6 @@ import (
 	"path"
 	"time"
 
-	"yumi/apimodel"
 	"yumi/pkg/conf"
 	"yumi/pkg/ecode"
 	"yumi/pkg/fileutility"
@@ -22,6 +21,42 @@ import (
 	"yumi/pkg/gin/valuer"
 	"yumi/usecase/onlyoffice"
 )
+
+
+//ReqSample ...
+type ReqSample struct {
+	SampleName    string `json:"sample_name" binding:"required"`
+	FileName      string `json:"file_name" binding:"required"`
+	FileExtension string `json:"file_extension" binding:"required"`
+}
+
+//ReqDownload ...
+type ReqDownload struct {
+	FileName string `query:"file_name" binding:"required"`
+}
+
+//ReqDeleteFile ...
+type ReqDeleteFile struct {
+	FileName string `query:"file_name"`
+}
+
+//ReqConvert ...
+type ReqConvert struct {
+	FileName string `query:"file_name" binding:"required"`
+}
+
+//ReqTrack ...
+type ReqTrack struct {
+	FileName string `query:"file_name" binding:"required"`
+	UserID   string `query:"user_id" binding:"required"`
+}
+
+//ReqEditor ...
+type ReqEditor struct {
+	Mode     string `query:"mode" binding:"oneof=view edit"`
+	Type     string `query:"type"`
+	FileName string `query:"file_name" binding:"required"`
+}
 
 //Upload 上传文件
 func Upload(c *gin.Context) {
@@ -76,7 +111,7 @@ func Upload(c *gin.Context) {
 
 //Sample 从样品中复制文件，用于新建文件
 func Sample(c *gin.Context) {
-	reqm := apimodel.ReqSample{}
+	reqm := ReqSample{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
@@ -124,7 +159,7 @@ func renderError(c *gin.Context, err error) {
 
 //Editor 按配置加载数据，返回office编辑模板
 func Editor(c *gin.Context) {
-	reqm := apimodel.ReqEditor{}
+	reqm := ReqEditor{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
@@ -398,7 +433,7 @@ func track(c *gin.Context, body map[string]interface{}, fileName, userID string)
 
 //Track onlyoffice的回调处理
 func Track(c *gin.Context) {
-	reqm := apimodel.ReqTrack{}
+	reqm := ReqTrack{}
 	bodyMap := make(map[string]interface{})
 
 	if err := c.BindWith(&reqm, binding.Query); err != nil {
@@ -451,7 +486,7 @@ Error:
 
 //Convert 转换格式为open office xml格式
 func Convert(c *gin.Context) {
-	reqm := apimodel.ReqConvert{}
+	reqm := ReqConvert{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
@@ -531,7 +566,7 @@ func Convert(c *gin.Context) {
 
 //Download 下载文件
 func Download(c *gin.Context) {
-	reqm := apimodel.ReqDownload{}
+	reqm := ReqDownload{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return
@@ -550,7 +585,7 @@ func Download(c *gin.Context) {
 
 //DeleteFile 删除自己目录下的文件
 func DeleteFile(c *gin.Context) {
-	reqm := apimodel.ReqDownload{}
+	reqm := ReqDownload{}
 	if err := c.Bind(&reqm); err != nil {
 		c.JSON(nil, ecode.ParamsErr(err))
 		return

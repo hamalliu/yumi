@@ -9,6 +9,7 @@ import (
 )
 
 var infolog = logging.MustGetLogger("info")
+var warninglog = logging.MustGetLogger("warning")
 var errorlog = logging.MustGetLogger("error")
 var criticallog = logging.MustGetLogger("critical")
 var log = logging.MustGetLogger("log")
@@ -27,6 +28,10 @@ func Init() {
 	lvlInfoBackend := logging.AddModuleLevel(infoBackend)
 	lvlInfoBackend.SetLevel(logging.INFO, "")
 
+	warningBackend := logging.NewLogBackend(New("[Warning]", 2<<26, true), "", 0)
+	lvlWarningBackend := logging.AddModuleLevel(warningBackend)
+	lvlWarningBackend.SetLevel(logging.WARNING, "")
+
 	errBackend := logging.NewLogBackend(New("[ERROR]", 2<<26, true), "", 0)
 	lvlErrBackend := logging.AddModuleLevel(errBackend)
 	lvlErrBackend.SetLevel(logging.ERROR, "")
@@ -37,6 +42,7 @@ func Init() {
 
 	logging.SetBackend(stdBackend)
 	infolog.SetBackend(lvlInfoBackend)
+	warninglog.SetBackend(lvlInfoBackend)
 	errorlog.SetBackend(lvlErrBackend)
 	criticallog.SetBackend(lvlCriticalBackend)
 }
@@ -55,6 +61,16 @@ func Critical(args ...interface{}) {
 func Error(args ...interface{}) {
 	errorlog.ExtraCalldepth = 1
 	errorlog.Error(args)
+	if conf.IsDebug() {
+		log.ExtraCalldepth = 1
+		log.Debug(args)
+	}
+}
+
+//Warning ...
+func Warning(args ...interface{}) {
+	warninglog.ExtraCalldepth = 1
+	warninglog.Warning(args)
 	if conf.IsDebug() {
 		log.ExtraCalldepth = 1
 		log.Debug(args)

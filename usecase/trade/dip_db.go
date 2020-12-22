@@ -100,8 +100,8 @@ type DataOrderPay interface {
 
 var op DataOrderPay
 
-//RigsterDataOrderPay 注册支付订单数据层对象
-func RigsterDataOrderPay(src DataOrderPay) {
+//InitDataOrderPay 注册支付订单数据层对象
+func InitDataOrderPay(src DataOrderPay) {
 	op = src
 }
 
@@ -176,8 +176,8 @@ type DataOrderRefund interface {
 
 var or DataOrderRefund
 
-//RigsterDataOrderRefund 注册数据层对象
-func RigsterDataOrderRefund(src DataOrderRefund) {
+//InitDataOrderRefund 注册数据层对象
+func InitDataOrderRefund(src DataOrderRefund) {
 	or = src
 }
 

@@ -1,4 +1,4 @@
-package strgmedia
+package data
 
 import (
 	"yumi/pkg/ecode"
@@ -15,8 +15,8 @@ func DB() DBTable {
 	return media
 }
 
-//Add ...
-func (DBTable) Add(suffix, name, realname, path, operator, operatorid string) (int, error) {
+//Insert ...
+func (DBTable) Insert(suffix, name, realname, path, operator, operatorid string) (int, error) {
 	var (
 		id int64
 
@@ -37,30 +37,3 @@ func (DBTable) Add(suffix, name, realname, path, operator, operatorid string) (i
 	return int(id), nil
 }
 
-//Delete ...
-func (DBTable) Delete() (int, error) {
-	//TODO
-
-	return 0, nil
-}
-
-//Update ...
-func (DBTable) Update() (int, error) {
-	//TODO
-
-	return 0, nil
-}
-
-//Search ...
-func (DBTable) Search() (int, error) {
-	//TODO
-
-	return 0, nil
-}
-
-//GetItem ...
-func (DBTable) GetItem() (int, error) {
-	//TODO
-
-	return 0, nil
-}
