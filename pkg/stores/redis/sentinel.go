@@ -7,7 +7,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"yumi/pkg/log"
 
 	"github.com/gomodule/redigo/redis"
 )
@@ -18,21 +17,28 @@ import (
 // was introduced in that version, it's possible though to support old versions
 // using INFO command).
 type Sentinel struct {
-	// Addrs is a slice with known Sentinel addresses.
-	addrs           []string
-	actionAddrs     map[string]int
-	connAddr        map[redis.Conn]string
-	actionAddrConns map[string][]redis.Conn
-
-	failureAddrConns map[string][]redis.Conn
+	pool *PoolMulAddr
 
 	// MasterName is a name of Redis master Sentinel servers monitor.
 	masterName string
 
-	masterAddr string
-	slaveAddrs map[string]int
+	masterPool string
+	// type is map[string]int32
+	slaveAddrs sync.Map
 
 	muxtex sync.Mutex
+}
+
+const (
+	poolConnStatusAction = iota
+	poolConnStatusFailure
+)
+
+type poolConn struct {
+	status  int
+	addr    string
+	created time.Time
+	t       time.Time
 }
 
 // NoSentinelsAvailable is returned when all sentinels in the list are exhausted
@@ -50,117 +56,27 @@ func (ns NoSentinelsAvailable) Error() string {
 }
 
 // NewSentinel create a sentinel
-func NewSentinel(addrs []string, masterName string) *Sentinel {
-	s := &Sentinel{
-		addrs:            addrs,
-		actionAddrs:      make(map[string]int),
-		connAddr:   make(map[redis.Conn]string),
-		actionAddrConns:  make(map[string][]redis.Conn),
-		failureAddrConns: make(map[string][]redis.Conn),
-		masterName:       masterName,
-		slaveAddrs:       make(map[string]int),
-	}
-	for _, addr := range addrs {
-		s.actionAddrs[addr] = 0
-	}
+func NewSentinel(masterName string) *Sentinel {
+	s := &Sentinel{masterName: masterName}
+
 	return s
-}
-
-// NewSentinelPool creat a pool of current Redis sentinel instance.
-func (s *Sentinel) NewSentinelPool() (*redis.Pool, error) {
-	pool := &redis.Pool{
-		MaxIdle:     3,
-		MaxActive:   10,
-		Wait:        true,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (c redis.Conn, err error) {
-			s.muxtex.Lock()
-			defer s.muxtex.Unlock()
-
-			addr := s.nextSentinelAddr()
-			retryTimes := 3
-			for i := 0; i < retryTimes; i++ {
-				c, err = redis.Dial("tcp", addr)
-				if err != nil {
-					log.Warning("redis: %s", err.Error())
-				} else {
-					break
-				}
-			}
-			if err != nil {
-				s.failureAddrConns[addr] = append(s.failureAddrConns[addr], s.actionAddrConns[addr]...)
-				for _, failconn := range s.failureAddrConns[addr] {
-					s.connAddr[failconn] = "failure"
-				}
-				delete(s.actionAddrConns, addr)
-				delete(s.actionAddrs, addr)
-			} else {
-				s.actionAddrs[addr]++
-				s.connAddr[c] = addr
-				s.actionAddrConns[addr] = append(s.actionAddrConns[addr], c)
-			}
-			return
-		},
-		TestOnBorrow: func(c redis.Conn, t time.Time) error {
-			addr := s.connAddr[c]
-			if addr == "" {
-				log.Warning(fmt.Errorf("redis: redis conn leak"))
-			} else if addr == "failure" {
-				return errors.New("redis: conn failure")
-			}
-			_, err := c.Do("PING")
-			return err
-		},
-	}
-
-	return pool, nil
 }
 
 // NewMasterPool returns an pool of current Redis master instance.
 func (s *Sentinel) NewMasterPool() (pool *redis.Pool, err error) {
+	// TODO:
 	return
 }
 
 // NewSlavePool returns a pool of current Redis slave instance.
 func (s *Sentinel) NewSlavePool() (pool *redis.Pool, err error) {
+	// TODO:
 	return
 }
 
 // Discover watch server and update status
 func (s *Sentinel) Discover() {
 
-}
-
-func (s *Sentinel) nextSentinelAddr() string {
-	nextAddr := ""
-	min := 0
-	for addr, n := range s.actionAddrs {
-		if n == 0 {
-			return addr
-		}
-		if min == 0 || min > n {
-			nextAddr = addr
-			min = n
-		}
-	}
-
-	return nextAddr
-}
-
-func (s *Sentinel) nextSlaveAddr() string {
-	nextAddr := ""
-	min := 0
-	for addr, n := range s.slaveAddrs {
-		if n == 0 {
-			return addr
-		}
-		if min == 0 || min > n {
-			nextAddr = addr
-			min = n
-		}
-	}
-
-	return nextAddr
 }
 
 // Slave represents a Redis slave instance which is known by Sentinel.
