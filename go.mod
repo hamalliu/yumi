@@ -16,7 +16,6 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
-	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/huichen/sego v0.0.0-20180617034105-3f3c8a8cfacc
 	github.com/issue9/assert v1.4.1 // indirect
 	github.com/jhillyerd/enmime v0.6.0
@@ -31,6 +30,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tal-tech/go-zero v1.0.26
 	github.com/ugorji/go/codec v1.1.7
+	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect

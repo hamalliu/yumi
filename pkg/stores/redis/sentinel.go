@@ -6,7 +6,6 @@ import (
 	"net"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/gomodule/redigo/redis"
 )
@@ -33,13 +32,6 @@ const (
 	poolConnStatusAction = iota
 	poolConnStatusFailure
 )
-
-type poolConn struct {
-	status  int
-	addr    string
-	created time.Time
-	t       time.Time
-}
 
 // NoSentinelsAvailable is returned when all sentinels in the list are exhausted
 // (or none configured), and contains the last error returned by Dial (which

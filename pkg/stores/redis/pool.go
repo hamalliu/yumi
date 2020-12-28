@@ -26,6 +26,13 @@ type PoolMulAddr struct {
 	muxtex sync.Mutex
 }
 
+type poolConn struct {
+	status  int
+	addr    string
+	created time.Time
+	t       time.Time
+}
+
 // NewPoolMulAddr create a PoolMulAddr object
 func NewPoolMulAddr(confs []Config) *PoolMulAddr {
 	pma := &PoolMulAddr{}
@@ -118,10 +125,9 @@ func (pma *PoolMulAddr) New(maxIdle, maxActive, idleTimeoutSecond int, wait bool
 	return pool, nil
 }
 
-
-
 func (pma *PoolMulAddr) connGC() {
-
+	// TODO:
+	// pma.conns.Range()
 }
 
 func (pma *PoolMulAddr) nextAddr() string {
