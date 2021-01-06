@@ -5,7 +5,6 @@ go 1.15
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/BurntSushi/toml v0.3.1
-	github.com/adamzy/cedar-go v0.0.0-20170805034717-80a9c64b256d // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/emersion/go-imap v1.0.0
@@ -16,8 +15,6 @@ require (
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0
 	github.com/golang/protobuf v1.4.2
 	github.com/gomodule/redigo v2.0.0+incompatible
-	github.com/huichen/sego v0.0.0-20180617034105-3f3c8a8cfacc
-	github.com/issue9/assert v1.4.1 // indirect
 	github.com/jhillyerd/enmime v0.6.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kr/text v0.2.0 // indirect
