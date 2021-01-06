@@ -4,7 +4,7 @@ import (
 	"sort"
 )
 
-// CheckCoordinates 坐标反查
+// CheckCoordinates 坐标反查，先查找城市再查找省
 func CheckCoordinates(c XY, cities []City) (parent, code string) {
 	maybeCities := Cities{}
 	for i, v := range cities {
@@ -39,7 +39,7 @@ func CheckCoordinates(c XY, cities []City) (parent, code string) {
 	return "", ""
 }
 
-// CheckCoordinates2 坐标反查
+// CheckCoordinates2 坐标反查, 先查找省再查找城市
 func CheckCoordinates2(c XY, provinces []Province) (parent, code string) {
 	maybeProvinces := Provinces{}
 	for i, v := range provinces {

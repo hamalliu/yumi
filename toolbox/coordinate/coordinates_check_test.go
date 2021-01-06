@@ -8,14 +8,14 @@ var _cities []City
 var _provinces []Province
 
 func init() {
-	cs, err := DeserializationToCities("../../tmp.json")
+	cs, err := DeserializationToCities("./division.json")
 	if err != nil {
 		panic(err)
 	}
 
 	_cities = cs
 
-	ps, err := DeserializationToProvince("../../tmp.json")
+	ps, err := DeserializationToProvince("./division.json")
 	if err != nil {
 		panic(err)
 	}
