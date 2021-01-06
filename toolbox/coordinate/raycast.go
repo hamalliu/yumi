@@ -1,4 +1,4 @@
-package toolbox
+package coordinate
 
 // XY is a 2D point in the Cartesian plane.
 type XY struct {
