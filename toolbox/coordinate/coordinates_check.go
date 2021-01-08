@@ -21,16 +21,20 @@ func CheckCoordinates(c XY, cities []City) (parent, code string) {
 	maybeProvinces := make(map[string]*Province)
 	for _, city := range maybeCities {
 		maybeProvinces[city.Parent] = city.Province
-		if c.In(city.Polygon) {
-			find = true
-			return city.Parent, city.Code
+		for _, plg := range city.Polygons {
+			if c.In(plg) {
+				find = true
+				return city.Parent, city.Code
+			}
 		}
 	}
 	if !find {
 		for _, province := range maybeProvinces {
-			if c.In(province.Polygon) {
-				find = true
-				return province.Code, ""
+			for _, plg := range province.Polygons {
+				if c.In(plg) {
+					find = true
+					return province.Code, ""
+				}
 			}
 		}
 	}
@@ -53,10 +57,19 @@ func CheckCoordinates2(c XY, provinces []Province) (parent, code string) {
 	sort.Sort(maybeProvinces)
 	var hitProvince *Province
 	for _, province := range maybeProvinces {
-		if c.In(province.Polygon) {
-			parent = province.Code
-			hitProvince = province
+	outprovince:
+		for _, plg := range province.Polygons {
+			if c.In(plg) {
+				parent = province.Code
+				hitProvince = province
+				break outprovince
+			}
 		}
+	}
+
+	if hitProvince == nil {
+		// 未定位成功
+		return
 	}
 
 	maybeCities := Cities{}
@@ -71,8 +84,12 @@ func CheckCoordinates2(c XY, provinces []Province) (parent, code string) {
 
 	sort.Sort(maybeCities)
 	for _, city := range maybeCities {
-		if c.In(city.Polygon) {
-			code = city.Code
+	outcity:
+		for _, plg := range city.Polygons {
+			if c.In(plg) {
+				code = city.Code
+				break outcity
+			}
 		}
 	}
 
