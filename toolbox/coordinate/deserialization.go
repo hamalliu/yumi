@@ -60,7 +60,7 @@ type Coordinate struct {
 // Center ...
 type Center struct {
 	Coordinate Coordinate
-	City *City
+	City       *City
 }
 
 // DeserializationToCities ...
@@ -81,7 +81,11 @@ func DeserializationToCities(path string) ([]City, []Center, error) {
 	for pi := range china.Province {
 		for _, plg := range china.Province[pi].Coordinates {
 			polygon := Polygon{}
-			for _, coor := range plg {
+			for i, coor := range plg {
+				if i == len(plg)-1 {
+					// 最后一个点和第一个点相同丢弃
+					continue
+				}
 				polygon = append(polygon, XY{coor[0], coor[1]})
 			}
 			china.Province[pi].Polygons = append(china.Province[pi].Polygons, polygon)
@@ -90,7 +94,11 @@ func DeserializationToCities(path string) ([]City, []Center, error) {
 		for ci := range china.Province[pi].Cites {
 			for _, plg := range china.Province[pi].Cites[ci].Coordinates {
 				polygon := Polygon{}
-				for _, coor := range plg {
+				for i, coor := range plg {
+					if i == len(plg)-1 {
+						// 最后一个点和第一个点相同丢弃
+						continue
+					}
 					polygon = append(polygon, XY{coor[0], coor[1]})
 				}
 				china.Province[pi].Cites[ci].Polygons = append(china.Province[pi].Cites[ci].Polygons, polygon)
@@ -123,7 +131,11 @@ func DeserializationToProvince(path string) ([]Province, []Center, error) {
 	for _, ps := range china.Province {
 		for _, plg := range ps.Coordinates {
 			polygon := Polygon{}
-			for _, coor := range plg {
+			for i, coor := range plg {
+				if i == len(plg)-1 {
+					// 最后一个点和第一个点相同丢弃
+					continue
+				}
 				polygon = append(polygon, XY{coor[0], coor[1]})
 			}
 			ps.Polygons = append(ps.Polygons, polygon)
@@ -132,7 +144,11 @@ func DeserializationToProvince(path string) ([]Province, []Center, error) {
 		for ci := range ps.Cites {
 			for _, plg := range ps.Cites[ci].Coordinates {
 				polygon := Polygon{}
-				for _, coor := range plg {
+				for i, coor := range plg {
+					if i == len(plg)-1 {
+						// 最后一个点和第一个点相同丢弃
+						continue
+					}
 					polygon = append(polygon, XY{coor[0], coor[1]})
 				}
 				ps.Cites[ci].Polygons = append(ps.Cites[ci].Polygons, polygon)

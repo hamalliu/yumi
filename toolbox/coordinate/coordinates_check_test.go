@@ -26,27 +26,49 @@ func init() {
 }
 
 func TestCheckCoordinates(t *testing.T) {
-	c := XY{121.778859, 31.310198}
-	parent, code := CheckCoordinates(c, _cities)
-	t.Log(parent, code)
+	ps := []XY{
+		{121.385531, 30.985695},
+		{121.381586, 30.984675},
+		{121.375223, 30.982826},
+		{121.359979, 30.97816},
+		{121.778859, 31.310198},
+		{121.35871, 30.977858},
+	}
+	for _, v := range ps {
+		t.Log(v)
+		parent, code := CheckCoordinates(v, _cities, _cityCenters)
+		t.Log(parent, code)
+	}
 }
 
 func BenchmarkCheckCoordinates(b *testing.B) {
 	b.ResetTimer()
 	c := XY{116.16472347941438, 31.127336498964578}
-	parent, code := CheckCoordinates(c, _cities)
+	parent, code := CheckCoordinates(c, _cities, _cityCenters)
 	b.Log(parent, code)
 }
 
 func TestCheckCoordinates2(t *testing.T) {
-	c := XY{121.778859, 31.310198}
-	parent, code := CheckCoordinates2(c, _provinces)
-	t.Log(parent, code)
+	ps := []XY{
+		{121.385531, 30.985695},
+		{121.381586, 30.984675},
+		{121.375223, 30.982826},
+		{121.359979, 30.97816},
+		{121.778859, 31.310198},
+		{121.35871, 30.977858},
+		{121.412513, 31.1892},
+	}
+	for _, v := range ps {
+		t.Log(v)
+		parent, code := CheckCoordinates2(v, _provinces, _cityCenters)
+		t.Log(parent, code)
+	}
+
 }
 
 func BenchmarkCheckCoordinates2(b *testing.B) {
 	b.ResetTimer()
 	c := XY{116.16472347941438, 31.127336498964578}
-	parent, code := CheckCoordinates2(c, _provinces)
+	parent, code := CheckCoordinates2(c, _provinces, _cityCenters)
 	b.Log(parent, code)
 }
