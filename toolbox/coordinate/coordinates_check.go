@@ -57,7 +57,7 @@ func CheckCoordinates2(c XY, provinces []Province, cityCenters []Center) (parent
 		if c.X <= v.Apices.MaxLng && c.X >= v.Apices.MinLng &&
 			c.Y <= v.Apices.MaxLat && c.Y >= v.Apices.MinLat {
 
-			v.Distance = geoDistance(c.X, c.Y, v.Center.Lng, v.Center.Lat)
+			provinces[i].Distance = geoDistance(c.X, c.Y, v.Center.Lng, v.Center.Lat)
 			maybeProvinces = append(maybeProvinces, &provinces[i])
 		}
 	}
@@ -81,7 +81,7 @@ func CheckCoordinates2(c XY, provinces []Province, cityCenters []Center) (parent
 			if c.X <= v.Apices.MaxLng && c.X >= v.Apices.MinLng &&
 				c.Y <= v.Apices.MaxLat && c.Y >= v.Apices.MinLat {
 
-				v.Distance = geoDistance(c.X, c.Y, v.Center.Lng, v.Center.Lat)
+				hitProvince.Cites[ci].Distance = geoDistance(c.X, c.Y, v.Center.Lng, v.Center.Lat)
 				maybeCities = append(maybeCities, &hitProvince.Cites[ci])
 			}
 		}
