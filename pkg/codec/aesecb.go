@@ -6,10 +6,9 @@ import (
 	"crypto/cipher"
 	"encoding/base64"
 	"errors"
-
-	"github.com/tal-tech/go-zero/core/logx"
 )
 
+// ErrPaddingSize ...
 var ErrPaddingSize = errors.New("padding size error")
 
 type ecb struct {
@@ -26,6 +25,7 @@ func newECB(b cipher.Block) *ecb {
 
 type ecbEncrypter ecb
 
+// NewECBEncrypter ...
 func NewECBEncrypter(b cipher.Block) cipher.BlockMode {
 	return (*ecbEncrypter)(newECB(b))
 }
@@ -35,11 +35,9 @@ func (x *ecbEncrypter) BlockSize() int { return x.blockSize }
 // why we don't return error is because cipher.BlockMode doesn't allow this
 func (x *ecbEncrypter) CryptBlocks(dst, src []byte) {
 	if len(src)%x.blockSize != 0 {
-		logx.Error("crypto/cipher: input not full blocks")
 		return
 	}
 	if len(dst) < len(src) {
-		logx.Error("crypto/cipher: output smaller than input")
 		return
 	}
 
@@ -52,6 +50,7 @@ func (x *ecbEncrypter) CryptBlocks(dst, src []byte) {
 
 type ecbDecrypter ecb
 
+// NewECBDecrypter ...
 func NewECBDecrypter(b cipher.Block) cipher.BlockMode {
 	return (*ecbDecrypter)(newECB(b))
 }
@@ -63,11 +62,9 @@ func (x *ecbDecrypter) BlockSize() int {
 // why we don't return error is because cipher.BlockMode doesn't allow this
 func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 	if len(src)%x.blockSize != 0 {
-		logx.Error("crypto/cipher: input not full blocks")
 		return
 	}
 	if len(dst) < len(src) {
-		logx.Error("crypto/cipher: output smaller than input")
 		return
 	}
 
@@ -78,10 +75,10 @@ func (x *ecbDecrypter) CryptBlocks(dst, src []byte) {
 	}
 }
 
+// EcbDecrypt ...
 func EcbDecrypt(key, src []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		logx.Errorf("Decrypt key error: % x", key)
 		return nil, err
 	}
 
@@ -89,9 +86,10 @@ func EcbDecrypt(key, src []byte) ([]byte, error) {
 	decrypted := make([]byte, len(src))
 	decrypter.CryptBlocks(decrypted, src)
 
-	return pkcs5Unpadding(decrypted, decrypter.BlockSize())
+	return pkcs7Unpadding(decrypted, decrypter.BlockSize())
 }
 
+// EcbDecryptBase64 ...
 func EcbDecryptBase64(key, src string) (string, error) {
 	keyBytes, err := getKeyBytes(key)
 	if err != nil {
@@ -111,14 +109,14 @@ func EcbDecryptBase64(key, src string) (string, error) {
 	return base64.StdEncoding.EncodeToString(decryptedBytes), nil
 }
 
+// EcbEncrypt ...
 func EcbEncrypt(key, src []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		logx.Errorf("Encrypt key error: % x", key)
 		return nil, err
 	}
 
-	padded := pkcs5Padding(src, block.BlockSize())
+	padded := pkcs7Padding(src, block.BlockSize())
 	crypted := make([]byte, len(padded))
 	encrypter := NewECBEncrypter(block)
 	encrypter.CryptBlocks(crypted, padded)
@@ -126,6 +124,7 @@ func EcbEncrypt(key, src []byte) ([]byte, error) {
 	return crypted, nil
 }
 
+// EcbEncryptBase64 ...
 func EcbEncryptBase64(key, src string) (string, error) {
 	keyBytes, err := getKeyBytes(key)
 	if err != nil {
@@ -147,23 +146,23 @@ func EcbEncryptBase64(key, src string) (string, error) {
 
 func getKeyBytes(key string) ([]byte, error) {
 	if len(key) > 32 {
-		if keyBytes, err := base64.StdEncoding.DecodeString(key); err != nil {
+		keyBytes, err := base64.StdEncoding.DecodeString(key)
+		if err != nil {
 			return nil, err
-		} else {
-			return keyBytes, nil
 		}
+		return keyBytes, nil
 	}
 
 	return []byte(key), nil
 }
 
-func pkcs5Padding(ciphertext []byte, blockSize int) []byte {
+func pkcs7Padding(ciphertext []byte, blockSize int) []byte {
 	padding := blockSize - len(ciphertext)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padtext...)
 }
 
-func pkcs5Unpadding(src []byte, blockSize int) ([]byte, error) {
+func pkcs7Unpadding(src []byte, blockSize int) ([]byte, error) {
 	length := len(src)
 	unpadding := int(src[length-1])
 	if unpadding >= length || unpadding > blockSize {

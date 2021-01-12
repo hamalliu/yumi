@@ -11,17 +11,22 @@ import (
 )
 
 var (
+	// ErrPrivateKey ...
 	ErrPrivateKey = errors.New("private key error")
+	// ErrPublicKey ...
 	ErrPublicKey  = errors.New("failed to parse PEM block containing the public key")
+	// ErrNotRsaKey ...
 	ErrNotRsaKey  = errors.New("key type is not RSA")
 )
 
 type (
+	// RsaDecrypter ...
 	RsaDecrypter interface {
 		Decrypt(input []byte) ([]byte, error)
 		DecryptBase64(input string) ([]byte, error)
 	}
 
+	// RsaEncrypter ...
 	RsaEncrypter interface {
 		Encrypt(input []byte) ([]byte, error)
 	}
@@ -41,6 +46,7 @@ type (
 	}
 )
 
+// NewRsaDecrypter ...
 func NewRsaDecrypter(file string) (RsaDecrypter, error) {
 	content, err := ioutil.ReadFile(file)
 	if err != nil {
@@ -65,12 +71,14 @@ func NewRsaDecrypter(file string) (RsaDecrypter, error) {
 	}, nil
 }
 
+// Decrypt ...
 func (r *rsaDecrypter) Decrypt(input []byte) ([]byte, error) {
 	return r.crypt(input, func(block []byte) ([]byte, error) {
 		return rsaDecryptBlock(r.privateKey, block)
 	})
 }
 
+// DecryptBase64 ...
 func (r *rsaDecrypter) DecryptBase64(input string) ([]byte, error) {
 	if len(input) == 0 {
 		return nil, nil
@@ -84,6 +92,7 @@ func (r *rsaDecrypter) DecryptBase64(input string) ([]byte, error) {
 	return r.Decrypt(base64Decoded)
 }
 
+// NewRsaEncrypter ...
 func NewRsaEncrypter(key []byte) (RsaEncrypter, error) {
 	block, _ := pem.Decode(key)
 	if block == nil {
@@ -111,6 +120,7 @@ func NewRsaEncrypter(key []byte) (RsaEncrypter, error) {
 	}
 }
 
+// Encrypt ...
 func (r *rsaEncrypter) Encrypt(input []byte) ([]byte, error) {
 	return r.crypt(input, func(block []byte) ([]byte, error) {
 		return rsaEncryptBlock(r.publicKey, block)

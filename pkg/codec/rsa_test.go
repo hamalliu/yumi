@@ -1,11 +1,9 @@
 package codec
 
 import (
-	"encoding/base64"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/tal-tech/go-zero/core/fs"
 )
 
 const (
@@ -32,25 +30,6 @@ v7q5UimZ205iKSBmgQIDAQAB
 -----END PUBLIC KEY-----`
 	testBody = `this is the content`
 )
-
-func TestCryption(t *testing.T) {
-	enc, err := NewRsaEncrypter([]byte(pubKey))
-	assert.Nil(t, err)
-	ret, err := enc.Encrypt([]byte(testBody))
-	assert.Nil(t, err)
-
-	file, err := fs.TempFilenameWithText(priKey)
-	assert.Nil(t, err)
-	dec, err := NewRsaDecrypter(file)
-	assert.Nil(t, err)
-	actual, err := dec.Decrypt(ret)
-	assert.Nil(t, err)
-	assert.Equal(t, testBody, string(actual))
-
-	actual, err = dec.DecryptBase64(base64.StdEncoding.EncodeToString(ret))
-	assert.Nil(t, err)
-	assert.Equal(t, testBody, string(actual))
-}
 
 func TestBadPubKey(t *testing.T) {
 	_, err := NewRsaEncrypter([]byte("foo"))

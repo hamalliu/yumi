@@ -8,6 +8,7 @@ import (
 
 const unzipLimit = 100 * 1024 * 1024 // 100MB
 
+// Gzip ...
 func Gzip(bs []byte) []byte {
 	var b bytes.Buffer
 
@@ -18,6 +19,7 @@ func Gzip(bs []byte) []byte {
 	return b.Bytes()
 }
 
+// Gunzip ...
 func Gunzip(bs []byte) ([]byte, error) {
 	r, err := gzip.NewReader(bytes.NewBuffer(bs))
 	if err != nil {
