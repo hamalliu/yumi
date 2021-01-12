@@ -1,7 +1,6 @@
 package codec
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
@@ -89,6 +88,21 @@ func EcbDecrypt(key, src []byte) ([]byte, error) {
 	return pkcs7Unpadding(decrypted, decrypter.BlockSize())
 }
 
+// EcbEncrypt ...
+func EcbEncrypt(key, src []byte) ([]byte, error) {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		return nil, err
+	}
+
+	padded := pkcs7Padding(src, block.BlockSize())
+	crypted := make([]byte, len(padded))
+	encrypter := NewECBEncrypter(block)
+	encrypter.CryptBlocks(crypted, padded)
+
+	return crypted, nil
+}
+
 // EcbDecryptBase64 ...
 func EcbDecryptBase64(key, src string) (string, error) {
 	keyBytes, err := getKeyBytes(key)
@@ -109,21 +123,6 @@ func EcbDecryptBase64(key, src string) (string, error) {
 	return base64.StdEncoding.EncodeToString(decryptedBytes), nil
 }
 
-// EcbEncrypt ...
-func EcbEncrypt(key, src []byte) ([]byte, error) {
-	block, err := aes.NewCipher(key)
-	if err != nil {
-		return nil, err
-	}
-
-	padded := pkcs7Padding(src, block.BlockSize())
-	crypted := make([]byte, len(padded))
-	encrypter := NewECBEncrypter(block)
-	encrypter.CryptBlocks(crypted, padded)
-
-	return crypted, nil
-}
-
 // EcbEncryptBase64 ...
 func EcbEncryptBase64(key, src string) (string, error) {
 	keyBytes, err := getKeyBytes(key)
@@ -142,32 +141,4 @@ func EcbEncryptBase64(key, src string) (string, error) {
 	}
 
 	return base64.StdEncoding.EncodeToString(encryptedBytes), nil
-}
-
-func getKeyBytes(key string) ([]byte, error) {
-	if len(key) > 32 {
-		keyBytes, err := base64.StdEncoding.DecodeString(key)
-		if err != nil {
-			return nil, err
-		}
-		return keyBytes, nil
-	}
-
-	return []byte(key), nil
-}
-
-func pkcs7Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
-	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padtext...)
-}
-
-func pkcs7Unpadding(src []byte, blockSize int) ([]byte, error) {
-	length := len(src)
-	unpadding := int(src[length-1])
-	if unpadding >= length || unpadding > blockSize {
-		return nil, ErrPaddingSize
-	}
-
-	return src[:length-unpadding], nil
 }
