@@ -5,44 +5,32 @@ type Config struct {
 
 }
 
-// Media ...
-type Media struct {
+// Service ...
+type Service struct {
 	conf Config
 }
 
-// New a Media object
-func New(conf Config) (*Media, error) {
+// New a Service object
+func New(conf Config) (*Service, error) {
 	return nil, nil
 }
 
 // Create a media file
-func (m *Media) Create(f FileInfo, operator string) (resp CreateResponse, err error) {
+func (m *Service) Create(f FileInfo, operator string) (resp CreateResponse, err error) {
 	return
 }
 
 // BatchCreate media files
-func (m *Media) BatchCreate(fs []FileInfo, operator string) (resp BatchCreateResponse, err error) {
+func (m *Service) BatchCreate(fs []FileInfo, operator string) (resp BatchCreateResponse, err error) {
 	return
 }
 
-// Delete a media file
-func (m *Media) Delete(fileID interface{}, operator string) (err error) {
-	return
-}
-
-// BatchDelete media files
-func (m *Media) BatchDelete(fileIDs []interface{}, operator string) (err error) {
-	return
-}
-
-// Replase a media file
-func (m *Media) Replase(srcFileID interface{}, dest FileInfo, operator string) (err error) {
+// Get a media file
+func (m *Service) Get(fileNo interface{}, operator string) (resp GetResponse, err error) {
 	return
 }
 
 // List Get media file list
-func (m *Media) List(page, line int, operator string) (err error) {
+func (m *Service) List(page, line int, operator string) (err error) {
 	return
 }
-
-

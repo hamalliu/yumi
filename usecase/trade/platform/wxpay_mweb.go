@@ -5,7 +5,7 @@ import (
 
 	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
-	"yumi/pkg/trade/wxpay"
+	"yumi/pkg/externalapi/txapi/wxpay"
 )
 
 //NewWxPayMweb ...

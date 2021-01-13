@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"strings"
 
-	"yumi/pkg/trade/internal"
+	"yumi/pkg/codec"
 )
 
 //CheckPrePayNotify ...
@@ -67,7 +67,7 @@ func CheckPayNotify(mch Merchant, totalFee int, outTradeNo string, req ReqPayNot
 
 		return nil
 	}
-	
+
 	return fmt.Errorf("%s", req.ReturnMsg)
 }
 
@@ -108,7 +108,7 @@ func DecryptoRefundNotify(mch Merchant, info string) (ReqRefundNotifyEncryptInfo
 	md5ctx.Write([]byte(mch.PrivateKey))
 	key := strings.ToLower(hex.EncodeToString(md5ctx.Sum(nil)))
 
-	info = internal.AesDecrypt(string(infoBytes), []byte(key))
+	info, _ = codec.CbcDecryptBase64(key, string(infoBytes), []byte(key)[:16])
 	if err := xml.Unmarshal([]byte(info), &ret); err != nil {
 		return ret, err
 	}

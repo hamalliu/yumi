@@ -3,16 +3,17 @@ package data
 import (
 	"yumi/pkg/ecode"
 	"yumi/pkg/stores/dbc"
+	"yumi/usecase/media"
 )
 
 //DBTable ...
 type DBTable int
 
-var media DBTable
+var dbt DBTable
 
 //DB ...
 func DB() DBTable {
-	return media
+	return dbt
 }
 
 //Insert ...
@@ -36,4 +37,11 @@ func (DBTable) Insert(suffix, name, realname, path, operator, operatorid string)
 
 	return int(id), nil
 }
+
+// Media is db table
+type Media struct {
+	ID int64
+	media.Media
+}
+
 

@@ -8,7 +8,7 @@ import (
 	"yumi/usecase/trade"
 	"yumi/usecase/trade/db"
 	"yumi/pkg/ecode"
-	"yumi/pkg/trade/alipay"
+	"yumi/pkg/externalapi/aliapi/alipay"
 )
 
 //AliPayPage ...

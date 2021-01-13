@@ -15,7 +15,7 @@ import (
 
 	"golang.org/x/crypto/pkcs12"
 
-	"yumi/pkg/trade/internal"
+	"yumi/pkg/random"
 )
 
 /**
@@ -179,6 +179,10 @@ type AccessToken struct {
 	Scope        string `json:"scope"`
 }
 
+func getNonceStr() string {
+	return random.Get(30, random.ALPHANUM)
+}
+
 //BuildOauth2AuthorizeURL 网页授权（jsapi获取openid）:构建前端浏览器访问微信oath2 url
 func (p PayAPI) BuildOauth2AuthorizeURL(mch Merchant, redirectURL string, scope Oauth2AuthorizeScope) (reqURL string, state string) {
 	vals := make(url2.Values)
@@ -186,7 +190,7 @@ func (p PayAPI) BuildOauth2AuthorizeURL(mch Merchant, redirectURL string, scope 
 	vals["redirect_url"] = append(vals["redirect_url"], mch.AppID)
 	vals["response_type"] = append(vals["response_type"], "code")
 	vals["scope"] = append(vals["scope"], string(scope))
-	state = internal.CreateRandomStr(20, internal.ALPHANUM)
+	state = random.Get(20, random.ALPHANUM)
 	vals["state"] = append(vals["state"], state)
 
 	reqURL = fmt.Sprintf("%s?%s#wechat_redirect", p.Oauth2AuthorizeURL, vals.Encode())
@@ -229,7 +233,7 @@ func (p PayAPI) BizPayURL1(mch Merchant, productID string) (string, error) {
 	if productID == "" {
 		return "", fmt.Errorf("商品id不能为空")
 	}
-	if err := internal.CheckRequire(string(TradeTypeNative), mch); err != nil {
+	if err := CheckRequire(string(TradeTypeNative), mch); err != nil {
 		return "", err
 	}
 
@@ -237,7 +241,7 @@ func (p PayAPI) BizPayURL1(mch Merchant, productID string) (string, error) {
 		AppID:     mch.AppID,
 		MchID:     mch.MchID,
 		TimeStamp: fmt.Sprintf("%d", time.Now().Unix()),
-		NonceStr:  internal.CreateRandomStr(30, internal.ALPHANUM),
+		NonceStr:  getNonceStr(),
 		ProductID: productID,
 	}
 	//生成签名
@@ -260,7 +264,7 @@ func (p PayAPI) ShortURL(mch Merchant, url string) (string, error) {
 	if url == "" {
 		return "", fmt.Errorf("url不能为空")
 	}
-	if err := internal.CheckRequire(string(TradeTypeNative), mch); err != nil {
+	if err := CheckRequire(string(TradeTypeNative), mch); err != nil {
 		return "", err
 	}
 
@@ -268,7 +272,7 @@ func (p PayAPI) ShortURL(mch Merchant, url string) (string, error) {
 		AppID:    mch.AppID,
 		MchID:    mch.MchID,
 		LongURL:  url,
-		NonceStr: internal.GetNonceStr(),
+		NonceStr: getNonceStr(),
 	}
 	//生成签名
 	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
@@ -322,7 +326,7 @@ func getNativePayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 		AppID:          mch.AppID,
 		MchID:          mch.MchID,
 		DeviceInfo:     "WEB",
-		NonceStr:       internal.GetNonceStr(),
+		NonceStr:       getNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
@@ -345,7 +349,7 @@ func getAppPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
 		AppID:          mch.AppID,
 		MchID:          mch.MchID,
-		NonceStr:       internal.GetNonceStr(),
+		NonceStr:       getNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
@@ -366,7 +370,7 @@ func getMwebPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
 		AppID:          mch.AppID,
 		MchID:          mch.MchID,
-		NonceStr:       internal.GetNonceStr(),
+		NonceStr:       getNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
@@ -389,7 +393,7 @@ func getJsapiPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 	return ReqUnifiedOrder{
 		AppID:          mch.AppID,
 		MchID:          mch.MchID,
-		NonceStr:       internal.GetNonceStr(),
+		NonceStr:       getNonceStr(),
 		Body:           order.Body,
 		Detail:         order.Detail,
 		Attach:         order.Attach,
@@ -411,10 +415,10 @@ func getJsapiPayReq(mch Merchant, order UnifiedOrder) ReqUnifiedOrder {
 //UnifiedOrder ...
 func (p PayAPI) UnifiedOrder(tradeType TradeType, mch Merchant, order UnifiedOrder) (ReturnUnifiedOrder, error) {
 	//验证参数
-	if err := internal.CheckRequire(string(TradeTypeNative), order); err != nil {
+	if err := CheckRequire(string(TradeTypeNative), order); err != nil {
 		return ReturnUnifiedOrder{}, err
 	}
-	if err := internal.CheckRequire(string(TradeTypeNative), mch); err != nil {
+	if err := CheckRequire(string(TradeTypeNative), mch); err != nil {
 		return ReturnUnifiedOrder{}, err
 	}
 
@@ -483,7 +487,7 @@ func (p PayAPI) OrderQuery(mch Merchant, transactionID, outTradeNo string) (Orde
 	if transactionID == "" && outTradeNo == "" {
 		return order, fmt.Errorf("微信订单号，商户订单号不能同时为空")
 	}
-	if err := internal.CheckRequire("", mch); err != nil {
+	if err := CheckRequire("", mch); err != nil {
 		return order, err
 	}
 
@@ -492,7 +496,7 @@ func (p PayAPI) OrderQuery(mch Merchant, transactionID, outTradeNo string) (Orde
 		MchID:         mch.MchID,
 		TransactionID: transactionID,
 		OutTradeNo:    outTradeNo,
-		NonceStr:      internal.GetNonceStr(),
+		NonceStr:      getNonceStr(),
 	}
 	//生成签名
 	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
@@ -553,7 +557,7 @@ func (p PayAPI) CloseOrder(mch Merchant, outTradeNo string) error {
 	if outTradeNo == "" {
 		return fmt.Errorf("商户订单号")
 	}
-	if err := internal.CheckRequire("", mch); err != nil {
+	if err := CheckRequire("", mch); err != nil {
 		return err
 	}
 
@@ -561,7 +565,7 @@ func (p PayAPI) CloseOrder(mch Merchant, outTradeNo string) error {
 		AppID:      mch.AppID,
 		MchID:      mch.MchID,
 		OutTradeNo: outTradeNo,
-		NonceStr:   internal.GetNonceStr(),
+		NonceStr:   getNonceStr(),
 	}
 	//生成签名
 	reqModel.Sign = Buildsign(reqModel, FieldTagKeyXML, mch.PrivateKey)
@@ -600,17 +604,17 @@ func (p PayAPI) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 	retn := RefundReturn{}
 
 	//验证参数
-	if err := internal.CheckRequire("", refund); err != nil {
+	if err := CheckRequire("", refund); err != nil {
 		return retn, err
 	}
-	if err := internal.CheckRequire("", mch); err != nil {
+	if err := CheckRequire("", mch); err != nil {
 		return retn, err
 	}
 
 	reqModel := ReqRefund{
 		AppID:         mch.AppID,
 		MchID:         mch.MchID,
-		NonceStr:      internal.GetNonceStr(),
+		NonceStr:      getNonceStr(),
 		TransactionID: refund.TransactionID,
 		OutTradeNo:    refund.OutTradeNo,
 		OutRefundNo:   refund.OutRefundNo,
@@ -681,14 +685,14 @@ func (p PayAPI) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 		refundQuery.RefundID == "" {
 		return retn, fmt.Errorf("微信订单号，商户订单号，商户退款单号，微信退款单号不能全为空")
 	}
-	if err := internal.CheckRequire("", mch); err != nil {
+	if err := CheckRequire("", mch); err != nil {
 		return retn, err
 	}
 
 	reqModel := ReqRefundQuery{
 		AppID:         mch.AppID,
 		MchID:         mch.MchID,
-		NonceStr:      internal.GetNonceStr(),
+		NonceStr:      getNonceStr(),
 		TransactionID: refundQuery.TransactionID,
 		OutTradeNo:    refundQuery.OutTradeNo,
 		OutRefundNo:   refundQuery.OutRefundNo,
@@ -926,10 +930,10 @@ func (p PayAPI) DownloadBill(mch Merchant, dwnBill DownLoadBill) ([]DownloadBill
 	billStatistics := DownloadBillStatisticsReturn{}
 
 	//验证参数
-	if err := internal.CheckRequire("", dwnBill); err != nil {
+	if err := CheckRequire("", dwnBill); err != nil {
 		return nil, billStatistics, err
 	}
-	if err := internal.CheckRequire("", mch); err != nil {
+	if err := CheckRequire("", mch); err != nil {
 		return nil, billStatistics, err
 	}
 	if _, err := time.Parse(dateFormat, dwnBill.BillDate); err != nil {
@@ -939,7 +943,7 @@ func (p PayAPI) DownloadBill(mch Merchant, dwnBill DownLoadBill) ([]DownloadBill
 	reqModel := ReqDownloadBill{
 		AppID:    mch.AppID,
 		MchID:    mch.MchID,
-		NonceStr: internal.GetNonceStr(),
+		NonceStr: getNonceStr(),
 		BillDate: dwnBill.BillDate,
 		BillType: dwnBill.BillType,
 		TarType:  dwnBill.TarType,

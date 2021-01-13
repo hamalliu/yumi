@@ -35,3 +35,11 @@ type CreateResponse struct {
 // BatchCreateResponse is a param of BatchCreate function return
 type BatchCreateResponse struct {
 }
+
+// GetResponse is a param of Get function return
+type GetResponse struct {
+}
+
+// ListResponse is a param of List function return
+type ListResponse struct {
+}

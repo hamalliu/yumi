@@ -1,25 +1,26 @@
-package wxpay
+package alipay
 
 import (
 	"bytes"
 	"context"
-	"encoding/xml"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"reflect"
 	"time"
 
-	"yumi/pkg/trade/internal"
+	"yumi/pkg/externalapi/reqrcrd"
 )
 
-var reqRcrd *internal.ReqRcrd
+var reqRcrd *reqrcrd.ReqRcrd
 
 func init() {
-	reqRcrd = internal.NewReqRcrd("wxpay_req_rcrds")
+	reqRcrd = reqrcrd.NewReqRcrd("alipay_req_rcrds")
 }
 
-func request(respBody interface{}, method, url string, reqBody interface{}, tr *http.Transport) ([]byte, error) {
+func request(respBody interface{}, method, url string, reqBody interface{}) ([]byte, error) {
 	if reflect.ValueOf(respBody).Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("参数respBody必须为指针")
 	}
@@ -27,7 +28,7 @@ func request(respBody interface{}, method, url string, reqBody interface{}, tr *
 		return nil, fmt.Errorf("参数reqBody必须为指针")
 	}
 
-	body, err := xml.Marshal(reqBody)
+	body, err := json.Marshal(reqBody)
 	if err != nil {
 		return nil, err
 	}
@@ -40,10 +41,7 @@ func request(respBody interface{}, method, url string, reqBody interface{}, tr *
 	}
 
 	//发起请求
-	cli := http.Client{}
-	if tr != nil {
-		cli.Transport = tr
-	}
+	var cli http.Client
 	resp, err := cli.Do(reqtx)
 	if err != nil {
 		if err == http.ErrHandlerTimeout {
@@ -54,12 +52,36 @@ func request(respBody interface{}, method, url string, reqBody interface{}, tr *
 
 	bs, _ := ioutil.ReadAll(resp.Body)
 	//解析返回数据
-	if err := xml.Unmarshal(bs, respBody); err != nil {
-		return bs, fmt.Errorf("%s", string(bs))
+	if err := json.Unmarshal(bs, respBody); err != nil {
+		return ioutil.ReadAll(resp.Body)
 	}
 
 	//记录请求
 	reqRcrd.AddRcrds(method, url, reqtx.Header, body, resp.Header, bs)
 
-	return bs, nil
+	return nil, nil
+}
+
+//ParseQuery ...
+func ParseQuery(rawQuery string) (ReqNotify, error) {
+	notify := ReqNotify{}
+
+	vals, err := url.ParseQuery(rawQuery)
+	if err != nil {
+		return notify, err
+	}
+
+	t := reflect.TypeOf(notify)
+	v := reflect.ValueOf(&notify)
+	fl := t.NumField()
+
+	for i := 0; i < fl; i++ {
+		jsonTag := t.Field(i).Tag.Get("json")
+		if jsonTag != "-" &&
+			len(vals[jsonTag]) != 0 {
+			v.Elem().Field(i).SetString(vals[jsonTag][0])
+		}
+	}
+
+	return notify, nil
 }
