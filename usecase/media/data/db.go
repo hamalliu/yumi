@@ -3,7 +3,7 @@ package data
 import (
 	"yumi/pkg/ecode"
 	"yumi/pkg/stores/dbc"
-	"yumi/usecase/media"
+	"yumi/usecase/media/entity"
 )
 
 //DBTable ...
@@ -41,7 +41,7 @@ func (DBTable) Insert(suffix, name, realname, path, operator, operatorid string)
 // Media is db table
 type Media struct {
 	ID int64
-	media.Media
+	entity.MediaAttribute
 }
 
 

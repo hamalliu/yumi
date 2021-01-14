@@ -3,16 +3,8 @@ package media
 import (
 	"mime/multipart"
 	"os"
-)
 
-// OwnerType involves individuals and organizations
-type OwnerType int
-
-const (
-	// OwnerTypeIndividual indicates that the owner type is an individual
-	OwnerTypeIndividual OwnerType = iota
-	// OwnerTypeOrganization indicates that the owner type is an Organization
-	OwnerTypeOrganization
+	"yumi/usecase/media/entity"
 )
 
 // FileInfo contains upload file info
@@ -23,7 +15,7 @@ type FileInfo struct {
 
 	Creator   string
 	Owner     string
-	OwnerType OwnerType
+	OwnerType entity.OwnerType
 	Groups    []string
 	Perm      os.FileMode
 }

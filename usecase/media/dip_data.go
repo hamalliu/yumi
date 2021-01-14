@@ -1,11 +1,16 @@
 package media
 
+import (
+	"yumi/usecase/media/entity"
+)
+
 var _data Data
 
 // Data ...
 type Data interface {
-	CreateMedia(media Media) error
-	GetMedia(fileNo string) (Media, error)
+	CreateMedia(ma entity.MediaAttribute) error
+	GetMedia(fileNo string) (entity.MediaAttribute, error)
+	ListMedia(page, line int) ([]entity.MediaAttribute, error)
 }
 
 // InitData ...
