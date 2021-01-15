@@ -31,3 +31,8 @@ func (jt Timestamp) Value() (driver.Value, error) {
 func (jt Timestamp) Time() time.Time {
 	return time.Unix(int64(jt), 0)
 }
+
+// NowTimestamp ...
+func NowTimestamp() Timestamp {
+	return Timestamp(time.Now().Unix())
+}
