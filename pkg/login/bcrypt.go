@@ -8,8 +8,8 @@ type Bcrypt struct{}
 var _bcrypt Bcrypt
 
 // GetBcrypt 获取bcrypt对象
-func GetBcrypt() Bcrypt {
-	return _bcrypt
+func GetBcrypt() *Bcrypt {
+	return &_bcrypt
 }
 
 // GenerateFromPassword 根据用户输入的密码，生成经bcrypt算法加密后的密码。

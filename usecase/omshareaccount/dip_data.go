@@ -10,7 +10,7 @@ var _data Data
 type Data interface {
 	Create(saa entity.ShareAccountAttribute) error
 	Update(sa entity.ShareAccountAttribute) error
-	Get(shareAccountID string) (*entity.ShareAccountAttribute, error)
+	Get(shareID string) (entity.ShareAccountAttribute, error)
 }
 
 // InitData ...

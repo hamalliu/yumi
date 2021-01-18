@@ -7,11 +7,11 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/casbin/casbin"
+	
 	"yumi/pkg/gin"
 	"yumi/pkg/gin/valuer"
 	"yumi/pkg/log"
-
-	"github.com/casbin/casbin"
 )
 
 // Logic is the logical operation (AND/OR) used in permission checks

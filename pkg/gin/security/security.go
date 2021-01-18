@@ -30,6 +30,7 @@ const (
 
 	contentTypeField = "content_type"
 	timestampField   = "timestamp"
+	nonceField       = "nonce"
 )
 
 var (
@@ -53,6 +54,7 @@ var (
 type ContentSecurityHeader struct {
 	Key         []byte
 	Timestamp   string
+	Nonce       string
 	ContentType string
 	Signature   string
 }
@@ -63,6 +65,7 @@ func (h *ContentSecurityHeader) Encrypted() bool {
 }
 
 func parseHeader(cs string) (attrs map[string]string) {
+	// TODO:
 	return nil
 }
 
@@ -94,6 +97,7 @@ func ParseContentSecurity(decrypters map[string]codec.RsaDecrypter, r *http.Requ
 	attrs = parseHeader(string(decryptedSecret))
 	base64Key := attrs[keyField]
 	timestamp := attrs[timestampField]
+	nonce := attrs[nonceField]
 	contentType := attrs[contentTypeField]
 
 	key, err := base64.StdEncoding.DecodeString(base64Key)
@@ -104,6 +108,7 @@ func ParseContentSecurity(decrypters map[string]codec.RsaDecrypter, r *http.Requ
 	return &ContentSecurityHeader{
 		Key:         key,
 		Timestamp:   timestamp,
+		Nonce:       nonce,
 		ContentType: contentType,
 		Signature:   signature,
 	}, nil
@@ -125,6 +130,7 @@ func VerifySignature(r *http.Request, securityHeader *ContentSecurityHeader, tol
 	reqPath, reqQuery := getPathQuery(r)
 	signContent := strings.Join([]string{
 		securityHeader.Timestamp,
+		securityHeader.Nonce,
 		r.Method,
 		reqPath,
 		reqQuery,

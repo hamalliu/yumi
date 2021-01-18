@@ -14,6 +14,11 @@ type ShareMessage struct {
 	DataURL string
 }
 
+// SetLink ...
+func (sm *ShareMessage) SetLink(shareID string) {
+	sm.Link += "?share_id="+shareID
+}
+
 // ShareAttribute ...
 type ShareAttribute struct {
 	ParentShareID   string
@@ -37,12 +42,10 @@ func (s *Share) ChildrenLen() int {
 	return len(s.children)
 }
 
-// DataShare ...
-type DataShare interface {
-	CreateShare(sa ShareAttribute) error
-	UpdateShare(sa ShareAttribute) error
-	GetShare(shareID string) (ShareAttribute, error)
-	GetSubShare(parentShareID string) ([]ShareAttribute, error)
+// SetCancellationMsg 设置CancellationMsg
+func (s *Share) SetCancellationMsg(cm bool) {
+	s.attr.CancellationMsg = cm
+	return 
 }
 
 // NewShare ...
