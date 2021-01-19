@@ -6,29 +6,29 @@ import (
 
 // ShareMessage ...
 type ShareMessage struct {
-	Title   string
-	Desc    string
-	Link    string
-	ImgURL  string
-	Type    int
-	DataURL string
+	Title   string `bson:"title"`
+	Desc    string `bson:"desc"`
+	Link    string `bson:"link"`
+	ImgURL  string `bson:"img_url"`
+	Type    int    `bson:"type"`
+	DataURL string `bson:"data_url"`
 }
 
 // SetLink ...
 func (sm *ShareMessage) SetLink(shareID string) {
-	sm.Link += "?share_id="+shareID
+	sm.Link += "?share_id=" + shareID
 }
 
 // ShareAttribute ...
 type ShareAttribute struct {
-	ParentShareID   string
-	ShareID         string
-	Sender          string
-	Receiver        string
-	Message         ShareMessage
-	CancellationMsg bool
-	SendTime        types.Timestamp
-	OpenTime        types.Timestamp
+	ParentShareID   string          `bson:"parent_share_id"`
+	ShareID         string          `bson:"share_idd"`
+	Sender          string          `bson:"sender"`
+	Receiver        string          `bson:"receiver"`
+	Message         ShareMessage    `bson:"message"`
+	CancellationMsg bool            `bson:"cancellation_msg"`
+	SendTime        types.Timestamp `bson:"send_time"`
+	OpenTime        types.Timestamp `bson:"opend_time"`
 }
 
 // Share ...
@@ -45,7 +45,7 @@ func (s *Share) ChildrenLen() int {
 // SetCancellationMsg 设置CancellationMsg
 func (s *Share) SetCancellationMsg(cm bool) {
 	s.attr.CancellationMsg = cm
-	return 
+	return
 }
 
 // NewShare ...

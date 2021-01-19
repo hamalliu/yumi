@@ -1,16 +1,21 @@
 package omshareaccount
 
-import (
-	"yumi/usecase/omshareaccount/entity"
-)
+import "yumi/usecase/omshareaccount/entity"
 
 var _data Data
 
 // Data ...
 type Data interface {
-	Create(saa entity.ShareAccountAttribute) error
-	Update(sa entity.ShareAccountAttribute) error
-	Get(shareID string) (entity.ShareAccountAttribute, error)
+	ShareAccount(entity.ShareAccountAttribute) DataShareAccount
+	GetShareAccount(shareID string) (DataShareAccount, error)
+}
+
+// DataShareAccount ...
+type DataShareAccount interface {
+	Attribute() *entity.ShareAccountAttribute
+	
+	Create() error
+	Update() error
 }
 
 // InitData ...

@@ -17,6 +17,7 @@ type Config struct {
 	Server     Server
 	Media      Media
 	DB         DB
+	Mongo      Mongo
 	CORS       CORS
 	OnlyOffice OnlyOffice
 }
@@ -48,6 +49,17 @@ type DB struct {
 	MaxOpenConns    int                // 连接池最多打开连接数
 	MaxIdleConns    int                // 连接池最多空闲连接数
 	ConnMaxLifetime types.TimeDuration // 连接最长寿命
+}
+
+// Mongo mongodb 数据库配置
+type Mongo struct {
+	Dsn               string
+	DBName            string
+	MaxPoolSize       uint64             // 连接池最多打开连接数
+	MinPoolSize       uint64             // 连接池最少打开连接数
+	MaxConnIdleTime   types.TimeDuration // 空闲连接断开时间
+	ConnectTimeout    types.TimeDuration // 连接超时时间
+	HeartbeatInterval types.TimeDuration // 心跳间隔时间
 }
 
 // CORS CORS配置

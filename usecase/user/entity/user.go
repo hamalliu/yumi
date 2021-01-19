@@ -7,6 +7,7 @@ import (
 
 	"yumi/pkg/codes"
 	"yumi/pkg/login"
+	"yumi/pkg/sessions"
 	"yumi/pkg/status"
 	"yumi/pkg/types"
 )
@@ -126,4 +127,22 @@ func regexpPassword(str string) error {
 	}
 
 	return fmt.Errorf("密码必须包含特殊字符，数字，字母中的两种以上")
+}
+
+// Session ...
+func (u *User) Session(store sessions.Store, client string) (string, error) {
+	loginLen, err := sessions.GetSessionLen(store, u.attr.UserID, client)
+	if err != nil {
+		return "", err
+	}
+	if loginLen > 0 {
+		sessions.DeleteSession(store, u.attr.UserID, client, 1)
+	}
+	sess := sessions.NewSession(store, u.attr.UserID, client)
+	err = sess.Save()
+	if err != nil {
+		return "", err
+	}
+
+	return sess.ID, nil
 }

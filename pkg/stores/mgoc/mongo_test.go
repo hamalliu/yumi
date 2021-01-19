@@ -1,4 +1,4 @@
-package mongo
+package mgoc
 
 import "testing"
 

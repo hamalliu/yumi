@@ -8,18 +8,18 @@ import (
 
 // ShareAccountAttribute ...
 type ShareAccountAttribute struct {
-	ShareID string
+	ShareID string `bson:"share_id"`
 	// 账号个数
-	Total int
+	Total int `bson:"total"`
 	// 还可以分享账号个数
-	CanShareNumber int
+	CanShareNumber int `bson:"can_share_number"`
 	// 是否领用
-	Received bool
+	Received bool `bson:"received"`
 	// 领用账号
-	ReceivedAccount string
+	ReceivedAccount string `bson:"received_account"`
 
-	Parent *ShareAccountAttribute
-	Share  *entities.ShareAttribute
+	Parent *ShareAccountAttribute   `bson:"-"`
+	Share  *entities.ShareAttribute `bson:"share"`
 }
 
 // ShareAccount ...
@@ -48,10 +48,10 @@ func (sa *ShareAccount) LawEnforcement() error {
 // SetCancellationMsg 设置撤销msg
 // 如果有子分享或已被领取账号不能撤回
 func (sa *ShareAccount) SetCancellationMsg() error {
-	if sa.share.ChildrenLen() == 0{
+	if sa.share.ChildrenLen() == 0 {
 		return status.New(codes.InvalidArgument, "该分享已有子分享不能撤回")
 	}
-	
+
 	if sa.attr.Received {
 		return status.New(codes.InvalidArgument, "该分享账号已被领取不能撤回")
 	}

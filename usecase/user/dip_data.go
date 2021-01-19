@@ -1,14 +1,26 @@
-package account
+package user
 
-import "yumi/usecase/user/entity"
+import (
+	"yumi/usecase/user/entity"
+	"yumi/pkg/sessions"
+)
 
 var _data Data
 
 // Data ...
 type Data interface {
-	Create(saa entity.UserAttribute) error
-	Update(sa entity.UserAttribute) error
-	Get(userID string) (entity.UserAttribute, error)
+	User(entity.UserAttribute) DataUser
+	GetUser(userID string) (DataUser, error)
+
+	GetSessionsStore() sessions.Store
+}
+
+// DataUser ...
+type DataUser interface{
+	Attribute() *entity.UserAttribute
+
+	Create() error
+	Update() error
 }
 
 // InitData ...

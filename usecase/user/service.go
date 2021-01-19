@@ -1,4 +1,4 @@
-package account
+package user
 
 import (
 	"yumi/usecase/user/entity"
@@ -29,7 +29,7 @@ func (s *Service) Create(req CreateAccountRequest) (err error) {
 	}
 
 	// 持久化
-	err = data.Create(ua)
+	err = data.User(ua).Create()
 	if err != nil {
 		return err
 	}
@@ -47,18 +47,25 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 	data := GetData()
 	resp := LoginByBcryptResponse{}
 
-	ut, err := data.Get(req.UserID)
+	dataUt, err := data.GetUser(req.UserID)
 	if err != nil {
 		return resp, err
 	}
 
-	u := entity.NewUser(&ut)
+	u := entity.NewUser(dataUt.Attribute())
 	err = u.VerifyPassword(req.Password)
 	if err != nil {
 		return resp, err
 	}
 
-	//返回token
+	//构建session
+	sessID, err := u.Session(data.GetSessionsStore(), req.Client)
+	if err != nil {
+		return resp, err
+	}
+
+	resp.UserID = req.UserID
+	resp.SecureKey = sessID
 
 	return resp, nil
 }

@@ -18,10 +18,11 @@ func (s *Service) Create(req CreateShareRequest) (err error) {
 	saa := req.ShareAccountAttribute()
 	parentShareID := saa.Share.ParentShareID
 	if parentShareID != "" {
-		*saa.Parent, err = data.Get(parentShareID)
+		dataSas, err := data.GetShareAccount(parentShareID)
 		if err != nil {
 			return err
 		}
+		saa.Parent = dataSas.Attribute()
 	}
 
 	// 执法：检查当前对象数据关系是否合乎业务规定
@@ -32,7 +33,7 @@ func (s *Service) Create(req CreateShareRequest) (err error) {
 	}
 
 	// 持久化
-	err = data.Create(saa)
+	err = data.ShareAccount(saa).Create()
 	if err != nil {
 		return err
 	}
@@ -48,18 +49,18 @@ func (s *Service) GetShare() (resp GetShareResponse, err error) {
 func (s *Service) CancelShare(req CancelShareRequest) error {
 	data := GetData()
 
-	saa, err := data.Get(req.ShareID)
+	dataSas, err := data.GetShareAccount(req.ShareID)
 	if err != nil {
 		return err
 	}
-	sa := entity.NewShareAccount(&saa)
+	sa := entity.NewShareAccount(dataSas.Attribute())
 	err = sa.SetCancellationMsg()
 	if err != nil {
 		return err
 	}
 
 	// 持久化
-	err = data.Update(saa)
+	err = dataSas.Update()
 	if err != nil {
 		return err
 	}
@@ -72,11 +73,11 @@ func (s *Service) ReceiveAccount(req ReceiveAccountRequest) (ReceiveAccountRespo
 	data := GetData()
 	resp := ReceiveAccountResponse{}
 
-	saa, err := data.Get(req.ShareID)
+	dataSas, err := data.GetShareAccount(req.ShareID)
 	if err != nil {
 		return resp, err
 	}
-	sa := entity.NewShareAccount(&saa)
+	sa := entity.NewShareAccount(dataSas.Attribute())
 
 	acct := getAcctName()
 	err = sa.SetReceived(acct)
@@ -90,7 +91,7 @@ func (s *Service) ReceiveAccount(req ReceiveAccountRequest) (ReceiveAccountRespo
 	resp.SetAcct(caresp)
 
 	// 持久化
-	err = data.Update(saa)
+	err = dataSas.Update()
 	if err != nil {
 		return resp, err
 	}

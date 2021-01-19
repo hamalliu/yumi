@@ -1,4 +1,4 @@
-package account
+package user
 
 import "yumi/usecase/user/entity"
 
@@ -22,13 +22,15 @@ func (ar *CreateAccountRequest) UserAttribute() entity.UserAttribute {
 
 // LoginByBcryptRequest ...
 type LoginByBcryptRequest struct {
-	UserID      string
-	Password    string
+	Client   string
+	UserID   string
+	Password string
 }
 
 // LoginByBcryptResponse ...
 type LoginByBcryptResponse struct {
-	
+	UserID    string
+	SecureKey string
 }
 
 // DisableAccountRequest ...
