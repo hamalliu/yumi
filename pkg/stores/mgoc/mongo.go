@@ -84,7 +84,7 @@ func Get() *Client {
 
 // Connect ...
 func Connect() error {
-	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017"))
+	client, err := mongo.NewClient(options.Client().ApplyURI("mongodb://localhost:27017/yumi"))
 	if err != nil {
 		return err
 	}
