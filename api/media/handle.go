@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 	"yumi/pkg/ecode"
-	"yumi/pkg/gin"
+	"yumi/gin"
 	"yumi/usecase/media/data"
 )
 

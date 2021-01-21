@@ -2,8 +2,8 @@ package user
 
 import "yumi/usecase/user/entity"
 
-// CreateAccountRequest ...
-type CreateAccountRequest struct {
+// CreateRequest ...
+type CreateRequest struct {
 	UserID      string
 	Password    string
 	UserName    string
@@ -11,7 +11,7 @@ type CreateAccountRequest struct {
 }
 
 // UserAttribute ...
-func (ar *CreateAccountRequest) UserAttribute() entity.UserAttribute {
+func (ar *CreateRequest) UserAttribute() entity.UserAttribute {
 	return entity.UserAttribute{
 		UserID:      ar.UserID,
 		Password:    ar.Password,
@@ -33,6 +33,12 @@ type LoginByBcryptResponse struct {
 	SecureKey string
 }
 
-// DisableAccountRequest ...
-type DisableAccountRequest struct {
+// DisableRequest ...
+type DisableRequest struct {
 }
+
+// AuthentcateRequest ...
+type AuthentcateRequest struct {
+}
+
+

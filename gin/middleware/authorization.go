@@ -9,8 +9,8 @@ import (
 
 	"github.com/casbin/casbin"
 	
-	"yumi/pkg/gin"
-	"yumi/pkg/gin/valuer"
+	"yumi/gin"
+	"yumi/gin/valuer"
 	"yumi/pkg/log"
 )
 

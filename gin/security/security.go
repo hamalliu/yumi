@@ -15,7 +15,7 @@ import (
 	"time"
 
 	"yumi/pkg/codec"
-	"yumi/pkg/gin/header"
+	"yumi/gin/header"
 	"yumi/pkg/log"
 )
 

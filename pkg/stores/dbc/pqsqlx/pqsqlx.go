@@ -1,7 +1,7 @@
 package pqsqlx
 
 import (
-	"yumi/pkg/conf"
+	"yumi/conf"
 
 	"github.com/jmoiron/sqlx"
 )

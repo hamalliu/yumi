@@ -9,7 +9,7 @@ var _data Data
 
 // Data ...
 type Data interface {
-	User(entity.UserAttribute) DataUser
+	Create(entity.UserAttribute) error
 	GetUser(userID string) (DataUser, error)
 
 	GetSessionsStore() sessions.Store
@@ -19,7 +19,6 @@ type Data interface {
 type DataUser interface{
 	Attribute() *entity.UserAttribute
 
-	Create() error
 	Update() error
 }
 

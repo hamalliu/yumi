@@ -5,7 +5,7 @@ import (
 
 	"github.com/op/go-logging"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 )
 
 var infolog = logging.MustGetLogger("info")

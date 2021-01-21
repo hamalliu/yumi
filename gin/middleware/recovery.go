@@ -6,7 +6,7 @@ import (
 	"runtime"
 
 	"yumi/pkg/ecode"
-	"yumi/pkg/gin"
+	"yumi/gin"
 	"yumi/pkg/log"
 )
 

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 )
 
 //Document ...

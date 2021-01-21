@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 //ReqBodyLogin ...

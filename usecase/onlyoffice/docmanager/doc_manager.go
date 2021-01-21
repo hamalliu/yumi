@@ -8,7 +8,7 @@ import (
 	"path"
 	"strings"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 	"yumi/pkg/fileutility"
 )
 

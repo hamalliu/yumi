@@ -3,7 +3,7 @@ package dbc
 import (
 	"time"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/pkg/types"
 )

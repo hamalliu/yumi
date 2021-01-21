@@ -7,8 +7,8 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 
-	"yumi/pkg/gin"
-	"yumi/pkg/gin/valuer"
+	"yumi/gin"
+	"yumi/gin/valuer"
 	"yumi/pkg/token"
 )
 

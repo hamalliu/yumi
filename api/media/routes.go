@@ -1,7 +1,7 @@
 package media
 
 import (
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 //Mount ...

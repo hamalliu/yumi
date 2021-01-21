@@ -14,7 +14,7 @@ func New() (*Service, error) {
 }
 
 // Create ...
-func (s *Service) Create(req CreateAccountRequest) (err error) {
+func (s *Service) Create(req CreateRequest) (err error) {
 	data := GetData()
 
 	ua := req.UserAttribute()
@@ -29,7 +29,7 @@ func (s *Service) Create(req CreateAccountRequest) (err error) {
 	}
 
 	// 持久化
-	err = data.User(ua).Create()
+	err = data.Create(ua)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,8 @@ func (s *Service) Create(req CreateAccountRequest) (err error) {
 }
 
 // Disable ...
-func (s *Service) Disable(req DisableAccountRequest) (err error) {
+func (s *Service) Disable(req DisableRequest) (err error) {
+	// TODO
 	return nil
 }
 
@@ -59,7 +60,7 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 	}
 
 	//构建session
-	sessID, err := u.Session(data.GetSessionsStore(), req.Client)
+	sessID, err := u.Session(data.GetSessionsStore(), req.UserID, req.Password, req.Client)
 	if err != nil {
 		return resp, err
 	}
@@ -68,4 +69,10 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 	resp.SecureKey = sessID
 
 	return resp, nil
+}
+
+// Authenticate ...
+func (s *Service) Authenticate(req AuthentcateRequest) error {
+	// TODO
+	return nil
 }

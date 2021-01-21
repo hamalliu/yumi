@@ -1,7 +1,7 @@
 package onlyoffice
 
 import (
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 //Mount ...

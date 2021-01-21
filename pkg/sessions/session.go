@@ -1,6 +1,7 @@
 package sessions
 
 import (
+	"sync"
 	"time"
 
 	"yumi/pkg/random"
@@ -11,6 +12,7 @@ import (
 const flashesKey = "_flash"
 
 var _maxAge = time.Hour * 2
+var mux sync.Mutex
 
 // Session --------------------------------------------------------------------
 
@@ -21,17 +23,30 @@ func newSessionID() string {
 }
 
 // NewSession is called by session stores to create a new session instance.
-func NewSession(store Store, name, client string) *Session {
+func NewSession(store Store, name, client string, limit int) (*Session, error) {
+	mux.Lock()
+	defer mux.Unlock()
+	len, err := getSessionLen(store, name, client)
+	if err != nil {
+		return nil, err
+	}
+	if len >= limit {
+		err = deleteSession(store, name, client, limit)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return &Session{
 		ID:     newSessionID(),
 		Values: make(map[interface{}]interface{}),
 		store:  store,
 
-		client: client,
-		name:   name,
+		client:     client,
+		name:       name,
 		expireTime: types.Timestamp(time.Now().Add(_maxAge).Unix()),
-		maxAge: _maxAge,
-	}
+		maxAge:     _maxAge,
+	}, nil
 }
 
 // GetSession ...
@@ -39,13 +54,13 @@ func GetSession(store Store, sessID string) (*Session, error) {
 	return store.Get(sessID)
 }
 
-// GetSessionLen ...
-func GetSessionLen(store Store, name, client string) (int, error) {
+// getSessionLen ...
+func getSessionLen(store Store, name, client string) (int, error) {
 	return store.GetLen(name + client)
 }
 
-// DeleteSession ... 
-func DeleteSession(store Store, name, client string, number int) error {
+// deleteSession ...
+func deleteSession(store Store, name, client string, number int) error {
 	return nil
 }
 
@@ -62,6 +77,19 @@ type Session struct {
 	client     string
 	name       string
 	store      Store
+}
+
+// GetValues ...
+func (s *Session) GetValues(key string) []interface{} {
+	var flashes []interface{}
+	if key == "" {
+		key = flashesKey
+	}
+
+	if v, ok := s.Values[key]; ok {
+		flashes = v.([]interface{})
+	}
+	return flashes
 }
 
 // Flashes returns a slice of flash messages from the session.

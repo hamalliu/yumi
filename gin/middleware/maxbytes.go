@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 // MaxBytes ...

@@ -12,13 +12,13 @@ import (
 	"path"
 	"time"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 	"yumi/pkg/ecode"
 	"yumi/pkg/fileutility"
 	"yumi/pkg/log"
-	"yumi/pkg/gin"
-	"yumi/pkg/gin/binding"
-	"yumi/pkg/gin/valuer"
+	"yumi/gin"
+	"yumi/gin/binding"
+	"yumi/gin/valuer"
 	"yumi/usecase/onlyoffice"
 )
 

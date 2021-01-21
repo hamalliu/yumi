@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 func matchHostSuffix(suffix string) func(*url.URL) bool {

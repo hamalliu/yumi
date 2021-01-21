@@ -1,10 +1,10 @@
 package entity
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 
+	"yumi/pkg/codec"
 	"yumi/pkg/codes"
 	"yumi/pkg/login"
 	"yumi/pkg/sessions"
@@ -86,7 +86,7 @@ func (u *User) VerifyPassword(password string) (err error) {
 	}
 
 	if !pass {
-		return errors.New("密码错误")
+		return status.New(codes.Unauthenticated, "密码错误")
 	}
 
 	return nil
@@ -130,19 +130,39 @@ func regexpPassword(str string) error {
 }
 
 // Session ...
-func (u *User) Session(store sessions.Store, client string) (string, error) {
-	loginLen, err := sessions.GetSessionLen(store, u.attr.UserID, client)
-	if err != nil {
-		return "", err
-	}
-	if loginLen > 0 {
-		sessions.DeleteSession(store, u.attr.UserID, client, 1)
-	}
-	sess := sessions.NewSession(store, u.attr.UserID, client)
+func (u *User) Session(store sessions.Store, userID, password, client string) (string, error) {
+	sess, err := sessions.NewSession(store, u.attr.UserID, client, 1)
 	err = sess.Save()
 	if err != nil {
-		return "", err
+		return "", status.Internal().WithDetails(err.Error())
 	}
 
+	sess.AddFlash(sess.ID, "session_id")
+	sess.AddFlash(userID, "user_id")
+
+	// secureKey = Md5(sessionID+userID+password)
+	cnt := fmt.Sprintf("%s&%s&%s", sess.ID, userID, password)
+	secureKey := codec.Md5([]byte(cnt))
+	sess.AddFlash(secureKey, "secure_key")
 	return sess.ID, nil
+}
+
+// Authenticate ...
+func (u *User) Authenticate(store sessions.Store, sessionID, secureKey string) error {
+	sess, err := sessions.GetSession(store, sessionID)
+	if err != nil {
+		return err
+	}
+
+	vars := sess.GetValues("secure_key")
+	if len(vars) == 0 {
+		return status.New(codes.Unauthenticated, "请重新登录").WithDetails("secure_key 泄漏")
+	}
+	srvSecureKey := vars[0].(string)
+
+	if secureKey != srvSecureKey {
+		return status.New(codes.Unauthenticated, "请重新登录").WithDetails("secureKey error:"+secureKey)
+	}
+
+	return nil
 }

@@ -11,9 +11,9 @@ import (
 
 	"yumi/api"
 	"yumi/apidoc"
-	"yumi/pkg/conf"
-	"yumi/pkg/gin"
-	"yumi/pkg/gin/middleware"
+	"yumi/conf"
+	"yumi/gin"
+	"yumi/gin/middleware"
 	"yumi/pkg/log"
 	"yumi/usecase"
 )

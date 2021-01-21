@@ -9,7 +9,7 @@ import (
 
 	"github.com/lestrrat-go/jwx/jwt"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 )
 
 //DocService ...

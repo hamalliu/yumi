@@ -5,8 +5,8 @@ import (
 
 	"github.com/rs/cors"
 
-	"yumi/pkg/gin"
-	"yumi/pkg/gin/header"
+	"yumi/gin"
+	"yumi/gin/header"
 )
 
 //Cors ...

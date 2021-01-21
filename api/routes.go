@@ -3,7 +3,7 @@ package api
 import (
 	"yumi/api/admin"
 	"yumi/api/media"
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 //Mount ...

@@ -1,6 +1,6 @@
 package middleware
 
-import "yumi/pkg/gin"
+import "yumi/gin"
 
 // Security 安全传输
 func Security() gin.HandlerFunc {

@@ -14,7 +14,7 @@ import (
 	"yumi/usecase/onlyoffice/config"
 	"yumi/usecase/onlyoffice/docmanager"
 	"yumi/usecase/onlyoffice/docservice"
-	"yumi/pkg/conf"
+	"yumi/conf"
 	"yumi/pkg/fileutility"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 //APIDoc ...

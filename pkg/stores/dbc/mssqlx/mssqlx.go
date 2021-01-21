@@ -3,7 +3,7 @@ package mssqlx
 import (
 	"github.com/jmoiron/sqlx"
 
-	"yumi/pkg/conf"
+	"yumi/conf"
 )
 
 const dirverName = "mssql"

@@ -28,16 +28,24 @@ func (db *MongoDB) collUsers() *mongo.Collection {
 	return db.Collection("users")
 }
 
-// User ...
-func (db *MongoDB) User(saa entity.UserAttribute) user.DataUser {
-	sa := Users{db: db, UserAttribute: saa}
-	return &sa
+// Create ...
+func (db *MongoDB) Create(saa entity.UserAttribute) error {
+	sa := User{db: db, UserAttribute: saa}
+	coll := sa.db.collUsers()
+
+	ctx := context.Background()
+	_, err := coll.InsertOne(ctx, sa)
+	if err != nil {
+		return status.Internal().WithDetails(err.Error())
+	}
+
+	return nil
 }
 
 // GetUser ...
 func (db *MongoDB) GetUser(userID string) (user.DataUser, error) {
 	coll := db.collUsers()
-	sa := Users{db: db}
+	sa := User{db: db}
 
 	ctx := context.Background()
 	ret := coll.FindOne(ctx, primitive.M{"user_id": userID})
@@ -58,36 +66,23 @@ func (db *MongoDB) GetSessionsStore() sessions.Store {
 	return nil
 }
 
-// Users ...
-type Users struct {
+// User ...
+type User struct {
 	db *MongoDB `bson:"-"`
 
 	ID primitive.ObjectID `bson:"_id"`
 	entity.UserAttribute
 }
 
-var _ user.DataUser = &Users{}
+var _ user.DataUser = &User{}
 
 // Attribute ...
-func (sa *Users) Attribute() *entity.UserAttribute {
+func (sa *User) Attribute() *entity.UserAttribute {
 	return &sa.UserAttribute
 }
 
-// Create ...
-func (sa *Users) Create() error {
-	coll := sa.db.collUsers()
-
-	ctx := context.Background()
-	_, err := coll.InsertOne(ctx, sa)
-	if err != nil {
-		return status.Internal().WithDetails(err.Error())
-	}
-
-	return nil
-}
-
 // Update ...
-func (sa *Users) Update() error {
+func (sa *User) Update() error {
 	coll := sa.db.collUsers()
 
 	ctx := context.Background()

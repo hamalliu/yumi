@@ -1,7 +1,7 @@
 package sqlite3x
 
 import (
-	"yumi/pkg/conf"
+	"yumi/conf"
 
 	"github.com/jmoiron/sqlx"
 )

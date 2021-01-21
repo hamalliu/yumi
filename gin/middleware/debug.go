@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io"
 
-	"yumi/pkg/gin"
+	"yumi/gin"
 )
 
 //Debug ...

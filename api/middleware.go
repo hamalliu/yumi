@@ -1,8 +1,8 @@
 package api
 
 import (
-	"yumi/pkg/conf"
-	"yumi/pkg/gin"
+	"yumi/conf"
+	"yumi/gin"
 	"yumi/pkg/log"
 )
 
