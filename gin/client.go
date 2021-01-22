@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"time"
 
-	"yumi/gin/render"
+	"yumi/pkg/render"
 )
 
 const timeformat = "2006-01-02 15:04:05.999999"

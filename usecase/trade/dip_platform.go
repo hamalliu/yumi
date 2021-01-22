@@ -1,6 +1,10 @@
 package trade
 
-import "net/http"
+import (
+	"net/http"
+	
+	"yumi/usecase/trade/entity"
+)
 
 //StatusTradePlatform ...
 type StatusTradePlatform string
@@ -57,27 +61,27 @@ type ReturnRefundNotify struct {
 //Trade ...
 type Trade interface {
 	// 发起支付
-	Pay(op OrderPay) (ReturnPay, error)
+	Pay(op *entity.OrderPay) (ReturnPay, error)
 	// 支付通知提供三个接口，以应对不同支付平台的接口差异
 	// 处理请求
 	PayNotifyReq(req *http.Request) (ReturnPayNotify, error)
 	// 检查参数
-	PayNotifyCheck(op OrderPay, reqData interface{}) error
+	PayNotifyCheck(op *entity.OrderPay, reqData interface{}) error
 	// 应答
 	PayNotifyResp(err error, resp http.ResponseWriter)
 	// 查询支付状态
-	QueryPayStatus(op OrderPay) (ReturnQueryPay, error)
+	QueryPayStatus(op *entity.OrderPay) (ReturnQueryPay, error)
 	// 关闭交易
-	TradeClose(op OrderPay) error
+	TradeClose(op *entity.OrderPay) error
 	// 退款
-	Refund(op OrderPay, or OrderRefund) error
+	Refund(op *entity.OrderPay, or *entity.OrderRefund) error
 	// 查询退款状态
-	QueryRefundStatus(op OrderPay, or OrderRefund) (ReturnQueryRefund, error)
+	QueryRefundStatus(op *entity.OrderPay, or *entity.OrderRefund) (ReturnQueryRefund, error)
 	// 退款通知提供三个接口，以应对不同支付平台的接口差异
 	// 处理请求
 	RefundNotifyReq(req *http.Request) (ReturnRefundNotify, error)
 	// 检查参数
-	RefundNotifyCheck(op OrderPay, or OrderRefund, reqData interface{}) error
+	RefundNotifyCheck(op *entity.OrderPay, or *entity.OrderRefund, reqData interface{}) error
 	// 应答
 	RefundNotifyResp(err error, resp http.ResponseWriter)
 }

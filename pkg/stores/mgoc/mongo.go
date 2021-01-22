@@ -2,10 +2,8 @@ package mgoc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
-	"yumi/conf"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -41,45 +39,6 @@ func New(uri string, opts ...*options.ClientOptions) (*Client, error) {
 	}
 
 	return &Client{Client: cli}, nil
-}
-
-var _mgoc *Client
-
-// Init ...
-func Init(config conf.Mongo) error {
-	if config.Dsn == "" {
-		panic(errors.New("mongo dsn is empty"))
-	}
-
-	opts := []*options.ClientOptions{}
-	if config.ConnectTimeout != 0 {
-		opts = append(opts, options.Client().SetConnectTimeout(config.ConnectTimeout.Duration()))
-	}
-	if config.HeartbeatInterval != 0 {
-		opts = append(opts, options.Client().SetHeartbeatInterval(config.HeartbeatInterval.Duration()))
-	}
-	if config.MaxConnIdleTime != 0 {
-		opts = append(opts, options.Client().SetMaxConnIdleTime(config.MaxConnIdleTime.Duration()))
-	}
-	if config.MaxPoolSize != 0 {
-		opts = append(opts, options.Client().SetMaxPoolSize(config.MaxPoolSize))
-	}
-	if config.MinPoolSize != 0 {
-		opts = append(opts, options.Client().SetMinPoolSize(config.MinPoolSize))
-	}
-
-	cli, err := New(config.Dsn, opts...)
-	if err != nil {
-		panic(err)
-	}
-
-	_mgoc = cli
-	return nil
-}
-
-// Get ...
-func Get() *Client {
-	return _mgoc
 }
 
 // Connect ...

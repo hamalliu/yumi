@@ -1,9 +1,9 @@
 package sqlite3x
 
 import (
-	"yumi/conf"
-
 	"github.com/jmoiron/sqlx"
+
+	"yumi/pkg/stores/dbc"
 )
 
 const dirverName string = "sqlite3"
@@ -14,19 +14,20 @@ type Client struct {
 }
 
 //New 根据conf配置新建一个sqlite3客户端
-func New(conf conf.DB) (*Client, error) {
+func New(dsn string, options ...dbc.ClientOption) (*Client, error) {
 	var (
 		m   = new(Client)
 		err error
 	)
 
-	if m.DB, err = sqlx.Connect(dirverName, conf.Dsn); err != nil {
+	if m.DB, err = sqlx.Connect(dirverName, dsn); err != nil {
 		return nil, err
 	}
 
-	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
-	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration())
-
+	opts := &dbc.ClientOptions{DB: m.DB}
+	for _, option := range options {
+		option.F(opts)
+	}
+	
 	return m, nil
 }

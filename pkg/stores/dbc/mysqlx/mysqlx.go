@@ -15,6 +15,7 @@ import (
 
 	"yumi/conf"
 	"yumi/pkg/log"
+	"yumi/pkg/stores/dbc"
 )
 
 const dirverName = "mysql"
@@ -26,20 +27,20 @@ type Client struct {
 }
 
 //New 新建一个 mysql 客户端
-func New(conf conf.DB) (*Client, error) {
+func New(dsn string, options ...dbc.ClientOption) (*Client, error) {
 	var (
 		m   = new(Client)
 		err error
 	)
 
-	m.conf = conf
-	if m.DB, err = sqlx.Connect(dirverName, conf.Dsn); err != nil {
+	if m.DB, err = sqlx.Connect(dirverName, dsn); err != nil {
 		return nil, err
 	}
 
-	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
-	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration())
+	opts := &dbc.ClientOptions{DB: m.DB}
+	for _, option := range options {
+		option.F(opts)
+	}
 
 	//创建存储过程
 	f, err := os.Open("./page_select.sql")

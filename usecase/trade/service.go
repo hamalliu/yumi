@@ -5,94 +5,96 @@ import (
 	"net/http"
 	"time"
 
+	"yumi/pkg/codes"
 	"yumi/pkg/ecode"
 	"yumi/pkg/log"
+	"yumi/pkg/status"
+	"yumi/usecase/trade/entity"
 )
 
 const timeFormat = "2006-01-02 15:04:05.999"
 
-//SubmitOrderPay 提交支付订单
-func SubmitOrderPay(buyerAccountGUID, sellerKey string, totalFee int, body, detail string,
-	timeoutExpress time.Time) (string, error) {
-	e, err := emptyEntity()
-	if err != nil {
-		return "", err
-	}
-	defer func() { _ = e.release() }()
-
-	now := time.Now()
-	code := getCode(OrderPayCode)
-	return code, e.dataOp.Submit(buyerAccountGUID, sellerKey, "", "", totalFee, body, detail, timeoutExpress, now, code, Submitted)
+// Service ...
+type Service struct {
 }
 
-func sendPay(tradeWay Way, e *Entity, payExpire time.Time, clientIP, notifyURL string) (string, error) {
-	outTradeNo := getOutTradeNo()
-	e.op.OutTradeNo = outTradeNo
-	if err := e.dataOp.SetOutTradeNo(outTradeNo, notifyURL); err != nil {
-		return "", err
-	}
+// New a Service object
+func New() (*Service, error) {
+	return &Service{}, nil
+}
 
-	trade := getTrade(tradeWay)
-	if trade == nil {
-		return "", ecode.NotSupportTradeWay
-	}
+//CreateOrderPay 提交支付订单
+func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPayResponse, err error) {
+	data := GetData()
 
-	e.op.PayExpire = payExpire
-	e.op.SpbillCreateIP = clientIP
-	e.op.NotifyURL = notifyURL
+	attr := entity.OrderPayAttribute{}
+	req.Attribute(&attr)
 
-	tp, err := trade.Pay(e.op)
-	if err != nil {
-		return "", err
-	}
-	if err := e.dataOp.SetWaitPay(tradeWay, tp.AppID, tp.MchID, clientIP, payExpire, WaitPay); err != nil {
-		return "", err
-	}
+	err = data.CreateOrderPay(attr)
+	resp.Code = attr.Code
 
-	return tp.Data, nil
+	return
 }
 
 //Pay 发起支付
-func Pay(code string, tradeWay Way, clientIP, notifyURL string, payExpire time.Time) (string, error) {
-	e, err := newEntityByPayCode(code)
+func Pay(req PayRequest) (PayResponse, error) {
+	data := GetData()
+	resp := PayResponse{}
+
+	dataOp, err := data.GetOrderPay(req.Code)
 	if err != nil {
-		return "", err
+		return resp, err
 	}
-	defer func() { _ = e.release() }()
+	attr := dataOp.Attribute()
 
-	//订单超时不能发起支付
-	if e.op.TimeoutExpress.Format(timeFormat) < time.Now().Format(timeFormat) {
-		return "", ecode.OrderPayTimeout
+	op := entity.NewOrderPay(dataOp.Attribute())
+	err = op.CanPay()
+	if err != nil {
+		return resp, err
 	}
 
-	switch e.op.Status {
-	case Submitted:
-		return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
-	case WaitPay:
+	switch attr.Status {
+	case entity.Submitted:
+		goto SendPay
+	case entity.WaitPay:
 		//查询当前支付状态
-		trade := getTrade(e.op.TradeWay)
+		trade := getTrade(Way(req.TradeWay))
 		if trade == nil {
-			return "", ecode.NotSupportTradeWay
+			return resp, err 
 		}
 		//查询之前支付状态
-		if tpq, err := trade.QueryPayStatus(e.op); err != nil {
-			return "", err
-		} else if tpq.TradeStatus == StatusTradePlatformNotPay {
-			//关闭之前支付
-			if err := trade.TradeClose(e.op); err != nil {
-				return "", err
-			}
-			//发起支付
-			return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
-		} else if tpq.TradeStatus == StatusTradePlatformClosed {
-			//发起支付
-			return sendPay(tradeWay, e, payExpire, clientIP, notifyURL)
-		} else {
-			return "", ecode.InvalidSendPay
+		tpq, err := trade.QueryPayStatus(op)
+		if err != nil {
+			return resp, err
 		}
+		if tpq.TradeStatus == StatusTradePlatformNotPay {
+			if err := trade.TradeClose(op); err != nil {
+				return resp, err 
+			}
+			goto SendPay
+		}
+		if tpq.TradeStatus == StatusTradePlatformClosed {
+			goto SendPay
+		}
+		return resp, status
 	default:
-		return "", ecode.InvalidSendPay
+		return resp, err
 	}
+
+SendPay:
+	req.Attribute(attr)
+
+	trade := getTrade(Way(req.TradeWay))
+	if trade == nil {
+		return resp, 
+	}
+
+	tp, err := trade.Pay(op)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, nil
 }
 
 //CancelOrderPay 取消支付订单

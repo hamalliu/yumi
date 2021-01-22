@@ -1,6 +1,7 @@
 package coordinate
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -57,13 +58,13 @@ func TestCheckCoordinates2(t *testing.T) {
 		{121.778859, 31.310198},
 		{121.35871, 30.977858},
 		{121.412513, 31.1892},
+		{61.180859,51.222905},
 	}
 	for _, v := range ps {
 		t.Log(v)
 		parent, code := CheckCoordinates2(v, _provinces, _cityCenters)
 		t.Log(parent, code)
 	}
-
 }
 
 func BenchmarkCheckCoordinates2(b *testing.B) {
@@ -71,4 +72,8 @@ func BenchmarkCheckCoordinates2(b *testing.B) {
 	c := XY{116.16472347941438, 31.127336498964578}
 	parent, code := CheckCoordinates2(c, _provinces, _cityCenters)
 	b.Log(parent, code)
+}
+
+func TestDistance(t *testing.T) {
+	fmt.Println(geoDistance(121.472644, 31.231706, 124.132519, 29.576592))
 }

@@ -47,6 +47,10 @@ func CheckCoordinates(c XY, cities []City, cityCenters []Center) (parent, code s
 			city = *v.City
 		}
 	}
+	if minDistance > 0.04936914266221848 {
+		return "", ""
+	}
+	
 	return city.Parent, city.Code
 }
 
@@ -108,5 +112,9 @@ func CheckCoordinates2(c XY, provinces []Province, cityCenters []Center) (parent
 			city = v.City
 		}
 	}
+	if minDistance > 0.04936914266221848 {
+		return "", ""
+	}
+
 	return city.Parent, city.Code
 }

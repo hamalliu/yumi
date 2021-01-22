@@ -11,10 +11,10 @@ import (
 	"sync"
 	"time"
 
-	"yumi/pkg/ecode"
-	"yumi/gin/binding"
-	"yumi/gin/render"
 	"yumi/gin/valuer"
+	"yumi/pkg/binding"
+	"yumi/pkg/render"
+	"yumi/pkg/status"
 )
 
 const _abortIndex int8 = math.MaxInt8 / 2
@@ -143,7 +143,7 @@ func (c *Context) Bind(obj interface{}) error {
 // See the binding package.
 func (c *Context) BindWith(obj interface{}, b binding.Binding) error {
 	if err := b.Bind(c.Request, obj); err != nil {
-		return ecode.ParamsErr(err)
+		return err
 	}
 	return nil
 }
@@ -258,30 +258,27 @@ func (c *Context) Render(code int, r render.Render) {
 // JSON serializes the given struct as JSON into the response body.
 // It also sets the Content-Type as "application/json".
 func (c *Context) JSON(data interface{}, err error) {
-	code := http.StatusOK
 	c.Error = err
-	bcode := ecode.Must(err)
+
 	if data == nil {
 		data = struct{}{}
 	}
+	resp := render.JSON{}
+	s := status.OK()
+	if err != nil {
+		ss, ok := err.(*status.Status)
+		if ok {
+			s = ss
+		} else {
+			s = status.Unknown().WithDetails(err.Error())
+		}
+	}
+	resp.Code = int(s.Code())
+	resp.Message = s.Message()
+	resp.Details = s.Details()
+	resp.Data = data
 
-	c.Render(code, render.JSON{
-		Code:      bcode.Code(),
-		Message:   bcode.Message(),
-		ParamsErr: bcode.ParamsErr(err),
-		Data:      data,
-	})
-}
-
-// JSONNoDataSuccess ...
-func (c *Context) JSONNoDataSuccess() {
-	code := http.StatusOK
-	c.Render(code, render.JSON{
-		Code:      ecode.OK.Code(),
-		Message:   ecode.OK.Message(),
-		ParamsErr: "",
-		Data:      struct{}{},
-	})
+	c.Render(s.Code().HTTPStatus(), resp)
 }
 
 // XML serializes the given struct as XML into the response body.

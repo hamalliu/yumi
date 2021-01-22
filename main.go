@@ -15,6 +15,7 @@ import (
 	"yumi/gin"
 	"yumi/gin/middleware"
 	"yumi/pkg/log"
+	"yumi/pkg/stores/mgoc"
 	"yumi/usecase"
 )
 
@@ -31,8 +32,15 @@ func main() {
 	log.Info("初始化casbin")
 	middleware.InitCasbin("", nil) //TODO:
 
+	log.Info("构建mongo客户端")
+	mgoConf := conf.Get().Mongo
+	cli, err := mgoc.New(mgoConf.Dsn, mgoConf.Options()...)
+	if err != nil {
+		panic(err)
+	}
+	
 	log.Info("初始化usecase")
-	usecase.Init()
+	usecase.Init(cli.Database(mgoConf.DBName))
 
 	log.Info("构建服务器")
 	srvconf := conf.Get().Server

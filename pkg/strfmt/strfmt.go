@@ -5,8 +5,8 @@ import (
 	"regexp"
 )
 
-// CheckNumber ...
-func CheckNumber(str string) error {
+// RegexpNumber ...
+func RegexpNumber(str string) error {
 	re := regexp.MustCompile(`\d+`)
 	if string(re.Find([]byte(str))) != str {
 		return fmt.Errorf("要求全为数字")
@@ -15,8 +15,8 @@ func CheckNumber(str string) error {
 	return nil
 }
 
-// CheckUser ...
-func CheckUser(str string) error {
+// RegexpUser ...
+func RegexpUser(str string) error {
 	re := regexp.MustCompile(`\w+`)
 	if string(re.Find([]byte(str))) != str {
 		return fmt.Errorf("要求字母，数字或下划线")
@@ -25,8 +25,8 @@ func CheckUser(str string) error {
 	return nil
 }
 
-// CheckPhone ...
-func CheckPhone(str string) error {
+// RegexpPhone ...
+func RegexpPhone(str string) error {
 	re := regexp.MustCompile(`^1[3-9]\d{9}`)
 	if string(re.Find([]byte(str))) != str {
 		return fmt.Errorf("错误的电话号码")
@@ -35,8 +35,8 @@ func CheckPhone(str string) error {
 	return nil
 }
 
-// CheckIP4 ...
-func CheckIP4(str string) error {
+// RegexpIP4 ...
+func RegexpIP4(str string) error {
 	re := regexp.MustCompile(`(^[2][0-5][0-5]|^[1][0-9][0-9]|^[1-9][0-9]|^[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]$|[1][0-9][0-9]$|[1-9][0-9]$|[0-9]$)`)
 	if string(re.Find([]byte(str))) != str {
 		return fmt.Errorf("错误的ip地址")
@@ -45,8 +45,8 @@ func CheckIP4(str string) error {
 	return nil
 }
 
-// CheckPassword ...
-func CheckPassword(str string) error {
+// RegexpPassword ...
+func RegexpPassword(str string) error {
 	if len(str) < 10 || len(str) > 30 {
 		return fmt.Errorf("密码字数在10~30之间")
 	}

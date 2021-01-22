@@ -3,7 +3,7 @@ package mssqlx
 import (
 	"github.com/jmoiron/sqlx"
 
-	"yumi/conf"
+	"yumi/pkg/stores/dbc"
 )
 
 const dirverName = "mssql"
@@ -14,19 +14,20 @@ type Client struct {
 }
 
 //New 新建一个mssql客户端
-func New(conf conf.DB) (*Client, error) {
+func New(dsn string, options ...dbc.ClientOption) (*Client, error) {
 	var (
 		m   = new(Client)
 		err error
 	)
 
-	if m.DB, err = sqlx.Connect(dirverName, conf.Dsn); err != nil {
+	if m.DB, err = sqlx.Connect(dirverName, dsn); err != nil {
 		return nil, err
 	}
 
-	m.DB.SetMaxIdleConns(conf.MaxIdleConns)
-	m.DB.SetMaxOpenConns(conf.MaxOpenConns)
-	m.DB.SetConnMaxLifetime(conf.ConnMaxLifetime.Duration())
+	opts := &dbc.ClientOptions{DB: m.DB}
+	for _, option := range options {
+		option.F(opts)
+	}
 
 	return m, nil
 }

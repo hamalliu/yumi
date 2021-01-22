@@ -42,26 +42,6 @@ type Media struct {
 	SingleFileUploadsMaxSize   types.SpaceSize // 单媒体上传最大限制
 }
 
-// DB 数据库配置
-type DB struct {
-	Dsn             string             // 数据来源名称
-	DBName          string             // 数据库名称
-	MaxOpenConns    int                // 连接池最多打开连接数
-	MaxIdleConns    int                // 连接池最多空闲连接数
-	ConnMaxLifetime types.TimeDuration // 连接最长寿命
-}
-
-// Mongo mongodb 数据库配置
-type Mongo struct {
-	Dsn               string
-	DBName            string
-	MaxPoolSize       uint64             // 连接池最多打开连接数
-	MinPoolSize       uint64             // 连接池最少打开连接数
-	MaxConnIdleTime   types.TimeDuration // 空闲连接断开时间
-	ConnectTimeout    types.TimeDuration // 连接超时时间
-	HeartbeatInterval types.TimeDuration // 心跳间隔时间
-}
-
 // CORS CORS配置
 type CORS struct {
 	AllowedOrigins []string           // 允许的头

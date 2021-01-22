@@ -2,13 +2,13 @@ package entity
 
 import (
 	"fmt"
-	"regexp"
 
 	"yumi/pkg/codec"
 	"yumi/pkg/codes"
 	"yumi/pkg/login"
 	"yumi/pkg/sessions"
 	"yumi/pkg/status"
+	"yumi/pkg/strfmt"
 	"yumi/pkg/types"
 )
 
@@ -50,7 +50,7 @@ func (u *User) LawEnforcement() (err error) {
 	if len(u.attr.UserID) < 6 || len(u.attr.UserID) > 60 {
 		return status.New(codes.InvalidArgument, "密码长度在6-60之间")
 	}
-	err = regexpUser(u.attr.UserID)
+	err = strfmt.RegexpUser(u.attr.UserID)
 	if err != nil {
 		return status.New(codes.InvalidArgument, err.Error())
 	}
@@ -59,7 +59,7 @@ func (u *User) LawEnforcement() (err error) {
 	if len(u.attr.Password) < 10 || len(u.attr.Password) > 30 {
 		return fmt.Errorf("密码字数在10~30之间")
 	}
-	err = regexpPassword(u.attr.Password)
+	err = strfmt.RegexpPassword(u.attr.Password)
 	if err != nil {
 		return status.New(codes.InvalidArgument, err.Error())
 	}
@@ -92,44 +92,7 @@ func (u *User) VerifyPassword(password string) (err error) {
 	return nil
 }
 
-func regexpUser(str string) error {
-	re := regexp.MustCompile(`\w+`)
-	if string(re.Find([]byte(str))) != str {
-		return fmt.Errorf("要求字母，数字或下划线")
-	}
-
-	return nil
-}
-
-func regexpPassword(str string) error {
-	specailChars := "[~`!@#\\$%\\^&\\*\\(\\)_\\+\\-=\\{\\}\\[\\]\\|\\\\:;\"'<>\\,\\./\\?]"
-	alphabet := "[A-Za-z]"
-	number := "[0-9]"
-	//包含特殊字符和字母
-	specialCharAndAlphabet := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", specailChars, alphabet, alphabet, specailChars)
-	re := regexp.MustCompile(specialCharAndAlphabet)
-	if string(re.Find([]byte(str))) == str {
-		return nil
-	}
-
-	//包含特殊字符和数字
-	specialCharAndNumber := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", specailChars, number, number, specailChars)
-	re = regexp.MustCompile(specialCharAndNumber)
-	if string(re.Find([]byte(str))) == str {
-		return nil
-	}
-
-	//包含数字和字母
-	alphabetAndNumber := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", alphabet, number, number, alphabet)
-	re = regexp.MustCompile(alphabetAndNumber)
-	if string(re.Find([]byte(str))) == str {
-		return nil
-	}
-
-	return fmt.Errorf("密码必须包含特殊字符，数字，字母中的两种以上")
-}
-
-// Session ...
+// Session 构建session
 func (u *User) Session(store sessions.Store, userID, password, client string) (string, error) {
 	sess, err := sessions.NewSession(store, u.attr.UserID, client, 1)
 	err = sess.Save()
@@ -147,7 +110,7 @@ func (u *User) Session(store sessions.Store, userID, password, client string) (s
 	return sess.ID, nil
 }
 
-// Authenticate ...
+// Authenticate 认证登录状态
 func (u *User) Authenticate(store sessions.Store, sessionID, secureKey string) error {
 	sess, err := sessions.GetSession(store, sessionID)
 	if err != nil {
@@ -161,7 +124,7 @@ func (u *User) Authenticate(store sessions.Store, sessionID, secureKey string) e
 	srvSecureKey := vars[0].(string)
 
 	if secureKey != srvSecureKey {
-		return status.New(codes.Unauthenticated, "请重新登录").WithDetails("secureKey error:"+secureKey)
+		return status.New(codes.Unauthenticated, "请重新登录").WithDetails("secureKey error:" + secureKey)
 	}
 
 	return nil

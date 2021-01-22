@@ -13,15 +13,14 @@ import (
 	"time"
 
 	"yumi/conf"
-	"yumi/pkg/ecode"
+	"yumi/gin"
+	"yumi/gin/valuer"
+	"yumi/pkg/binding"
 	"yumi/pkg/fileutility"
 	"yumi/pkg/log"
-	"yumi/gin"
-	"yumi/gin/binding"
-	"yumi/gin/valuer"
+	"yumi/pkg/status"
 	"yumi/usecase/onlyoffice"
 )
-
 
 //ReqSample ...
 type ReqSample struct {
@@ -70,12 +69,12 @@ func Upload(c *gin.Context) {
 	)
 
 	if mulf, mulfh, err = req.FormFile("file"); err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, err)
 		return
 	}
 
 	if mulfh.Size > conf.Get().OnlyOffice.Document.MaxFileSize.Size() {
-		c.JSON(nil, ecode.FileSizeTooBig)
+		c.JSON(nil, status.OutOfRange())
 		return
 	}
 
@@ -84,28 +83,28 @@ func Upload(c *gin.Context) {
 	ext := onlyoffice.Get().GetFileExtension(fileName, false)
 
 	if onlyoffice.Get().AllowUploadExtension(ext) {
-		c.JSON(nil, ecode.NoAllowExtension)
+		c.JSON(nil, status.FailedPrecondition())
 		return
 	}
 
 	storagePath := onlyoffice.Get().StoragePath(fileName, user.UserID)
 	if osf, err = os.OpenFile(storagePath, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0744); err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 	if _, err := io.Copy(osf, mulf); err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 	_ = mulf.Close()
 	_ = osf.Close()
 
 	if err := onlyoffice.Get().SaveCreateInfo(fileName, user.UserID, user.UserName); err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 
-	c.JSONNoDataSuccess()
+	c.JSON(nil, nil)
 	return
 }
 
@@ -113,7 +112,7 @@ func Upload(c *gin.Context) {
 func Sample(c *gin.Context) {
 	reqm := ReqSample{}
 	if err := c.Bind(&reqm); err != nil {
-		c.JSON(nil, ecode.ParamsErr(err))
+		c.JSON(nil, status.InvalidArgument().WithDetails(err.Error()))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
@@ -126,16 +125,16 @@ func Sample(c *gin.Context) {
 	}
 	sampleFile = path.Join(conf.Get().OnlyOffice.Document.SamplesPath, reqm.SampleName+reqm.FileExtension)
 	if err := fileutility.CopyFile(sampleFile, filePath); err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 
 	if err := onlyoffice.Get().SaveCreateInfo(reqm.FileName, user.UserID, user.UserName); err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, err)
 		return
 	}
 
-	c.JSONNoDataSuccess()
+	c.JSON(nil, nil)
 	return
 }
 
@@ -161,7 +160,7 @@ func renderError(c *gin.Context, err error) {
 func Editor(c *gin.Context) {
 	reqm := ReqEditor{}
 	if err := c.Bind(&reqm); err != nil {
-		c.JSON(nil, ecode.ParamsErr(err))
+		c.JSON(nil, status.InvalidArgument().WithDetails(err.Error()))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
@@ -488,7 +487,7 @@ Error:
 func Convert(c *gin.Context) {
 	reqm := ReqConvert{}
 	if err := c.Bind(&reqm); err != nil {
-		c.JSON(nil, ecode.ParamsErr(err))
+		c.JSON(nil, status.InvalidArgument().WithDetails(err.Error()))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
@@ -508,17 +507,17 @@ func Convert(c *gin.Context) {
 
 	resp, err := onlyoffice.Get().GetConvertURI(fileURI, fileExt, internalFileExt, key, true)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, err)
 		return
 	}
 	if resp.Error != 0 {
-		c.JSON(nil, ecode.ServerErr(onlyoffice.Get().ConvertURIErrorMessage(resp.Error)))
+		c.JSON(nil, status.Internal().WithDetails(onlyoffice.Get().ConvertURIErrorMessage(resp.Error).Error()))
 		return
 	}
 
 	file, err := http.Get(resp.FileURL)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, err)
 		return
 	}
 
@@ -526,13 +525,13 @@ func Convert(c *gin.Context) {
 	correctStoragePath := onlyoffice.Get().StoragePath(correctName, user.UserID)
 	destf, err := os.Create(correctStoragePath)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 
 	_, err = io.Copy(destf, file.Body)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 	_ = destf.Close()
@@ -540,7 +539,7 @@ func Convert(c *gin.Context) {
 	storagePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)
 	err = os.Remove(storagePath)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 
@@ -548,7 +547,7 @@ func Convert(c *gin.Context) {
 	correctHistoryPath := onlyoffice.Get().HistoryPath(correctName, user.UserID, true)
 	err = os.Rename(historyPath, correctHistoryPath)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 
@@ -556,7 +555,7 @@ func Convert(c *gin.Context) {
 	correctCreateInfoPath := path.Join(historyPath, correctName+".txt")
 	err = os.Rename(createInfoPath, correctCreateInfoPath)
 	if err != nil {
-		c.JSON(nil, ecode.ServerErr(err))
+		c.JSON(nil, status.Internal().WithDetails(err.Error()))
 		return
 	}
 
@@ -568,7 +567,7 @@ func Convert(c *gin.Context) {
 func Download(c *gin.Context) {
 	reqm := ReqDownload{}
 	if err := c.Bind(&reqm); err != nil {
-		c.JSON(nil, ecode.ParamsErr(err))
+		c.JSON(nil, status.InvalidArgument().WithDetails(err.Error()))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
@@ -587,7 +586,7 @@ func Download(c *gin.Context) {
 func DeleteFile(c *gin.Context) {
 	reqm := ReqDownload{}
 	if err := c.Bind(&reqm); err != nil {
-		c.JSON(nil, ecode.ParamsErr(err))
+		c.JSON(nil, status.InvalidArgument().WithDetails(err.Error()))
 		return
 	}
 	user := c.Get(valuer.KeyUser).User()
@@ -595,23 +594,23 @@ func DeleteFile(c *gin.Context) {
 	if reqm.FileName != "" {
 		storagePath := onlyoffice.Get().StoragePath(reqm.FileName, user.UserID)
 		if err := os.Remove(storagePath); err != nil {
-			c.JSON(nil, ecode.ServerErr(err))
+			c.JSON(nil, status.Internal().WithDetails(err.Error()))
 			return
 		}
 
 		historyPath := onlyoffice.Get().HistoryPath(reqm.FileName, user.UserID, true)
 		if err := onlyoffice.Get().CleanFolderRecursive(historyPath, true); err != nil {
-			c.JSON(nil, ecode.ServerErr(err))
+			c.JSON(nil, status.Internal().WithDetails(err.Error()))
 			return
 		}
 	} else {
 		//delete all
 		if err := onlyoffice.Get().CleanFolderRecursive(onlyoffice.Get().StoragePath("", user.UserID), false); err != nil {
-			c.JSON(nil, ecode.ServerErr(err))
+			c.JSON(nil, status.Internal().WithDetails(err.Error()))
 			return
 		}
 	}
 
-	c.JSONNoDataSuccess()
+	c.JSON(nil, nil)
 	return
 }
