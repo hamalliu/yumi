@@ -35,16 +35,6 @@ func RegexpPhone(str string) error {
 	return nil
 }
 
-// RegexpIP4 ...
-func RegexpIP4(str string) error {
-	re := regexp.MustCompile(`(^[2][0-5][0-5]|^[1][0-9][0-9]|^[1-9][0-9]|^[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]$|[1][0-9][0-9]$|[1-9][0-9]$|[0-9]$)`)
-	if string(re.Find([]byte(str))) != str {
-		return fmt.Errorf("错误的ip地址")
-	}
-
-	return nil
-}
-
 // RegexpPassword ...
 func RegexpPassword(str string) error {
 	if len(str) < 10 || len(str) > 30 {
@@ -77,4 +67,14 @@ func RegexpPassword(str string) error {
 	}
 
 	return fmt.Errorf("密码必须包含特殊字符，数字，字母中的两种以上")
+}
+
+// RegexpIP4 ...
+func RegexpIP4(str string) error {
+	re := regexp.MustCompile(`(^[2][0-5][0-5]|^[1][0-9][0-9]|^[1-9][0-9]|^[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]$|[1][0-9][0-9]$|[1-9][0-9]$|[0-9]$)`)
+	if string(re.Find([]byte(str))) != str {
+		return fmt.Errorf("错误的ip地址")
+	}
+
+	return nil
 }

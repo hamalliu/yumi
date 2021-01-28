@@ -9,7 +9,7 @@ type Doc struct {
 
 var _doc = Doc{
 	openapi3.Swagger{
-		OpenAPI: "3.0",
+		OpenAPI: "3.0.0",
 		Info: &openapi3.Info{
 			Title:          "yumi",
 			Description:    "",
@@ -27,28 +27,5 @@ var _doc = Doc{
 				URL: "http://localhost:8080",
 			},
 		},
-		Paths:        openapi3.Paths{},
-		Components:   openapi3.Components{},
-		Tags:         openapi3.Tags{},
-		Security:     openapi3.SecurityRequirements{},
-		ExternalDocs: &openapi3.ExternalDocs{},
 	},
-}
-
-//Component ...
-type Component struct {
-	Parameter   Parameter
-	RequestBody RequestBody
-	Response    Response
-}
-//Parameter ...
-type Parameter interface{}
-//RequestBody ...
-type RequestBody interface{}
-//Response ...
-type Response interface{}
-
-//RegisterComponent ...
-func RegisterComponent(comp Component) {
-	//TODO
 }

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"yumi/api"
-	"yumi/apidoc"
 	"yumi/conf"
 	"yumi/gin"
 	"yumi/gin/middleware"
@@ -38,7 +37,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	log.Info("初始化usecase")
 	usecase.Init(cli.Database(mgoConf.DBName))
 
@@ -60,11 +59,6 @@ func main() {
 	log.Info("加载路由")
 	router := mux.Group("/")
 	api.Mount(router)
-
-	//debug模式下，开启接口文档
-	if conf.IsDebug() {
-		apidoc.Mount(router)
-	}
 
 	//启动服务
 	log.Info("开始启动服务器，侦听地址：" + conf.Get().Server.Addr)
