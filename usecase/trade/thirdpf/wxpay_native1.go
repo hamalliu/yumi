@@ -1,11 +1,10 @@
-package platform
+package thirdpf
 
 import (
-	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
+	"yumi/usecase/trade/entity"
 )
-
 
 //WxPayNative1 ...
 type WxPayNative1 struct {
@@ -18,8 +17,8 @@ func NewWxPayNative1() WxPayNative1 {
 }
 
 //Pay 发起支付
-func (wxn1 WxPayNative1) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
-	ret := trade.ReturnPay{}
+func (wxn1 WxPayNative1) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+	ret := entity.ReturnPay{}
 
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
@@ -47,7 +46,7 @@ func (wxn1 WxPayNative1) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 //		NonceStr:   pay.GetNonceStr(),
 //	}
 //
-//	order := trade.OrderPay{}
+//	order := entity.OrderPay{}
 //	if err := order.Load(req.ProductId); err != nil {
 //		resp.ResultCode = "FAIL"
 //		resp.ErrCodeDes = "服务器错误"

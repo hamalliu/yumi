@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"yumi/pkg/codes"
+	"yumi/pkg/status"
 	"yumi/pkg/types"
 )
 
@@ -77,14 +79,36 @@ type OrderPayAttribute struct {
 type OrderPay struct {
 	attr *OrderPayAttribute
 }
+
 // NewOrderPay ...
 func NewOrderPay(attr *OrderPayAttribute) *OrderPay {
 	return &OrderPay{attr: attr}
 }
 
-// CanPay ...
-func (m *OrderPay) CanPay() error {
-	return nil
+// Pay ...
+func (m *OrderPay) Pay(tradeWay string) (string, error) {
+	if m.attr.Status == Submitted {
+		now := types.NowTimestamp()
+		if now > m.attr.TimeoutExpress {
+			return "", status.New(codes.FailedPrecondition, "订单已过期，不能发起支付")
+		}
+
+		thirdpf, err := getThirdpf(Way(tradeWay))
+		if err != nil {
+			return "", status.Internal().WithDetails(err.Error())
+		}
+		ret, err := thirdpf.Pay(*m.attr)
+		if err != nil {
+			return "", err
+		}
+		return ret.Data, nil
+	}
+
+	if m.attr.Status == WaitPay {
+		
+	}
+
+	return "", nil
 }
 
 // SetWaitPay 设置待支付

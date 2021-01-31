@@ -1,9 +1,13 @@
-package trade
+package entity
 
 import (
+	"errors"
 	"net/http"
-	
-	"yumi/usecase/trade/entity"
+)
+
+var (
+	// ErrUnsupportedTradeWay ...
+	ErrUnsupportedTradeWay = errors.New("unsupported trade way")
 )
 
 //StatusTradePlatform ...
@@ -61,27 +65,27 @@ type ReturnRefundNotify struct {
 //Trade ...
 type Trade interface {
 	// 发起支付
-	Pay(op *entity.OrderPay) (ReturnPay, error)
+	Pay(op OrderPayAttribute) (ReturnPay, error)
 	// 支付通知提供三个接口，以应对不同支付平台的接口差异
 	// 处理请求
 	PayNotifyReq(req *http.Request) (ReturnPayNotify, error)
 	// 检查参数
-	PayNotifyCheck(op *entity.OrderPay, reqData interface{}) error
+	PayNotifyCheck(op OrderPayAttribute, reqData interface{}) error
 	// 应答
 	PayNotifyResp(err error, resp http.ResponseWriter)
 	// 查询支付状态
-	QueryPayStatus(op *entity.OrderPay) (ReturnQueryPay, error)
+	QueryPayStatus(op OrderPayAttribute) (ReturnQueryPay, error)
 	// 关闭交易
-	TradeClose(op *entity.OrderPay) error
+	TradeClose(op OrderPayAttribute) error
 	// 退款
-	Refund(op *entity.OrderPay, or *entity.OrderRefund) error
+	Refund(op OrderPayAttribute, or OrderRefundAttribute) error
 	// 查询退款状态
-	QueryRefundStatus(op *entity.OrderPay, or *entity.OrderRefund) (ReturnQueryRefund, error)
+	QueryRefundStatus(op OrderPayAttribute, or OrderRefundAttribute) (ReturnQueryRefund, error)
 	// 退款通知提供三个接口，以应对不同支付平台的接口差异
 	// 处理请求
 	RefundNotifyReq(req *http.Request) (ReturnRefundNotify, error)
 	// 检查参数
-	RefundNotifyCheck(op *entity.OrderPay, or *entity.OrderRefund, reqData interface{}) error
+	RefundNotifyCheck(op OrderPayAttribute, or OrderRefundAttribute, reqData interface{}) error
 	// 应答
 	RefundNotifyResp(err error, resp http.ResponseWriter)
 }
@@ -99,8 +103,11 @@ func RegisterTrade(way Way, trade Trade) {
 	trades[way] = trade
 }
 
-func getTrade(tradeWay Way) Trade {
-	return trades[tradeWay]
+func getThirdpf(tradeWay Way) (Trade, error) {
+	if trades[tradeWay] == nil {
+		return nil, ErrUnsupportedTradeWay
+	}
+	return trades[tradeWay], nil
 }
 
 //Merchant 商户应该实现的接口

@@ -1,16 +1,16 @@
-package platform
+package thirdpf
 
 import (
 	"encoding/json"
 
-	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
+	"yumi/usecase/trade/entity"
 )
 
 //NewWxPayMweb ...
 func NewWxPayMweb(conf WxPayMwebConfig) WxPayMweb {
-	mweb := WxPayMweb {}
+	mweb := WxPayMweb{}
 	mweb.conf = conf
 	bytes, err := json.Marshal(conf)
 	if err != nil {
@@ -40,8 +40,8 @@ type H5Info struct {
 }
 
 //Pay 发起支付
-func (wxn1 WxPayMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
-	ret := trade.ReturnPay{}
+func (wxn1 WxPayMweb) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+	ret := entity.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
 	if err != nil {
@@ -57,7 +57,7 @@ func (wxn1 WxPayMweb) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
 		NotifyURL:      op.NotifyURL,
-		PayExpire:      op.PayExpire,
+		PayExpire:      op.PayExpire.Time(),
 		SpbillCreateIP: op.SpbillCreateIP,
 		SceneInfo:      wxn1.sceneInfo,
 	}

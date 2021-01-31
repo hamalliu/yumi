@@ -86,7 +86,7 @@ func (sa *User) Update() error {
 	coll := sa.db.collUsers()
 
 	ctx := context.Background()
-	_, err := coll.UpdateOne(ctx, primitive.M{"_id": sa.ID}, sa)
+	_, err := coll.ReplaceOne(ctx, primitive.M{"_id": sa.ID}, sa)
 	if err != nil {
 		return status.Internal().WithDetails(err.Error())
 	}

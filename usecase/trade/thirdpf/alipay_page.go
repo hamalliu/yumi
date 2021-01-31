@@ -1,14 +1,14 @@
-package platform
+package thirdpf
 
 import (
 	"fmt"
 	"net/http"
 	"net/url"
 
-	"yumi/usecase/trade"
-	"yumi/usecase/trade/db"
 	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/aliapi/alipay"
+	"yumi/usecase/trade/db"
+	"yumi/usecase/trade/entity"
 )
 
 //AliPayPage ...
@@ -22,8 +22,8 @@ func NewAliPayPage() AliPayPage {
 }
 
 //Pay 发起支付
-func (alipp AliPayPage) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
-	ret := trade.ReturnPay{}
+func (alipp AliPayPage) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+	ret := entity.ReturnPay{}
 
 	//下单
 	pagePay := alipay.PagePay{
@@ -35,7 +35,7 @@ func (alipp AliPayPage) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		GoodsType:      "0",
 		NotifyURL:      op.NotifyURL,
 		PassbackParams: url.QueryEscape(op.Code), //必须urlencode
-		PayExpire:      op.PayExpire,
+		PayExpire:      op.PayExpire.Time(),
 	}
 
 	//获取收款商户信息
@@ -55,8 +55,8 @@ func (alipp AliPayPage) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 }
 
 //PayNotifyReq ...
-func (alipp AliPayPage) PayNotifyReq(req *http.Request) (trade.ReturnPayNotify, error) {
-	ret := trade.ReturnPayNotify{}
+func (alipp AliPayPage) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify, error) {
+	ret := entity.ReturnPayNotify{}
 
 	rawQuery := req.URL.RawQuery
 	reqNotify, err := alipay.ParseQuery(rawQuery)
@@ -70,7 +70,7 @@ func (alipp AliPayPage) PayNotifyReq(req *http.Request) (trade.ReturnPayNotify, 
 }
 
 //PayNotifyCheck ...
-func (alipp AliPayPage) PayNotifyCheck(op trade.OrderPay, reqData interface{}) error {
+func (alipp AliPayPage) PayNotifyCheck(op entity.OrderPayAttribute, reqData interface{}) error {
 	aliMch, err := alipp.getMch(op.SellerKey)
 	if err != nil {
 		return err
@@ -99,8 +99,8 @@ func (alipp AliPayPage) PayNotifyResp(err error, resp http.ResponseWriter) {
 }
 
 //QueryPayStatus ...
-func (alipp AliPayPage) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay, error) {
-	ret := trade.ReturnQueryPay{}
+func (alipp AliPayPage) QueryPayStatus(op entity.OrderPayAttribute) (entity.ReturnQueryPay, error) {
+	ret := entity.ReturnQueryPay{}
 
 	tradeQuery := alipay.TradeQuery{
 		TradeNo:    op.TransactionID,
@@ -131,13 +131,13 @@ func (alipp AliPayPage) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay,
 
 	switch ret.TradeStatus {
 	case alipay.TradeStatusSuccess:
-		ret.TradeStatus = trade.StatusTradePlatformSuccess
+		ret.TradeStatus = entity.StatusTradePlatformSuccess
 	case alipay.TradeStatusWaitBuyerPay:
-		ret.TradeStatus = trade.StatusTradePlatformNotPay
+		ret.TradeStatus = entity.StatusTradePlatformNotPay
 	case alipay.TradeStatusCloseed:
-		ret.TradeStatus = trade.StatusTradePlatformClosed
+		ret.TradeStatus = entity.StatusTradePlatformClosed
 	case alipay.TradeStatusFinished:
-		ret.TradeStatus = trade.StatusTradePlatformFinished
+		ret.TradeStatus = entity.StatusTradePlatformFinished
 	default:
 		err := fmt.Errorf("支付宝状态发生变动，请管理员及时更改")
 		return ret, ecode.ServerErr(err)
@@ -146,7 +146,7 @@ func (alipp AliPayPage) QueryPayStatus(op trade.OrderPay) (trade.ReturnQueryPay,
 }
 
 //TradeClose ...
-func (alipp AliPayPage) TradeClose(op trade.OrderPay) error {
+func (alipp AliPayPage) TradeClose(op entity.OrderPayAttribute) error {
 	tradeClose := alipay.TradeClose{
 		OutTradeNo: op.OutTradeNo,
 		TradeNo:    op.TransactionID,
@@ -174,7 +174,7 @@ func (alipp AliPayPage) TradeClose(op trade.OrderPay) error {
 }
 
 //Refund ...
-func (alipp AliPayPage) Refund(op trade.OrderPay, or trade.OrderRefund) error {
+func (alipp AliPayPage) Refund(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) error {
 	//获取收款商户信息
 	aliMch, err := alipp.getMch(op.SellerKey)
 	if err != nil {
@@ -206,18 +206,19 @@ func (alipp AliPayPage) Refund(op trade.OrderPay, or trade.OrderRefund) error {
 }
 
 //QueryRefundStatus ...
-func (alipp AliPayPage) QueryRefundStatus(op trade.OrderPay, or trade.OrderRefund) (trade.ReturnQueryRefund, error) {
+func (alipp AliPayPage) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefund) (entity.ReturnQueryRefund, error) {
 	//TODO
-	return trade.ReturnQueryRefund{}, nil
+	return entity.ReturnQueryRefund{}, nil
 }
 
 // RefundNotifyReq ...
-func (alipp AliPayPage) RefundNotifyReq(req *http.Request) (trade.ReturnRefundNotify, error) {
+func (alipp AliPayPage) RefundNotifyReq(req *http.Request) (entity.ReturnRefundNotify, error) {
 	// TODO:
-	return trade.ReturnRefundNotify{}, nil
+	return entity.ReturnRefundNotify{}, nil
 }
+
 // RefundNotifyCheck 检查参数
-func (alipp AliPayPage) RefundNotifyCheck(op trade.OrderPay, or trade.OrderRefund, reqData interface{}) error {
+func (alipp AliPayPage) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefund, reqData interface{}) error {
 	// TODO:
 	return nil
 }

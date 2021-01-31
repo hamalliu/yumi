@@ -1,11 +1,10 @@
-package platform
+package thirdpf
 
 import (
-	"yumi/usecase/trade"
 	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
+	"yumi/usecase/trade/entity"
 )
-
 
 //WxPayNative2 ...
 type WxPayNative2 struct {
@@ -18,8 +17,8 @@ func NewWxPayNative2() WxPayNative2 {
 }
 
 //Pay 发起支付
-func (wxn1 WxPayNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
-	ret := trade.ReturnPay{}
+func (wxn1 WxPayNative2) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+	ret := entity.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
 	if err != nil {
@@ -34,7 +33,7 @@ func (wxn1 WxPayNative2) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		TotalFee:       op.TotalFee,
 		NotifyURL:      op.NotifyURL,
 		ProductID:      op.OutTradeNo,
-		PayExpire:      op.PayExpire,
+		PayExpire:      op.PayExpire.Time(),
 		SpbillCreateIP: op.SpbillCreateIP,
 	}
 

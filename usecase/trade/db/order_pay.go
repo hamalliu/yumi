@@ -8,18 +8,19 @@ import (
 	"yumi/pkg/ecode"
 	"yumi/pkg/stores/dbc"
 	"yumi/usecase/trade"
+	"yumi/usecase/trade/entity"
 )
 
 //OrderPay 支付订单
 type OrderPay struct {
 	SeqID int64 `db:"seq_id"`
-	trade.OrderPay
+	entity.OrderPayAttribute
 }
 
 //New ...
-func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
+func (m *OrderPay) New(code string) (entity.OrderPayAttribute, error) {
 	if code == "" {
-		return &OrderPay{}, nil
+		return &entity.OrderPayAttribute{}, nil
 	}
 	sqlStr := `
 			SELECT 
@@ -64,7 +65,7 @@ func (m *OrderPay) New(code string) (trade.DataOrderPay, error) {
 
 //Entity 支付订单数据
 func (m *OrderPay) Entity() trade.OrderPay {
-	return m.OrderPay
+	return m.OrderPayAttribute
 }
 
 //Submit 提交

@@ -1,41 +1,44 @@
-package platform
+package thirdpf
 
 import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"yumi/pkg/ecode"
 
-	"yumi/pkg/random"
+	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
-	"yumi/usecase/trade"
+	"yumi/pkg/random"
+	"yumi/usecase/trade/entity"
 )
 
-//NewWxPayJsapi ...
-func NewWxPayJsapi() WxPayJsapi {
-	return WxPayJsapi{}
+//NewWxPayApp ...
+func NewWxPayApp() WxPayApp {
+	return WxPayApp{}
 }
 
-//WxPayJsapi ...
-type WxPayJsapi struct {
+//WxPayApp ...
+type WxPayApp struct {
 	InternalWxPay
 }
 
-//RequestWxPayh5 ...
-type RequestWxPayh5 struct {
+//RequestWxPayApp ...
+type RequestWxPayApp struct {
 	AppID     string `json:"appId"`
 	TimeStamp string `json:"timeStamp"`
 	NonceStr  string `json:"nonceStr"`
 	Package   string `json:"package"`
+	PartnerID string `json:"partnerid"`
+	PrepayID  string `json:"prepayid"`
 	SignType  string `json:"signType"`
 	PaySign   string `json:"paySign"`
 }
 
-//mashalWxh5PayRequest ...
-func mashalRequestWxPayh5(appID, prePayID, privateKey string) (string, error) {
-	var req RequestWxPayh5
+//mashalWxAppPayRequest ...
+func mashalRequestWxPayApp(appID, mchID, privateKey, prePayID string) (string, error) {
+	var req RequestWxPayApp
 
 	req.AppID = appID
+	req.PartnerID = mchID
 	req.TimeStamp = fmt.Sprintf("%d", time.Now().Unix())
 	req.NonceStr = random.Get(30, random.ALPHANUM)
 	req.Package = fmt.Sprintf("prepay_id=%s", prePayID)
@@ -51,8 +54,8 @@ func mashalRequestWxPayh5(appID, prePayID, privateKey string) (string, error) {
 }
 
 //Pay 发起支付
-func (wxn1 WxPayJsapi) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
-	ret := trade.ReturnPay{}
+func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+	ret := entity.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
 	if err != nil {
@@ -66,19 +69,20 @@ func (wxn1 WxPayJsapi) Pay(op trade.OrderPay) (trade.ReturnPay, error) {
 		OutTradeNo:     op.OutTradeNo,
 		TotalFee:       op.TotalFee,
 		NotifyURL:      op.NotifyURL,
-		PayExpire:      op.PayExpire,
+		PayExpire:      op.PayExpire.Time(),
 		SpbillCreateIP: op.SpbillCreateIP,
 	}
 
-	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeJsapi, wxMch, wxorder)
+	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder)
 	if err != nil {
 		return ret, ecode.ServerErr(err)
 	}
+
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID
-	dataStr, err := mashalRequestWxPayh5(wxMch.AppID, retuo.PrepayID, wxMch.PrivateKey)
+	dataStr, err := mashalRequestWxPayApp(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
 	if err != nil {
-		return ret, err
+		return ret, ecode.ServerErr(err)
 	}
 
 	ret.Data = dataStr
