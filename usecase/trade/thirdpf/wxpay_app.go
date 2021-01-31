@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/pkg/random"
 	"yumi/usecase/trade/entity"
@@ -75,14 +74,14 @@ func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) 
 
 	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID
 	dataStr, err := mashalRequestWxPayApp(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.Data = dataStr

@@ -5,9 +5,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/aliapi/alipay"
-	"yumi/usecase/trade/db"
 	"yumi/usecase/trade/entity"
 )
 
@@ -46,7 +44,7 @@ func (alipp AliPayPage) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, erro
 
 	resp, err := alipay.GetDefault().UnifiedOrder(aliMch, pagePay)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	ret.AppID = aliMch.AppID
 	ret.MchID = resp.SellerID
@@ -61,7 +59,7 @@ func (alipp AliPayPage) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify,
 	rawQuery := req.URL.RawQuery
 	reqNotify, err := alipay.ParseQuery(rawQuery)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.OrderPayCode = reqNotify.PassbackParams
@@ -79,7 +77,7 @@ func (alipp AliPayPage) PayNotifyCheck(op entity.OrderPayAttribute, reqData inte
 	reqNotify, ok := reqData.(alipay.ReqNotify)
 	if ok {
 		err := fmt.Errorf("转换类型失败，alipagepay")
-		return ecode.ServerErr(err)
+		return err
 	}
 	if err := alipay.CheckPayNotify(aliMch, op.OutTradeNo, alipp.toPrice(op.TotalFee), op.MchID, reqNotify); err != nil {
 		return err
@@ -115,16 +113,16 @@ func (alipp AliPayPage) QueryPayStatus(op entity.OrderPayAttribute) (entity.Retu
 
 	resp, err := alipay.GetDefault().TradeQuery(aliMch, tradeQuery)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	if resp.OutTradeNo != op.OutTradeNo {
 		err := fmt.Errorf("订单号不一致")
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	if resp.TotalAmount != alipp.toPrice(op.TotalFee) {
 		err := fmt.Errorf("订单金额不一致")
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	ret.TransactionID = resp.TradeNo
 	ret.BuyerLogonID = resp.BuyerlogonID
@@ -140,7 +138,7 @@ func (alipp AliPayPage) QueryPayStatus(op entity.OrderPayAttribute) (entity.Retu
 		ret.TradeStatus = entity.StatusTradePlatformFinished
 	default:
 		err := fmt.Errorf("支付宝状态发生变动，请管理员及时更改")
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	return ret, nil
 }
@@ -161,13 +159,13 @@ func (alipp AliPayPage) TradeClose(op entity.OrderPayAttribute) error {
 
 	ret, err := alipay.GetDefault().TradeClose(aliMch, tradeClose)
 	if err != nil {
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	if ret.TradeNo != op.TransactionID ||
 		ret.OutTradeNo != op.OutTradeNo {
 		err = fmt.Errorf("订单信息不一致")
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	return nil
@@ -191,7 +189,7 @@ func (alipp AliPayPage) Refund(op entity.OrderPayAttribute, or entity.OrderRefun
 
 	ret, err := alipay.GetDefault().Refund(aliMch, rfd)
 	if err != nil {
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	if ret.TradeNo != op.TransactionID ||
@@ -199,7 +197,7 @@ func (alipp AliPayPage) Refund(op entity.OrderPayAttribute, or entity.OrderRefun
 		ret.BuyerLogonID != op.BuyerLogonID ||
 		ret.RefundFee != refundFee {
 		err = fmt.Errorf("发起退款信息不一致，可能是订单数据被破坏")
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	return nil

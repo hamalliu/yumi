@@ -37,4 +37,6 @@ var (
 	DataLoss = func() *Status { return New(codes.DataLoss, codes.DataLoss.String()) }
 	// Unauthenticated ...
 	Unauthenticated = func() *Status { return New(codes.Unauthenticated, codes.Unauthenticated.String()) }
+	// InvalidRequest ...
+	InvalidRequest = func() *Status { return New(codes.InvalidRequest, codes.InvalidRequest.String()) }
 )

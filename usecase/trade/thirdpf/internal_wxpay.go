@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 
-	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/usecase/trade/db"
 	"yumi/usecase/trade/entity"
@@ -23,7 +22,7 @@ func (iwp InternalWxPay) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify
 	//获取通知参数
 	reqJ := wxpay.ReqPayNotify{}
 	if err := json.NewDecoder(req.Body).Decode(&reqJ); err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.OrderPayCode = reqJ.Attach
@@ -42,7 +41,7 @@ func (iwp InternalWxPay) PayNotifyCheck(op entity.OrderPayAttribute, reqData int
 	reqJ, ok := reqData.(wxpay.ReqPayNotify)
 	if ok {
 		err := fmt.Errorf("转换类型失败")
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	if err := wxpay.CheckPayNotify(wxMch, op.TotalFee, op.OutTradeNo, reqJ); err != nil {
@@ -80,17 +79,17 @@ func (iwp InternalWxPay) QueryPayStatus(op entity.OrderPayAttribute) (entity.Ret
 
 	resp, err := wxpay.GetDefault().OrderQuery(wxMch, op.TransactionID, op.OutTradeNo)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	if op.OutTradeNo != resp.OutTradeNo {
 		if resp.OutTradeNo != op.OutTradeNo {
 			err := fmt.Errorf("订单号不一致")
-			return ret, ecode.ServerErr(err)
+			return ret, err
 		}
 		if resp.TotalFee != op.TotalFee {
 			err := fmt.Errorf("订单金额不一致")
-			return ret, ecode.ServerErr(err)
+			return ret, err
 		}
 	}
 	ret.TransactionID = resp.TransactionID
@@ -104,7 +103,7 @@ func (iwp InternalWxPay) QueryPayStatus(op entity.OrderPayAttribute) (entity.Ret
 		ret.TradeStatus = entity.StatusTradePlatformClosed
 	default:
 		err := fmt.Errorf("微信支付状态发生变动，请管理员及时更改")
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	return ret, nil
@@ -119,7 +118,7 @@ func (iwp InternalWxPay) TradeClose(op entity.OrderPayAttribute) error {
 	}
 
 	if err := wxpay.GetDefault().CloseOrder(wxMch, op.OutTradeNo); err != nil {
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	return nil
@@ -146,22 +145,22 @@ func (iwp InternalWxPay) Refund(op entity.OrderPayAttribute, or entity.OrderRefu
 
 	resp, err := wxpay.GetDefault().Refund(wxMch, rfd)
 	if err != nil {
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	if resp.TransactionID != op.TransactionID ||
 		resp.OutTradeNo != op.OutTradeNo ||
 		resp.OutRefundNo != or.OutRefundNo {
 		err = fmt.Errorf("订单错误")
-		return ecode.ServerErr(err)
+		return err
 	}
 	if resp.RefundFee != or.RefundFee {
 		err = fmt.Errorf("退款金额不一致")
-		return ecode.ServerErr(err)
+		return err
 	}
 	if resp.TotalFee != op.TotalFee {
 		err = fmt.Errorf("订单总金额不一致")
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	return nil
@@ -185,7 +184,7 @@ func (iwp InternalWxPay) QueryRefundStatus(op entity.OrderPayAttribute, or entit
 
 	resp, err := wxpay.GetDefault().RefundQuery(wxMch, rq)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.RefundID = resp.RefundIdn
@@ -200,7 +199,7 @@ func (iwp InternalWxPay) QueryRefundStatus(op entity.OrderPayAttribute, or entit
 		ret.TradeStatus = entity.StatusTradePlatformError
 	default:
 		err := fmt.Errorf("微信退款状态未识别 %s", resp.RefundStatusn)
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	return ret, nil
 }
@@ -239,7 +238,7 @@ func (iwp InternalWxPay) RefundNotifyCheck(op entity.OrderPayAttribute, or entit
 	}
 
 	if err := wxpay.CheckRefundNotify(wxMch, reqData.(wxpay.ReqRefundNotify)); err != nil {
-		return ecode.ServerErr(err)
+		return err
 	}
 
 	return nil
@@ -269,7 +268,7 @@ func (iwp InternalWxPay) getMch(sellerKey string) (wxpay.Merchant, error) {
 	//获取收款商户信息
 	mch, err := db.GetWxPayMerchantBySellerKey(sellerKey)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	ret.AppID = mch.AppID
 	ret.MchID = mch.MchID
@@ -284,7 +283,7 @@ func (iwp InternalWxPay) getMch2(mchID string) (wxpay.Merchant, error) {
 	//获取收款商户信息
 	mch, err := db.GetWxPayMerchantByMchID(mchID)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	ret.AppID = mch.AppID
 	ret.MchID = mch.MchID

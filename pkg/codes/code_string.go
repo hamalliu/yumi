@@ -56,6 +56,8 @@ func (c Code) String() string {
 		return "DataLoss"
 	case Unauthenticated:
 		return "Unauthenticated"
+	case InvalidRequest:
+		return "InvalidRequest"
 	default:
 		return "Code(" + strconv.FormatInt(int64(c), 10) + ")"
 	}

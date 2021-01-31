@@ -5,10 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	"yumi/pkg/codes"
 	"yumi/pkg/ecode"
 	"yumi/pkg/log"
-	"yumi/pkg/status"
 	"yumi/usecase/trade/entity"
 )
 
@@ -23,21 +21,28 @@ func New() (*Service, error) {
 	return &Service{}, nil
 }
 
-//CreateOrderPay 提交支付订单
+// CreateOrderPay 提交支付订单
 func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPayResponse, err error) {
-	data := GetData()
-
 	attr := entity.OrderPayAttribute{}
 	req.Attribute(&attr)
+	op := entity.NewOrderPay(attr)
+	err = op.Submit()
+	if err != nil {
+		return
+	}
 
+	data := GetData()
 	err = data.CreateOrderPay(attr)
-	resp.Code = attr.Code
+	if err != nil {
+		return
+	}
 
+	resp.set(op.Attribute())
 	return
 }
 
 //Pay 发起支付
-func Pay(req PayRequest) (PayResponse, error) {
+func (s *Service) Pay(req PayRequest) (PayResponse, error) {
 	data := GetData()
 	resp := PayResponse{}
 
@@ -45,159 +50,34 @@ func Pay(req PayRequest) (PayResponse, error) {
 	if err != nil {
 		return resp, err
 	}
-	attr := dataOp.Attribute()
 
 	op := entity.NewOrderPay(dataOp.Attribute())
-	err = op.CanPay()
+	resp.Data, err = op.Pay(req.TradeWay, req.ClientIP, req.NotifyURL)
 	if err != nil {
 		return resp, err
 	}
 
-	switch attr.Status {
-	case entity.Submitted:
-		goto SendPay
-	case entity.WaitPay:
-		//查询当前支付状态
-		trade := getTrade(Way(req.TradeWay))
-		if trade == nil {
-			return resp, err 
-		}
-		//查询之前支付状态
-		tpq, err := trade.QueryPayStatus(op)
-		if err != nil {
-			return resp, err
-		}
-		if tpq.TradeStatus == StatusTradePlatformNotPay {
-			if err := trade.TradeClose(op); err != nil {
-				return resp, err 
-			}
-			goto SendPay
-		}
-		if tpq.TradeStatus == StatusTradePlatformClosed {
-			goto SendPay
-		}
-		return resp, status
-	default:
-		return resp, err
-	}
-
-SendPay:
-	req.Attribute(attr)
-
-	trade := getTrade(Way(req.TradeWay))
-	if trade == nil {
-		return resp, 
-	}
-
-	tp, err := trade.Pay(op)
-	if err != nil {
-		return resp, err
-	}
-
+	resp.set(op.Attribute())
 	return resp, nil
 }
 
 //CancelOrderPay 取消支付订单
 func CancelOrderPay(code string) (err error) {
-	e, err := newEntityByPayCode(code)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = e.release() }()
-
-	switch e.op.Status {
-	case Submitted:
-		return e.dataOp.SetCancelled(time.Now(), Cancelled)
-	case WaitPay:
-		trade := getTrade(e.op.TradeWay)
-		if trade == nil {
-			return ecode.NotSupportTradeWay
-		}
-		if err := trade.TradeClose(e.op); err != nil {
-			return err
-		}
-
-		return e.dataOp.SetCancelled(time.Now(), Cancelled)
-	default:
-		return ecode.InvalidCancelOrderPay
-	}
+	return 
 }
 
 //PaySuccess 查询支付成功（只查询待支付订单）
 func PaySuccess(code string) (res Status, err error) {
-	e, err := newEntityByPayCode(code)
-	if err != nil {
-		return "", err
-	}
-	defer func() { _ = e.release() }()
-
-	switch e.op.Status {
-	case WaitPay:
-		trade := getTrade(e.op.TradeWay)
-		if trade == nil {
-			return "", ecode.NotSupportTradeWay
-		}
-		tpq, err := trade.QueryPayStatus(e.op)
-		if err != nil {
-			return "", err
-		}
-		if tpq.TradeStatus == StatusTradePlatformSuccess {
-			if err := e.dataOp.SetSuccess(time.Now(), tpq.TransactionID, tpq.BuyerLogonID, Paid); err != nil {
-				return "", err
-			}
-			return Paid, nil
-		}
-		return WaitPay, nil
-	case Paid:
-		return Paid, nil
-	case Cancelled:
-		return Cancelled, nil
-	default:
-		return "", ecode.InvalidQueryPay
-	}
+	return
 }
 
 //PayStatus 查询支付状态
 func PayStatus(code string) (res StatusTradePlatform, err error) {
-	e, err := newEntityByPayCode(code)
-	if err != nil {
-		return "", err
-	}
-	defer func() { _ = e.release() }()
-
-	trade := getTrade(e.op.TradeWay)
-	if trade == nil {
-		return "", ecode.NotSupportTradeWay
-	}
-	tpq, err := trade.QueryPayStatus(e.op)
-	if err != nil {
-		return "", err
-	}
-
-	return tpq.TradeStatus, nil
+	return
 }
 
 //CloseTrade 关闭交易（只关闭待支付订单）
 func CloseTrade(code string) (err error) {
-	e, err := newEntityByPayCode(code)
-	if err != nil {
-		return err
-	}
-	defer func() { _ = e.release() }()
-
-	switch e.op.Status {
-	case WaitPay:
-		trade := getTrade(e.op.TradeWay)
-		if trade == nil {
-			return ecode.NotSupportTradeWay
-		}
-		if err := e.dataOp.SetSubmitted(Submitted); err != nil {
-			return err
-		}
-		return trade.TradeClose(e.op)
-	default:
-		return ecode.InvalidCloseTrade
-	}
 }
 
 //PayNotify 支付通知(待支付时处理通知)

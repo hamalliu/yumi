@@ -3,7 +3,6 @@ package thirdpf
 import (
 	"encoding/json"
 
-	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/usecase/trade/entity"
 )
@@ -64,7 +63,7 @@ func (wxn1 WxPayMweb) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error)
 
 	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeNative, wxMch, wxorder)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID

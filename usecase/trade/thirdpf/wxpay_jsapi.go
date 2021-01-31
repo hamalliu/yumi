@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"yumi/pkg/ecode"
 
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/pkg/random"
@@ -72,7 +71,7 @@ func (wxn1 WxPayJsapi) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error
 
 	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeJsapi, wxMch, wxorder)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID

@@ -1,4 +1,4 @@
-package trade
+package entity
 
 import (
 	"fmt"
@@ -28,8 +28,8 @@ const (
 
 var count uint64
 
-// 获取订单号
-func getCode(codeType CodeType) string {
+// GetCode 获取订单号
+func GetCode(codeType CodeType) string {
 	prefix := strings.ReplaceAll(time.Now().Format("06121545.999"), ".", "")
 	random := random.Get(3, random.NUMBER)
 	if count >= 100 {

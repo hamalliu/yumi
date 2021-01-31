@@ -1,7 +1,6 @@
 package thirdpf
 
 import (
-	"yumi/pkg/ecode"
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/usecase/trade/entity"
 )
@@ -28,7 +27,7 @@ func (wxn1 WxPayNative1) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, err
 
 	bizURL, err := wxpay.GetDefault().BizPayShortURL(wxMch, op.OutTradeNo)
 	if err != nil {
-		return ret, ecode.ServerErr(err)
+		return ret, err
 	}
 
 	ret.AppID = wxMch.AppID

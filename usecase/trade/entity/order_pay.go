@@ -1,10 +1,14 @@
 package entity
 
 import (
+	"fmt"
 	"yumi/pkg/codes"
 	"yumi/pkg/status"
 	"yumi/pkg/types"
 )
+
+// PayExpireSecond 支付过期期限：30分钟
+const PayExpireSecond = 30 * 60
 
 //Status 订单状态
 type Status string
@@ -77,16 +81,30 @@ type OrderPayAttribute struct {
 
 // OrderPay ...
 type OrderPay struct {
-	attr *OrderPayAttribute
+	attr OrderPayAttribute
 }
 
 // NewOrderPay ...
-func NewOrderPay(attr *OrderPayAttribute) *OrderPay {
-	return &OrderPay{attr: attr}
+func NewOrderPay(attr OrderPayAttribute) OrderPay {
+	return OrderPay{attr: attr}
+}
+
+// Attribute ...
+func (m *OrderPay) Attribute() OrderPayAttribute {
+	return m.attr
+}
+
+// Submit ...
+func (m *OrderPay) Submit() error {
+	if m.attr.TimeoutExpress < types.NowTimestamp()+types.Timestamp(PayExpireSecond) {
+		return status.InvalidArgument().WithDetails(fmt.Sprintf("订单超时时间不能小于支付订单超时时间：%d", PayExpireSecond/60))
+	}
+
+	return nil
 }
 
 // Pay ...
-func (m *OrderPay) Pay(tradeWay string) (string, error) {
+func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 	if m.attr.Status == Submitted {
 		now := types.NowTimestamp()
 		if now > m.attr.TimeoutExpress {
@@ -97,28 +115,67 @@ func (m *OrderPay) Pay(tradeWay string) (string, error) {
 		if err != nil {
 			return "", status.Internal().WithDetails(err.Error())
 		}
-		ret, err := thirdpf.Pay(*m.attr)
+
+		m.setWaitPay(tradeWay, notifyURL, clientIP)
+		ret, err := thirdpf.Pay(m.attr)
+		if err != nil {
+			return "", err
+		}
+
+		return ret.Data, nil
+	}
+
+	if m.attr.Status == WaitPay {
+		thirdpf, err := getThirdpf(Way(m.attr.TradeWay))
+		if err != nil {
+			return "", status.Internal().WithDetails(err.Error())
+		}
+		// 前提：如果该支付订单已支付，三方支付接口应该返回错误
+		err = thirdpf.TradeClose(m.attr)
+		if err != nil {
+			ret, err := thirdpf.QueryPayStatus(m.attr)
+			if err != nil {
+				return "", status.Internal().WithDetails(err.Error())
+			}
+			if ret.TradeStatus == StatusTradePlatformSuccess {
+				m.setPaid(ret.TransactionID, ret.BuyerLogonID)
+				return "", status.FailedPrecondition().WithMessage("订单支付成功不能重复下单")
+			}
+		}
+
+		// 重新下单
+		thirdpf, err = getThirdpf(Way(tradeWay))
+		if err != nil {
+			return "", status.Internal().WithDetails(err.Error())
+		}
+		m.setWaitPay(tradeWay, notifyURL, clientIP)
+		ret, err := thirdpf.Pay(m.attr)
 		if err != nil {
 			return "", err
 		}
 		return ret.Data, nil
 	}
 
-	if m.attr.Status == WaitPay {
-		
-	}
-
-	return "", nil
+	return "", status.InvalidRequest().WithDetails("非法调用")
 }
 
-// SetWaitPay 设置待支付
-func (m *OrderPay) SetWaitPay() {
+// setWaitPay 设置待支付
+func (m *OrderPay) setWaitPay(tradeWay, notifyURL, clientIP string) {
+	m.attr.OutTradeNo = getOutTradeNo()
+	m.attr.TradeWay = tradeWay
+	m.attr.NotifyURL = notifyURL
+	m.attr.SpbillCreateIP = clientIP
+	m.attr.PayExpire = types.NowTimestamp() + PayExpireSecond
 	m.attr.Status = WaitPay
 	return
 }
 
-// SetSuccess 支付成功，更新订单状态（待支付->已支付）
-func (m *OrderPay) SetSuccess(payTime types.Timestamp, transactionID, buyerLogonID string, status Status) {
+// setPaid 支付成功，更新订单状态（待支付->已支付）
+func (m *OrderPay) setPaid(transactionID, buyerLogonID string) {
+	m.attr.BuyerLogonID = buyerLogonID
+	m.attr.TransactionID = transactionID
+	m.attr.Status = Paid
+	m.attr.PayTime = types.NowTimestamp()
 	return
 }
 

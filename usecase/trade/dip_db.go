@@ -17,14 +17,14 @@ type Data interface {
 
 // DataOrderPay ...
 type DataOrderPay interface {
-	Attribute() *entity.OrderPayAttribute
+	Attribute() entity.OrderPayAttribute
 
 	Update() error
 }
 
 // DataOrderRefund ...
 type DataOrderRefund interface {
-	Attribute() *entity.OrderRefundAttribute
+	Attribute() entity.OrderRefundAttribute
 
 	Update() error
 }

@@ -67,4 +67,9 @@ func (s *Status) WithDetails(details ...string) *Status {
 	return s
 }
 
+// WithMessage ...
+func (s *Status) WithMessage(msg string) *Status {
+	s.message = msg
+	return s
+}
 

@@ -17,23 +17,28 @@ type CreateOrderPayRequest struct {
 
 // Attribute ...
 func (m *CreateOrderPayRequest) Attribute(attr *entity.OrderPayAttribute) {
-	code := getCode(OrderPayCode)
+	code := entity.GetCode(entity.OrderPayCode)
 
 	attr.Code = code
+	attr.BuyerAccountGUID = m.BuyerAccountGUID
 	attr.SellerKey = m.SellerKey
 	attr.TotalFee = m.TotalFee
 	attr.Body = m.Body
-	attr.Detail =  m.Detail
-	attr.SubmitTime = types.NowTimestamp()
+	attr.Detail = m.Detail
 	attr.TimeoutExpress = m.TimeoutExpress
 	attr.Status = entity.Submitted
+	attr.SubmitTime = types.NowTimestamp()
 
-	return 
+	return
 }
 
 // CreateOrderPayResponse ...
 type CreateOrderPayResponse struct {
 	Code string
+}
+
+func (m *CreateOrderPayResponse) set(op entity.OrderPayAttribute) {
+	m.Code = op.Code
 }
 
 // PayRequest ...
@@ -42,21 +47,16 @@ type PayRequest struct {
 	TradeWay  string
 	ClientIP  string
 	NotifyURL string
-	PayExpire types.Timestamp
-}
-
-// Attribute ...
-func (m *PayRequest) Attribute(attr *entity.OrderPayAttribute) {
-	attr.TradeWay = m.TradeWay
-	attr.SpbillCreateIP = m.ClientIP
-	attr.NotifyURL = m.NotifyURL
-	attr.PayExpire = m.PayExpire
-	attr.Status = entity.WaitPay
-	attr.OutTradeNo = getOutTradeNo()
 }
 
 // PayResponse ...
 type PayResponse struct {
 	Code       string
 	OutTradeNo string
+	Data       string
+}
+
+func (m *PayResponse) set(op entity.OrderPayAttribute) {
+	m.Code = op.Code
+	m.OutTradeNo = op.OutTradeNo
 }
