@@ -81,7 +81,7 @@ func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) 
 	ret.MchID = wxMch.MchID
 	dataStr, err := mashalRequestWxPayApp(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
 	if err != nil {
-		return ret, err
+		panic(err)
 	}
 
 	ret.Data = dataStr

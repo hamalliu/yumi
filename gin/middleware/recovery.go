@@ -5,9 +5,8 @@ import (
 	"net/http/httputil"
 	"runtime"
 
-	"yumi/pkg/ecode"
 	"yumi/gin"
-	"yumi/pkg/log"
+	"yumi/pkg/status"
 )
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
@@ -23,8 +22,7 @@ func Recovery() gin.HandlerFunc {
 					rawReq, _ = httputil.DumpRequest(c.Request, false)
 				}
 				pl := fmt.Sprintf("http call panic: %s\n%v\n%s\n", string(rawReq), err, buf)
-				log.Error(pl)
-				c.JSON(nil, ecode.ServerErr(nil))
+				c.JSON(nil, status.Internal().WithDetails(pl))
 			}
 		}()
 		c.Next()

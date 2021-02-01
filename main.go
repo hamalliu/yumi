@@ -39,7 +39,7 @@ func main() {
 	}
 
 	log.Info("初始化usecase")
-	usecase.Init(cli.Database(mgoConf.DBName))
+	usecase.Init(cli.Database(mgoConf.DBName), nil) //TODO:
 
 	log.Info("构建服务器")
 	srvconf := conf.Get().Server

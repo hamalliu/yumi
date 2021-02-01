@@ -7,6 +7,7 @@ import (
 
 	"yumi/pkg/ecode"
 	"yumi/pkg/log"
+	"yumi/pkg/status"
 	"yumi/usecase/trade/entity"
 )
 
@@ -32,8 +33,10 @@ func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPay
 	}
 
 	data := GetData()
+	// 持久化
 	err = data.CreateOrderPay(attr)
 	if err != nil {
+		err = status.Internal().WithDetails(err)
 		return
 	}
 
@@ -57,13 +60,19 @@ func (s *Service) Pay(req PayRequest) (PayResponse, error) {
 		return resp, err
 	}
 
+	err = dataOp.Update()
+	if err != nil {
+		err = status.Internal().WithDetails(err)
+		return resp, err
+	}
+
 	resp.set(op.Attribute())
 	return resp, nil
 }
 
 //CancelOrderPay 取消支付订单
 func CancelOrderPay(code string) (err error) {
-	return 
+	return
 }
 
 //PaySuccess 查询支付成功（只查询待支付订单）

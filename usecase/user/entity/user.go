@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"errors"
 	"fmt"
 
 	"yumi/pkg/codec"
@@ -57,7 +58,7 @@ func (u *User) LawEnforcement() (err error) {
 
 	// 2. 密码强度
 	if len(u.attr.Password) < 10 || len(u.attr.Password) > 30 {
-		return fmt.Errorf("密码字数在10~30之间")
+		return status.New(codes.InvalidArgument, "密码字数在10~30之间")
 	}
 	err = strfmt.RegexpPassword(u.attr.Password)
 	if err != nil {
@@ -71,7 +72,7 @@ func (u *User) LawEnforcement() (err error) {
 func (u *User) BcryptPassword() (err error) {
 	pwd, err := login.GetBcrypt().GenerateFromPassword([]byte(u.attr.Password))
 	if err != nil {
-		err := status.Internal().WithDetails(err.Error())
+		err := status.Internal().WithDetails(err)
 		return err
 	}
 	u.attr.Password = string(pwd)
@@ -82,7 +83,7 @@ func (u *User) BcryptPassword() (err error) {
 func (u *User) VerifyPassword(password string) (err error) {
 	pass, err := login.GetBcrypt().VarifyPassword([]byte(password), []byte(u.attr.Password))
 	if err != nil {
-		return status.Internal().WithDetails(err.Error())
+		return status.Internal().WithDetails(err)
 	}
 
 	if !pass {
@@ -97,7 +98,7 @@ func (u *User) Session(store sessions.Store, userID, password, client string) (s
 	sess, err := sessions.NewSession(store, u.attr.UserID, client, 1)
 	err = sess.Save()
 	if err != nil {
-		return "", status.Internal().WithDetails(err.Error())
+		return "", status.Internal().WithDetails(err)
 	}
 
 	sess.AddFlash(sess.ID, "session_id")
@@ -119,12 +120,12 @@ func (u *User) Authenticate(store sessions.Store, sessionID, secureKey string) e
 
 	vars := sess.GetValues("secure_key")
 	if len(vars) == 0 {
-		return status.New(codes.Unauthenticated, "请重新登录").WithDetails("secure_key 泄漏")
+		return status.New(codes.Unauthenticated, "请重新登录").WithDetails(errors.New("secure_key 泄漏"))
 	}
 	srvSecureKey := vars[0].(string)
 
 	if secureKey != srvSecureKey {
-		return status.New(codes.Unauthenticated, "请重新登录").WithDetails("secureKey error:" + secureKey)
+		return status.New(codes.Unauthenticated, "请重新登录").WithDetails(errors.New("secureKey error:" + secureKey))
 	}
 
 	return nil

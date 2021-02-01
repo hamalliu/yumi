@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"yumi/pkg/codes"
 	"yumi/pkg/status"
 	"yumi/pkg/types"
@@ -97,7 +96,7 @@ func (m *OrderPay) Attribute() OrderPayAttribute {
 // Submit ...
 func (m *OrderPay) Submit() error {
 	if m.attr.TimeoutExpress < types.NowTimestamp()+types.Timestamp(PayExpireSecond) {
-		return status.InvalidArgument().WithDetails(fmt.Sprintf("订单超时时间不能小于支付订单超时时间：%d", PayExpireSecond/60))
+		return status.InvalidArgument()
 	}
 
 	return nil
@@ -113,7 +112,7 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 
 		thirdpf, err := getThirdpf(Way(tradeWay))
 		if err != nil {
-			return "", status.Internal().WithDetails(err.Error())
+			return "", status.Internal().WithDetails(err)
 		}
 
 		m.setWaitPay(tradeWay, notifyURL, clientIP)
@@ -126,37 +125,53 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 	}
 
 	if m.attr.Status == WaitPay {
-		thirdpf, err := getThirdpf(Way(m.attr.TradeWay))
+		thirdpf1, err := getThirdpf(Way(m.attr.TradeWay))
 		if err != nil {
-			return "", status.Internal().WithDetails(err.Error())
+			return "", status.Internal().WithDetails(err)
+		}
+		ret1, err := thirdpf1.QueryPayStatus(m.attr)
+		if err != nil {
+			return "", status.Internal().WithDetails(err)
+		}
+		if ret1.TradeStatus == StatusTradePlatformSuccess {
+			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
+			return "", status.FailedPrecondition().WithMessage("订单支付成功不能重复下单")
 		}
 		// 前提：如果该支付订单已支付，三方支付接口应该返回错误
-		err = thirdpf.TradeClose(m.attr)
+		err = thirdpf1.TradeClose(m.attr)
 		if err != nil {
-			ret, err := thirdpf.QueryPayStatus(m.attr)
-			if err != nil {
-				return "", status.Internal().WithDetails(err.Error())
-			}
-			if ret.TradeStatus == StatusTradePlatformSuccess {
-				m.setPaid(ret.TransactionID, ret.BuyerLogonID)
-				return "", status.FailedPrecondition().WithMessage("订单支付成功不能重复下单")
-			}
+			return "", status.Internal().WithDetails(err)
 		}
 
 		// 重新下单
-		thirdpf, err = getThirdpf(Way(tradeWay))
+		thirdpf2, err := getThirdpf(Way(tradeWay))
 		if err != nil {
-			return "", status.Internal().WithDetails(err.Error())
+			return "", status.Internal().WithDetails(err)
 		}
 		m.setWaitPay(tradeWay, notifyURL, clientIP)
-		ret, err := thirdpf.Pay(m.attr)
+		ret2, err := thirdpf2.Pay(m.attr)
 		if err != nil {
 			return "", err
 		}
-		return ret.Data, nil
+		return ret2.Data, nil
 	}
 
-	return "", status.InvalidRequest().WithDetails("非法调用")
+	return "", status.InvalidRequest()
+}
+
+// Colse ...
+func (m *OrderPay) Colse() error {
+	return nil
+}
+
+// Query ...
+func (m *OrderPay) Query() error {
+	return nil
+}
+
+// Notify ...
+func (m *OrderPay) Notify() error {
+	return nil
 }
 
 // setWaitPay 设置待支付

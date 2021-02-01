@@ -35,10 +35,10 @@ type LoginByBcryptResponse struct {
 
 // DisableRequest ...
 type DisableRequest struct {
+	
 }
 
 // AuthentcateRequest ...
 type AuthentcateRequest struct {
+
 }
-
-

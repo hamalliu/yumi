@@ -7,7 +7,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"yumi/pkg/sessions"
-	"yumi/pkg/status"
 	"yumi/usecase/user"
 	"yumi/usecase/user/entity"
 )
@@ -36,7 +35,7 @@ func (db *MongoDB) Create(saa entity.UserAttribute) error {
 	ctx := context.Background()
 	_, err := coll.InsertOne(ctx, sa)
 	if err != nil {
-		return status.Internal().WithDetails(err.Error())
+		return err
 	}
 
 	return nil
@@ -50,7 +49,7 @@ func (db *MongoDB) GetUser(userID string) (user.DataUser, error) {
 	ctx := context.Background()
 	ret := coll.FindOne(ctx, primitive.M{"user_id": userID})
 	if ret.Err() != nil {
-		return &sa, status.Internal().WithDetails(ret.Err().Error())
+		return &sa, ret.Err()
 	}
 
 	err := ret.Decode(&sa)
@@ -88,7 +87,7 @@ func (sa *User) Update() error {
 	ctx := context.Background()
 	_, err := coll.ReplaceOne(ctx, primitive.M{"_id": sa.ID}, sa)
 	if err != nil {
-		return status.Internal().WithDetails(err.Error())
+		return err
 	}
 	return nil
 }

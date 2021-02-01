@@ -59,9 +59,9 @@ func (s *Status) Error() string {
 }
 
 // WithDetails ...
-func (s *Status) WithDetails(details ...string) *Status {
+func (s *Status) WithDetails(details ...error) *Status {
 	for _, detail := range details {
-		s.details = append(s.details, detail)
+		s.details = append(s.details, fmt.Sprintf("%+v", detail))
 	}
 
 	return s

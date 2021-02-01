@@ -1,7 +1,8 @@
 package data
 
 import (
-	"yumi/pkg/status"
+	"github.com/pkg/errors"
+
 	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/usecase/trade"
 	"yumi/usecase/trade/entity"
@@ -33,7 +34,7 @@ func (db *MysqlDB) CreateOrderPay(attr entity.OrderPayAttribute) error {
 	if _, err = db.Insert(sqlStr,
 		attr.Code, attr.BuyerAccountGUID, attr.SellerKey, attr.OutTradeNo, attr.NotifyURL, attr.TotalFee, attr.Body, attr.Detail,
 		attr.TimeoutExpress, attr.SubmitTime, attr.Status); err != nil {
-		return status.Internal().WithDetails(err.Error())
+		return errors.WithStack(err)
 	}
 
 	return nil
@@ -42,7 +43,7 @@ func (db *MysqlDB) CreateOrderPay(attr entity.OrderPayAttribute) error {
 // GetOrderPay ...
 func (db *MysqlDB) GetOrderPay(code string) (trade.DataOrderPay, error) {
 	if code == "" {
-		return nil, status.Internal().WithDetails("code 不能为空")
+		return nil, nil
 	}
 	sqlStr := `
 			SELECT 
@@ -76,7 +77,7 @@ func (db *MysqlDB) GetOrderPay(code string) (trade.DataOrderPay, error) {
 			`
 	op := OrderPay{}
 	if err := db.Get(&op, sqlStr, code); err != nil {
-		return nil, status.Internal().WithDetails(err.Error())
+		return nil, errors.WithStack(err)
 	}
 	return &op, nil
 }
@@ -92,9 +93,9 @@ func (db *MysqlDB) CreateOrderRefund(attr entity.OrderRefundAttribute) error {
 			VALUES 
 			(?, ?, ?, ?, ?,  ?, ?, ?, ?, ?,  ?, ?)`
 	if _, err := db.Insert(sqlStr,
-		attr.Code, attr.RefundAccountGUID, attr.SerialNum, attr.NotifyURL, attr.RefundAccountGUID, attr.RefundWay, attr.OutRefundNo, 
+		attr.Code, attr.RefundAccountGUID, attr.SerialNum, attr.NotifyURL, attr.RefundAccountGUID, attr.RefundWay, attr.OutRefundNo,
 		attr.RefundFee, attr.RefundDesc, attr.SubmitTime, attr.TimeoutExpress, attr.Status); err != nil {
-		return status.Internal().WithDetails(err.Error())
+		return errors.WithStack(err)
 	}
 
 	return nil
@@ -103,7 +104,7 @@ func (db *MysqlDB) CreateOrderRefund(attr entity.OrderRefundAttribute) error {
 // GetOrderRefund ...
 func (db *MysqlDB) GetOrderRefund(code string) (trade.DataOrderRefund, error) {
 	if code == "" {
-		return nil, status.Internal().WithDetails("code 不能为空")
+		return nil, nil
 	}
 	sqlStr := `
 		SELECT 
@@ -130,7 +131,7 @@ func (db *MysqlDB) GetOrderRefund(code string) (trade.DataOrderRefund, error) {
 			`
 	or := OrderRefund{}
 	if err := db.Get(&or, sqlStr, code); err != nil {
-		return nil, status.Internal().WithDetails(err.Error())
+		return nil, errors.WithStack(err)
 	}
 
 	return &or, nil
@@ -180,10 +181,10 @@ func (m *OrderPay) Update() error {
 			"remarks" = ?
 		WHERE 
 			"seq_id" = ?`
-	if _, err := m.db.Exec(sqlStr, m.TradeWay, m.SellerKey, m.AppID, m.MchID, m.TransactionID, m.NotifyURL, m.BuyerLogonID, 
-		m.SpbillCreateIP, m.BuyerAccountGUID, m.TotalFee, m.Body, m.Detail, m.OutTradeNo, m.TimeoutExpress, m.PayExpire, 
+	if _, err := m.db.Exec(sqlStr, m.TradeWay, m.SellerKey, m.AppID, m.MchID, m.TransactionID, m.NotifyURL, m.BuyerLogonID,
+		m.SpbillCreateIP, m.BuyerAccountGUID, m.TotalFee, m.Body, m.Detail, m.OutTradeNo, m.TimeoutExpress, m.PayExpire,
 		m.PayTime, m.CancelTime, m.ErrorTime, m.SubmitTime, m.Status, m.Remarks, m.SeqID); err != nil {
-			return status.Internal().WithDetails(err.Error())
+		return errors.WithStack(err)
 	}
 	return nil
 }
@@ -196,7 +197,7 @@ type OrderRefund struct {
 	entity.OrderRefundAttribute
 }
 
-var _ trade.DataOrderRefund= &OrderRefund{}
+var _ trade.DataOrderRefund = &OrderRefund{}
 
 // Attribute ...
 func (m *OrderRefund) Attribute() entity.OrderRefundAttribute {
@@ -226,7 +227,7 @@ func (m *OrderRefund) Update() error {
 			"seq_id" = ?`
 	if _, err := m.db.Exec(sqlStr, m.SerialNum, m.NotifyURL, m.RefundAccountGUID, m.RefundWay, m.RefundID, m.OutRefundNo,
 		m.RefundFee, m.RefundDesc, m.RefundedTime, m.SubmitTime, m.CancelTime, m.Status, m.Remarks, m.SeqID); err != nil {
-		return status.Internal().WithDetails(err.Error())
+		return errors.WithStack(err)
 	}
 	return nil
 }

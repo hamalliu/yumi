@@ -296,7 +296,7 @@ func (p PayAPI) ShortURL(mch Merchant, url string) (string, error) {
 
 		//验证业务结果
 		if respModel.ResultCode != ReturnCodeSuccess {
-			return "", fmt.Errorf("%s", errMap[respModel.ErrCode])
+			return "", errMap[respModel.ErrCode]
 		}
 
 		//成功
@@ -459,7 +459,7 @@ func (p PayAPI) UnifiedOrder(tradeType TradeType, mch Merchant, order UnifiedOrd
 
 		//验证业务结果
 		if respModel.ResultCode != ReturnCodeSuccess {
-			return ReturnUnifiedOrder{}, fmt.Errorf("%s", respModel.ErrCodeDes)
+			return ReturnUnifiedOrder{}, errMap[respModel.ErrCode]
 		}
 
 		if respModel.TradeType != string(tradeType) {
@@ -520,7 +520,7 @@ func (p PayAPI) OrderQuery(mch Merchant, transactionID, outTradeNo string) (Orde
 
 		//验证业务结果
 		if respModel.ResultCode != ReturnCodeSuccess {
-			return order, fmt.Errorf("%s", respModel.ErrCodeDes)
+			return order, errMap[respModel.ErrCode]
 		}
 
 		//成功
@@ -589,7 +589,7 @@ func (p PayAPI) CloseOrder(mch Merchant, outTradeNo string) error {
 
 		//验证业务结果
 		if respModel.ResultCode != ReturnCodeSuccess {
-			return fmt.Errorf("%s", respModel.ErrCodeDes)
+			return errMap[respModel.ErrCode]
 		}
 
 		//成功
@@ -647,7 +647,7 @@ func (p PayAPI) Refund(mch Merchant, refund Refund) (RefundReturn, error) {
 
 		//验证业务结果
 		if respModel.ResultCode != ReturnCodeSuccess {
-			return retn, fmt.Errorf("%s", respModel.ErrCodeDes)
+			return retn, errMap[respModel.ErrCode]
 		}
 
 		//成功
@@ -725,7 +725,7 @@ func (p PayAPI) RefundQuery(mch Merchant, refundQuery RefundQuery) (RefundQueryR
 
 		//验证业务结果
 		if respModel.ResultCode != ReturnCodeSuccess {
-			return retn, fmt.Errorf("%s", respModel.ErrCodeDes)
+			return retn, errMap[respModel.ErrCode]
 		}
 
 		//成功

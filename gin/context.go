@@ -270,7 +270,7 @@ func (c *Context) JSON(data interface{}, err error) {
 		if ok {
 			s = ss
 		} else {
-			s = status.Unknown().WithDetails(err.Error())
+			s = status.Unknown().WithDetails(err)
 		}
 	}
 	resp.Code = int(s.Code())

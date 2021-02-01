@@ -47,8 +47,6 @@ func (wxn1 WxPayMweb) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error)
 		return ret, err
 	}
 
-	//
-
 	wxorder := wxpay.UnifiedOrder{
 		Body:           op.Body,
 		Detail:         op.Detail,
