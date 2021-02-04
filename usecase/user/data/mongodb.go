@@ -28,66 +28,50 @@ func (db *MongoDB) collUsers() *mongo.Collection {
 }
 
 // Create ...
-func (db *MongoDB) Create(saa entity.UserAttribute) error {
-	sa := User{db: db, UserAttribute: saa}
-	coll := sa.db.collUsers()
+func (db *MongoDB) Create(ua entity.UserAttribute) error {
+	coll := db.collUsers()
 
 	ctx := context.Background()
-	_, err := coll.InsertOne(ctx, sa)
+	_, err := coll.InsertOne(ctx, ua)
 	if err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// Update ...
+func (db *MongoDB) Update(ua entity.UserAttribute) error {
+	coll := db.collUsers()
+
+	ctx := context.Background()
+	_, err := coll.ReplaceOne(ctx, primitive.M{"user_uuid": ua.UserUUID}, ua)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 // GetUser ...
-func (db *MongoDB) GetUser(userID string) (user.DataUser, error) {
+func (db *MongoDB) GetUser(userID string) (ua entity.UserAttribute, err error) {
 	coll := db.collUsers()
-	sa := User{db: db}
 
 	ctx := context.Background()
 	ret := coll.FindOne(ctx, primitive.M{"user_id": userID})
 	if ret.Err() != nil {
-		return &sa, ret.Err()
+		err = ret.Err()
+		return
 	}
 
-	err := ret.Decode(&sa)
+	err = ret.Decode(&ua)
 	if err != nil {
-		return &sa, err
+		return
 	}
 
-	return &sa, nil
+	return
 }
 
 // GetSessionsStore ...
 func (db *MongoDB) GetSessionsStore() sessions.Store {
-	return nil
-}
-
-// User ...
-type User struct {
-	db *MongoDB `bson:"-"`
-
-	ID primitive.ObjectID `bson:"_id"`
-	entity.UserAttribute
-}
-
-var _ user.DataUser = &User{}
-
-// Attribute ...
-func (sa *User) Attribute() *entity.UserAttribute {
-	return &sa.UserAttribute
-}
-
-// Update ...
-func (sa *User) Update() error {
-	coll := sa.db.collUsers()
-
-	ctx := context.Background()
-	_, err := coll.ReplaceOne(ctx, primitive.M{"_id": sa.ID}, sa)
-	if err != nil {
-		return err
-	}
 	return nil
 }

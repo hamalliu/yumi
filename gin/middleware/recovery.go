@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
 	"net/http/httputil"
 	"runtime"
@@ -22,7 +23,7 @@ func Recovery() gin.HandlerFunc {
 					rawReq, _ = httputil.DumpRequest(c.Request, false)
 				}
 				pl := fmt.Sprintf("http call panic: %s\n%v\n%s\n", string(rawReq), err, buf)
-				c.JSON(nil, status.Internal().WithDetails(pl))
+				c.JSON(nil, status.Internal().WithDetails(errors.New(pl)))
 			}
 		}()
 		c.Next()

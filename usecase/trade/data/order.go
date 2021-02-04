@@ -40,14 +40,50 @@ func (db *MysqlDB) CreateOrderPay(attr entity.OrderPayAttribute) error {
 	return nil
 }
 
+//UpdateOrderPay 设置支付方式
+func (db *MysqlDB) UpdateOrderPay(attr entity.OrderPayAttribute) error {
+	sqlStr := `
+		UPDATE 
+			order_pay 
+		SET 
+			"trade_way" = ?, 
+			"seller_key" = ?, 
+			"app_id" = ?, 
+			"mch_id" = ?, 
+			"transaction_id" = ?, 
+			"notify_url" = ?, 
+			"buyer_logon_id" = ?, 
+			"spbill_create_ip" = ?, 
+			"buyer_account_guid" = ?, 
+			"total_fee" = ?,
+			"body" = ?, 
+			"detail" = ?, 
+			"out_trade_no" = ?, 
+			"timeout_express" = ?, 
+			"pay_expire" = ?, 
+			"pay_time" = ?, 
+			"cancel_time" = ?,
+			"error_time" = ?,
+			"submit_time" = ?,
+			"status" = ?,
+			"remarks" = ?
+		WHERE 
+			"code" = ?`
+	if _, err := db.Exec(sqlStr, attr.TradeWay, attr.SellerKey, attr.AppID, attr.MchID, attr.TransactionID, attr.NotifyURL, attr.BuyerLogonID,
+		attr.SpbillCreateIP, attr.BuyerAccountGUID, attr.TotalFee, attr.Body, attr.Detail, attr.OutTradeNo, attr.TimeoutExpress, attr.PayExpire,
+		attr.PayTime, attr.CancelTime, attr.ErrorTime, attr.SubmitTime, attr.Status, attr.Remarks, attr.Code); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
 // GetOrderPay ...
-func (db *MysqlDB) GetOrderPay(code string) (trade.DataOrderPay, error) {
+func (db *MysqlDB) GetOrderPay(code string) (op entity.OrderPayAttribute, err error) {
 	if code == "" {
-		return nil, nil
+		return
 	}
 	sqlStr := `
 			SELECT 
-				"seq_id" AS "seq_id", 
 				ifnull("code", '') AS "code",
 				ifnull("trade_way", '') AS "trade_way", 
 				ifnull("seller_key", '') AS "seller_key", 
@@ -75,11 +111,10 @@ func (db *MysqlDB) GetOrderPay(code string) (trade.DataOrderPay, error) {
 			WHERE 
 				"code" = ?
 			`
-	op := OrderPay{}
-	if err := db.Get(&op, sqlStr, code); err != nil {
-		return nil, errors.WithStack(err)
+	if err = db.Get(&op, sqlStr, code); err != nil {
+		return op, errors.WithStack(err)
 	}
-	return &op, nil
+	return op, nil
 }
 
 // CreateOrderRefund ...
@@ -101,14 +136,41 @@ func (db *MysqlDB) CreateOrderRefund(attr entity.OrderRefundAttribute) error {
 	return nil
 }
 
+//UpdateOrderRefund 设置支付方式
+func (db *MysqlDB) UpdateOrderRefund(attr entity.OrderRefundAttribute) error {
+	sqlStr := `
+		UPDATE 
+			order_pay 
+		SET 
+			"serial_num" = ?,
+			"notify_url" = ?, 
+			"refund_account_guid" = ?, 
+			"refund_way" = ?, 
+			"refund_id" = ?, 
+			"out_refund_no" = ?, 
+			"refund_fee" = ?, 
+			"refund_desc" = ?, 
+			"refunded_time" = ?, 
+			"submit_time" = ?, 
+			"cancel_time" = ?, 
+			"status" = ?,
+			"remarks" = ?
+		WHERE 
+			"code" = ?`
+	if _, err := db.Exec(sqlStr, attr.SerialNum, attr.NotifyURL, attr.RefundAccountGUID, attr.RefundWay, attr.RefundID, attr.OutRefundNo,
+		attr.RefundFee, attr.RefundDesc, attr.RefundedTime, attr.SubmitTime, attr.CancelTime, attr.Status, attr.Remarks, attr.Code); err != nil {
+		return errors.WithStack(err)
+	}
+	return nil
+}
+
 // GetOrderRefund ...
-func (db *MysqlDB) GetOrderRefund(code string) (trade.DataOrderRefund, error) {
+func (db *MysqlDB) GetOrderRefund(code string) (or entity.OrderRefundAttribute, err error) {
 	if code == "" {
-		return nil, nil
+		return
 	}
 	sqlStr := `
 		SELECT 
-			"seq_id", 
 			"code", 
 			"order_pay_code", 
 			ifnull("serial_num", 0) AS "serial_num",
@@ -129,105 +191,9 @@ func (db *MysqlDB) GetOrderRefund(code string) (trade.DataOrderRefund, error) {
 		WHERE 
 			code = ?
 			`
-	or := OrderRefund{}
 	if err := db.Get(&or, sqlStr, code); err != nil {
-		return nil, errors.WithStack(err)
+		return or, errors.WithStack(err)
 	}
 
-	return &or, nil
-}
-
-//OrderPay 支付订单
-type OrderPay struct {
-	db *MysqlDB `db:"-"`
-
-	SeqID int64 `db:"seq_id"`
-	entity.OrderPayAttribute
-}
-
-var _ trade.DataOrderPay = &OrderPay{}
-
-// Attribute ...
-func (m *OrderPay) Attribute() entity.OrderPayAttribute {
-	return m.OrderPayAttribute
-}
-
-//Update 设置支付方式
-func (m *OrderPay) Update() error {
-	sqlStr := `
-		UPDATE 
-			order_pay 
-		SET 
-			"trade_way" = ?, 
-			"seller_key" = ?, 
-			"app_id" = ?, 
-			"mch_id" = ?, 
-			"transaction_id" = ?, 
-			"notify_url" = ?, 
-			"buyer_logon_id" = ?, 
-			"spbill_create_ip" = ?, 
-			"buyer_account_guid" = ?, 
-			"total_fee" = ?,
-			"body" = ?, 
-			"detail" = ?, 
-			"out_trade_no" = ?, 
-			"timeout_express" = ?, 
-			"pay_expire" = ?, 
-			"pay_time" = ?, 
-			"cancel_time" = ?,
-			"error_time" = ?,
-			"submit_time" = ?,
-			"status" = ?,
-			"remarks" = ?
-		WHERE 
-			"seq_id" = ?`
-	if _, err := m.db.Exec(sqlStr, m.TradeWay, m.SellerKey, m.AppID, m.MchID, m.TransactionID, m.NotifyURL, m.BuyerLogonID,
-		m.SpbillCreateIP, m.BuyerAccountGUID, m.TotalFee, m.Body, m.Detail, m.OutTradeNo, m.TimeoutExpress, m.PayExpire,
-		m.PayTime, m.CancelTime, m.ErrorTime, m.SubmitTime, m.Status, m.Remarks, m.SeqID); err != nil {
-		return errors.WithStack(err)
-	}
-	return nil
-}
-
-//OrderRefund 退款订单
-type OrderRefund struct {
-	db *MysqlDB `db:"-"`
-
-	SeqID int64 `db:"seq_id"`
-	entity.OrderRefundAttribute
-}
-
-var _ trade.DataOrderRefund = &OrderRefund{}
-
-// Attribute ...
-func (m *OrderRefund) Attribute() entity.OrderRefundAttribute {
-	return m.OrderRefundAttribute
-}
-
-//Update 设置支付方式
-func (m *OrderRefund) Update() error {
-	sqlStr := `
-		UPDATE 
-			order_pay 
-		SET 
-			"serial_num" = ?,
-			"notify_url" = ?, 
-			"refund_account_guid" = ?, 
-			"refund_way" = ?, 
-			"refund_id" = ?, 
-			"out_refund_no" = ?, 
-			"refund_fee" = ?, 
-			"refund_desc" = ?, 
-			"refunded_time" = ?, 
-			"submit_time" = ?, 
-			"cancel_time" = ?, 
-			"status" = ?,
-			"remarks" = ?
-		WHERE 
-			"seq_id" = ?`
-	if _, err := m.db.Exec(sqlStr, m.SerialNum, m.NotifyURL, m.RefundAccountGUID, m.RefundWay, m.RefundID, m.OutRefundNo,
-		m.RefundFee, m.RefundDesc, m.RefundedTime, m.SubmitTime, m.CancelTime, m.Status, m.Remarks, m.SeqID); err != nil {
-		return errors.WithStack(err)
-	}
-	return nil
+	return or, nil
 }

@@ -8,6 +8,8 @@ import (
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/pkg/random"
 	"yumi/usecase/trade/entity"
+
+	"github.com/pkg/errors"
 )
 
 //NewWxPayApp ...
@@ -46,7 +48,7 @@ func mashalRequestWxPayApp(appID, mchID, privateKey, prePayID string) (string, e
 
 	reqBytes, err := json.Marshal(&req)
 	if err != nil {
-		return "", err
+		return "", errors.WithStack(err)
 	}
 
 	return string(reqBytes), nil
@@ -58,7 +60,7 @@ func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) 
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
 	if err != nil {
-		return ret, err
+		return ret, errors.WithStack(err)
 	}
 
 	wxorder := wxpay.UnifiedOrder{
@@ -74,14 +76,14 @@ func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) 
 
 	retuo, err := wxpay.GetDefault().UnifiedOrder(wxpay.TradeTypeApp, wxMch, wxorder)
 	if err != nil {
-		return ret, err
+		return ret, errors.WithStack(err)
 	}
 
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID
 	dataStr, err := mashalRequestWxPayApp(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
 	if err != nil {
-		panic(err)
+		return ret, errors.WithStack(err)
 	}
 
 	ret.Data = dataStr

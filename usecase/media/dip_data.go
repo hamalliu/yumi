@@ -8,9 +8,9 @@ var _data Data
 
 // Data ...
 type Data interface {
-	CreateMedia(ma entity.MediaAttribute) error
-	GetMedia(fileNo string) (entity.MediaAttribute, error)
-	ListMedia(page, line int) ([]entity.MediaAttribute, error)
+	Create(ma entity.MediaAttribute) error
+	Get(fileNo string) (entity.MediaAttribute, error)
+	List(page, line int) ([]entity.MediaAttribute, error)
 }
 
 // InitData ...

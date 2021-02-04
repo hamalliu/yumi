@@ -1,6 +1,7 @@
 package mssqlx
 
 import (
+	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/jmoiron/sqlx"
 
 	"yumi/pkg/stores/dbc"

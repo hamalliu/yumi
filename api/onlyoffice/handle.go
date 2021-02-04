@@ -511,7 +511,7 @@ func Convert(c *gin.Context) {
 		return
 	}
 	if resp.Error != 0 {
-		c.JSON(nil, status.Internal().WithDetails(onlyoffice.Get().ConvertURIErrorMessage(resp.Error).Error()))
+		c.JSON(nil, status.Internal().WithDetails(onlyoffice.Get().ConvertURIErrorMessage(resp.Error)))
 		return
 	}
 

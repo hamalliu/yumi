@@ -42,30 +42,5 @@ type OrderRefundAttribute struct {
 
 // OrderRefund ...
 type OrderRefund struct {
-	attr OrderRefundAttribute
-}
-
-// SetSubmitted ..
-func (m *OrderRefund) SetSubmitted(status Status) {
-	return
-}
-
-// SetCancelled ..
-func (m *OrderRefund) SetCancelled(cancelTime time.Time, status Status) {
-	return
-}
-
-// SetRefunding ..
-func (m *OrderRefund) SetRefunding(status Status) {
-	return
-}
-
-// SetRefunded ..
-func (m *OrderRefund) SetRefunded(refundID string, refundedTime time.Time, status Status) {
-	return
-}
-
-// SetError ..
-func (m *OrderRefund) SetError(errorTime time.Time, remarks string, status Status) {
-	return
+	attr *OrderRefundAttribute
 }

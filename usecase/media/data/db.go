@@ -2,22 +2,22 @@ package data
 
 import (
 	"yumi/pkg/ecode"
-	"yumi/pkg/stores/dbc"
+	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/usecase/media/entity"
 )
 
-//DBTable ...
-type DBTable int
-
-var dbt DBTable
-
-//DB ...
-func DB() DBTable {
-	return dbt
+// MysqlDB ...
+type MysqlDB struct {
+	*mysqlx.Client
 }
 
-//Insert ...
-func (DBTable) Insert(suffix, name, realname, path, operator, operatorid string) (int, error) {
+// New ...
+func New(db *mysqlx.Client) *MysqlDB {
+	return &MysqlDB{Client: db}
+}
+
+//Create ...
+func (db *MysqlDB) Create(suffix, name, realname, path, operator, operatorid string) (int, error) {
 	var (
 		id int64
 
@@ -31,7 +31,7 @@ func (DBTable) Insert(suffix, name, realname, path, operator, operatorid string)
 			("suffix", "name", "real_name", "path", "operator", "operator_id", "operate_time") 
 		VALUES 
 			(?, ?, ?, ?, ?, ?, sysdate())`
-	if id, err = dbc.Get().Insert(sql, suffix, name, realname, path, operator, operatorid); err != nil {
+	if id, err = db.Insert(sql, suffix, name, realname, path, operator, operatorid); err != nil {
 		return 0, ecode.ServerErr(err)
 	}
 
@@ -43,5 +43,3 @@ type Media struct {
 	ID int64
 	entity.MediaAttribute
 }
-
-

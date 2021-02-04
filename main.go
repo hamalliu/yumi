@@ -14,6 +14,7 @@ import (
 	"yumi/gin"
 	"yumi/gin/middleware"
 	"yumi/pkg/log"
+	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/pkg/stores/mgoc"
 	"yumi/usecase"
 )
@@ -25,21 +26,25 @@ func main() {
 	conf.Load()
 	log.Init()
 
-	log.Info("初始化数据库")
-	//dbc.Init(conf.Get().DB)
-
-	log.Info("初始化casbin")
-	middleware.InitCasbin("", nil) //TODO:
-
-	log.Info("构建mongo客户端")
+	log.Info("构建mongodb客户端")
 	mgoConf := conf.Get().Mongo
-	cli, err := mgoc.New(mgoConf.Dsn, mgoConf.Options()...)
+	mgoCli, err := mgoc.New(mgoConf.Dsn, mgoConf.Options()...)
 	if err != nil {
 		panic(err)
 	}
 
+	log.Info("构建mysqldb客户端")
+	dbConf := conf.Get().DB
+	myCLi, err := mysqlx.New(dbConf.Dsn, dbConf.Options()...)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Info("初始化casbin")
+	middleware.InitCasbin("", nil) //TODO:
+
 	log.Info("初始化usecase")
-	usecase.Init(cli.Database(mgoConf.DBName), nil) //TODO:
+	usecase.Init(mgoCli.Database(mgoConf.DBName), myCLi)
 
 	log.Info("构建服务器")
 	srvconf := conf.Get().Server
@@ -61,7 +66,7 @@ func main() {
 	api.Mount(router)
 
 	//启动服务
-	log.Info("开始启动服务器，侦听地址：" + conf.Get().Server.Addr)
+	log.Info("启动服务器，侦听地址：" + conf.Get().Server.Addr)
 	go func() {
 		if err := gin.Run(&server); err != nil {
 			log.Info(fmt.Errorf("启动服务器失败: %s", err.Error()))

@@ -17,9 +17,6 @@ type CreateOrderPayRequest struct {
 
 // Attribute ...
 func (m *CreateOrderPayRequest) Attribute(attr *entity.OrderPayAttribute) {
-	code := entity.GetCode(entity.OrderPayCode)
-
-	attr.Code = code
 	attr.BuyerAccountGUID = m.BuyerAccountGUID
 	attr.SellerKey = m.SellerKey
 	attr.TotalFee = m.TotalFee
@@ -27,7 +24,6 @@ func (m *CreateOrderPayRequest) Attribute(attr *entity.OrderPayAttribute) {
 	attr.Detail = m.Detail
 	attr.TimeoutExpress = m.TimeoutExpress
 	attr.Status = entity.Submitted
-	attr.SubmitTime = types.NowTimestamp()
 
 	return
 }

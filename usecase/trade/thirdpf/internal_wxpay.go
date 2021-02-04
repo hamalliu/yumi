@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"yumi/pkg/externalapi/txapi/wxpay"
-	"yumi/usecase/trade/db"
 	"yumi/usecase/trade/entity"
 )
 
@@ -266,7 +265,7 @@ func (iwp InternalWxPay) getMch(sellerKey string) (wxpay.Merchant, error) {
 	ret := wxpay.Merchant{}
 
 	//获取收款商户信息
-	mch, err := db.GetWxPayMerchantBySellerKey(sellerKey)
+	mch, err := getData().GetWxPayMerchant(entity.WxPayMerchantIDs{SellerKey: sellerKey})
 	if err != nil {
 		return ret, err
 	}
@@ -281,7 +280,7 @@ func (iwp InternalWxPay) getMch2(mchID string) (wxpay.Merchant, error) {
 	ret := wxpay.Merchant{}
 
 	//获取收款商户信息
-	mch, err := db.GetWxPayMerchantByMchID(mchID)
+	mch, err := getData().GetWxPayMerchant(entity.WxPayMerchantIDs{MchID: mchID})
 	if err != nil {
 		return ret, err
 	}

@@ -21,15 +21,17 @@ type UserStatus struct {
 // UserAttribute ...
 type UserAttribute struct {
 	// 用户id，唯一
-	UserID string
+	UserID   string `bson:"user_id"`
+	// 用户uuid，唯一
+	UserUUID string `bson:"user_uuid"`
 	// 用户密码
-	Password string
+	Password string `bson:"password"`
 	// 用户名
-	UserName string
+	UserName string `bson:"user_name"`
 	//电话号码
-	PhoneNumber string
+	PhoneNumber string `bson:"phone_number"`
 	// 注册时间
-	RegisteTime types.Timestamp
+	RegisteTime types.Timestamp `bson:"registe_time"`
 
 	// 用户状态
 	UserStatus

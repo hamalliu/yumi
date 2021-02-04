@@ -204,7 +204,7 @@ func (alipp AliPayPage) Refund(op entity.OrderPayAttribute, or entity.OrderRefun
 }
 
 //QueryRefundStatus ...
-func (alipp AliPayPage) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefund) (entity.ReturnQueryRefund, error) {
+func (alipp AliPayPage) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) (entity.ReturnQueryRefund, error) {
 	//TODO
 	return entity.ReturnQueryRefund{}, nil
 }
@@ -216,7 +216,7 @@ func (alipp AliPayPage) RefundNotifyReq(req *http.Request) (entity.ReturnRefundN
 }
 
 // RefundNotifyCheck 检查参数
-func (alipp AliPayPage) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefund, reqData interface{}) error {
+func (alipp AliPayPage) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefundAttribute, reqData interface{}) error {
 	// TODO:
 	return nil
 }
@@ -229,7 +229,7 @@ func (alipp AliPayPage) RefundNotifyResp(err error, resp http.ResponseWriter) {
 func (alipp AliPayPage) getMch(sellerKey string) (alipay.Merchant, error) {
 	ret := alipay.Merchant{}
 	//获取收款商户信息
-	mch, err := db.GetAliPayMerchantBySellerKey(sellerKey)
+	mch, err := getData().GetAliPayMerchant(sellerKey)
 	if err != nil {
 		return ret, err
 	}

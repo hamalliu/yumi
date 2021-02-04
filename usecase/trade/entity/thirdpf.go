@@ -1,13 +1,11 @@
 package entity
 
 import (
-	"errors"
 	"net/http"
-)
 
-var (
-	// ErrUnsupportedTradeWay ...
-	ErrUnsupportedTradeWay = errors.New("unsupported trade way")
+	"github.com/pkg/errors"
+
+	"yumi/pkg/status"
 )
 
 //StatusTradePlatform ...
@@ -103,9 +101,10 @@ func RegisterTrade(way Way, trade Trade) {
 	trades[way] = trade
 }
 
-func getThirdpf(tradeWay Way) (Trade, error) {
+// GetThirdpf ...
+func GetThirdpf(tradeWay Way) (Trade, error) {
 	if trades[tradeWay] == nil {
-		return nil, ErrUnsupportedTradeWay
+		return nil, status.Internal().WithDetails(errors.New("unsupported trade way"))
 	}
 	return trades[tradeWay], nil
 }

@@ -10,8 +10,8 @@ type CreateRequest struct {
 	PhoneNumber string
 }
 
-// UserAttribute ...
-func (ar *CreateRequest) UserAttribute() entity.UserAttribute {
+// userAttribute ...
+func (ar *CreateRequest) userAttribute() entity.UserAttribute {
 	return entity.UserAttribute{
 		UserID:      ar.UserID,
 		Password:    ar.Password,

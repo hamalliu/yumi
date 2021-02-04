@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"yumi/pkg/codes"
 	"yumi/pkg/status"
 	"yumi/pkg/types"
 )
@@ -80,17 +79,12 @@ type OrderPayAttribute struct {
 
 // OrderPay ...
 type OrderPay struct {
-	attr OrderPayAttribute
+	attr *OrderPayAttribute
 }
 
 // NewOrderPay ...
-func NewOrderPay(attr OrderPayAttribute) OrderPay {
+func NewOrderPay(attr *OrderPayAttribute) OrderPay {
 	return OrderPay{attr: attr}
-}
-
-// Attribute ...
-func (m *OrderPay) Attribute() OrderPayAttribute {
-	return m.attr
 }
 
 // Submit ...
@@ -98,8 +92,39 @@ func (m *OrderPay) Submit() error {
 	if m.attr.TimeoutExpress < types.NowTimestamp()+types.Timestamp(PayExpireSecond) {
 		return status.InvalidArgument()
 	}
-
+	m.attr.Code = GetCode(OrderPayCode)
+	m.attr.SubmitTime = types.NowTimestamp()
 	return nil
+}
+
+// Cancel ...
+func (m *OrderPay) Cancel() error {
+	if m.attr.Status == Submitted {
+		m.setCancelled()
+	}
+	if m.attr.Status == WaitPay {
+		thirdpf, err := GetThirdpf(Way(m.attr.TradeWay))
+		if err != nil {
+			return err
+		}
+		ret1, err := thirdpf.QueryPayStatus(*m.attr)
+		if err != nil {
+			return err
+		}
+		if ret1.TradeStatus == StatusTradePlatformSuccess {
+			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
+			return status.FailedPrecondition().WithMessage("订单支付成功不能取消")
+		}
+		err = thirdpf.TradeClose(*m.attr)
+		if err != nil {
+			return err
+		}
+		m.setCancelled()
+	}
+	if m.attr.Status == Cancelled {
+		return nil
+	}
+	return status.InvalidRequest()
 }
 
 // Pay ...
@@ -107,29 +132,29 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 	if m.attr.Status == Submitted {
 		now := types.NowTimestamp()
 		if now > m.attr.TimeoutExpress {
-			return "", status.New(codes.FailedPrecondition, "订单已过期，不能发起支付")
+			return "", status.FailedPrecondition().WithMessage("订单已过期，不能发起支付")
 		}
 
-		thirdpf, err := getThirdpf(Way(tradeWay))
+		thirdpf, err := GetThirdpf(Way(tradeWay))
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
 
 		m.setWaitPay(tradeWay, notifyURL, clientIP)
-		ret, err := thirdpf.Pay(m.attr)
+		ret, err := thirdpf.Pay(*m.attr)
 		if err != nil {
-			return "", err
+			return "", status.Internal().WithDetails(err)
 		}
 
 		return ret.Data, nil
 	}
 
 	if m.attr.Status == WaitPay {
-		thirdpf1, err := getThirdpf(Way(m.attr.TradeWay))
+		thirdpf1, err := GetThirdpf(Way(m.attr.TradeWay))
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
-		ret1, err := thirdpf1.QueryPayStatus(m.attr)
+		ret1, err := thirdpf1.QueryPayStatus(*m.attr)
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
@@ -138,20 +163,20 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 			return "", status.FailedPrecondition().WithMessage("订单支付成功不能重复下单")
 		}
 		// 前提：如果该支付订单已支付，三方支付接口应该返回错误
-		err = thirdpf1.TradeClose(m.attr)
+		err = thirdpf1.TradeClose(*m.attr)
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
 
 		// 重新下单
-		thirdpf2, err := getThirdpf(Way(tradeWay))
+		thirdpf2, err := GetThirdpf(Way(tradeWay))
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
 		m.setWaitPay(tradeWay, notifyURL, clientIP)
-		ret2, err := thirdpf2.Pay(m.attr)
+		ret2, err := thirdpf2.Pay(*m.attr)
 		if err != nil {
-			return "", err
+			return "", status.Internal().WithDetails(err)
 		}
 		return ret2.Data, nil
 	}
@@ -159,19 +184,32 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 	return "", status.InvalidRequest()
 }
 
-// Colse ...
-func (m *OrderPay) Colse() error {
-	return nil
-}
+// QueryPaid ...
+func (m *OrderPay) QueryPaid() (bool, error) {
+	thirdpf, err := GetThirdpf(Way(m.attr.TradeWay))
+	if err != nil {
+		return false, err
+	}
 
-// Query ...
-func (m *OrderPay) Query() error {
-	return nil
-}
+	if m.attr.Status == WaitPay {
+		//查询支付状态
+		tpq, err := thirdpf.QueryPayStatus(*m.attr)
+		if err != nil {
+			return false, err
+		}
+		if tpq.TradeStatus == StatusTradePlatformSuccess {
+			m.setPaid(tpq.TransactionID, tpq.BuyerLogonID)
+			return true, nil
+		}
+		if tpq.TradeStatus == StatusTradePlatformNotPay {
+			return false, nil
+		}
+	}
+	if m.attr.Status == Paid {
+		return true, nil
+	}
 
-// Notify ...
-func (m *OrderPay) Notify() error {
-	return nil
+	return false, status.InvalidRequest()
 }
 
 // setWaitPay 设置待支付
@@ -194,22 +232,17 @@ func (m *OrderPay) setPaid(transactionID, buyerLogonID string) {
 	return
 }
 
-// SetCancelled 设置取消订单
-func (m *OrderPay) SetCancelled(cancelTime types.Timestamp, status Status) {
+// setCancelled 设置取消订单
+func (m *OrderPay) setCancelled() {
+	m.attr.Status = Cancelled
+	m.attr.CancelTime = types.NowTimestamp()
 	return
 }
 
-// SetError 设置订单错误
-func (m *OrderPay) SetError(errorTime types.Timestamp, remarks string, status Status) {
-	return
-}
-
-// SetOutTradeNo 设置订单号
-func (m *OrderPay) SetOutTradeNo(outTradeNo string) {
-	return
-}
-
-// SetSubmitted 更新订单状态（待支付->已提交）
-func (m *OrderPay) SetSubmitted(status Status) {
+// setError 设置订单错误
+func (m *OrderPay) setError(remarks string) {
+	m.attr.Status = Error
+	m.attr.Remarks = remarks
+	m.attr.ErrorTime = types.NowTimestamp()
 	return
 }

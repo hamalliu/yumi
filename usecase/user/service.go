@@ -17,7 +17,7 @@ func New() (*Service, error) {
 func (s *Service) Create(req CreateRequest) (err error) {
 	data := GetData()
 
-	ua := req.UserAttribute()
+	ua := req.userAttribute()
 	u := entity.NewUser(&ua)
 	err = u.LawEnforcement()
 	if err != nil {
@@ -48,12 +48,12 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 	data := GetData()
 	resp := LoginByBcryptResponse{}
 
-	dataUt, err := data.GetUser(req.UserID)
+	attr, err := data.GetUser(req.UserID)
 	if err != nil {
 		return resp, err
 	}
 
-	u := entity.NewUser(dataUt.Attribute())
+	u := entity.NewUser(&attr)
 	err = u.VerifyPassword(req.Password)
 	if err != nil {
 		return resp, err
