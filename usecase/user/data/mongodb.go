@@ -52,12 +52,12 @@ func (db *MongoDB) Update(ua entity.UserAttribute) error {
 	return nil
 }
 
-// GetUser ...
-func (db *MongoDB) GetUser(userID string) (ua entity.UserAttribute, err error) {
+// Get ...
+func (db *MongoDB) Get(ids entity.UserAttributeIDs) (ua entity.UserAttribute, err error) {
 	coll := db.collUsers()
 
 	ctx := context.Background()
-	ret := coll.FindOne(ctx, primitive.M{"user_id": userID})
+	ret := coll.FindOne(ctx, db.filterIDs(ids))
 	if ret.Err() != nil {
 		err = ret.Err()
 		return
@@ -69,6 +69,46 @@ func (db *MongoDB) GetUser(userID string) (ua entity.UserAttribute, err error) {
 	}
 
 	return
+}
+
+// Exist ...
+func (db *MongoDB) Exist(ids entity.UserAttributeIDs) (exist bool, ua entity.UserAttribute, err error) {
+	coll := db.collUsers()
+
+	ctx := context.Background()
+	ret := coll.FindOne(ctx, db.filterIDs(ids))
+	if ret.Err() != nil {
+		err = ret.Err()
+		if err == mongo.ErrNoDocuments {
+			err = nil
+		}
+		return
+	}
+
+	err = ret.Decode(&ua)
+	if err != nil {
+		return
+	}
+
+	return true, ua, nil
+}
+
+func (db *MongoDB) filterIDs(ids entity.UserAttributeIDs) map[string]interface{} {
+	filter := make(map[string]interface{})
+	if ids.UserUUID != "" {
+		filter["user_uuid"] = ids.UserUUID
+		return filter
+	}
+	if ids.UserID != "" {
+		filter["user_id"] = ids.UserID
+		return filter
+	}
+	if ids.PhoneNumber != "" {
+		filter["phone_number"] = ids.PhoneNumber
+		return filter
+	}
+
+	return filter
 }
 
 // GetSessionsStore ...

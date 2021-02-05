@@ -64,6 +64,24 @@ func (s *SpaceSize) UnmarshalText(text []byte) error {
 	return fmt.Errorf("空间单位未识别，%s", str)
 }
 
+func (s *SpaceSize) String() string {
+	size := int64(*s)
+	if size > 2 << 40 {
+		return fmt.Sprintf("%dtb", size/2<<40)
+	}
+	if size > 2 << 30 {
+		return fmt.Sprintf("%dgb", size/2<<30)
+	}
+	if size > 2 << 20 {
+		return fmt.Sprintf("%dmb", size/2<<20)
+	}
+	if size > 2 << 10 {
+		return fmt.Sprintf("%dkb", size/2<<10)
+	}
+
+	return fmt.Sprintf("%db", size)
+}
+
 //ArrayString ...
 type ArrayString []string
 

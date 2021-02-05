@@ -2,6 +2,7 @@ package api
 
 import (
 	"yumi/api/admin"
+	"yumi/api/doc"
 	"yumi/api/media"
 	"yumi/gin"
 )
@@ -12,4 +13,5 @@ func Mount(r *gin.RouterGroup) {
 
 	admin.Mount(ar)
 	media.Mount(ar)
+	doc.Mount(ar)
 }

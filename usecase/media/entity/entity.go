@@ -18,6 +18,7 @@ const (
 
 // MediaAttribute is attribute of media struct
 type MediaAttribute struct {
+	MediaUUID   string
 	Name        string
 	Size        int64
 	StoragePath StoragePath
@@ -31,12 +32,17 @@ type MediaAttribute struct {
 
 // Media is value object
 type Media struct {
-	attr MediaAttribute
+	attr *MediaAttribute
 }
 
 // NewMedia a media
-func NewMedia(attr MediaAttribute) Media {
+func NewMedia(attr *MediaAttribute) Media {
 	return Media{attr: attr}
+}
+
+// Create ...
+func (m *Media) Create(file multipart.File) error {
+	return nil
 }
 
 // GetFile return a io.reader
@@ -49,7 +55,3 @@ func (m *Media) SaveFileFormHTTP(file multipart.File) error {
 	return nil
 }
 
-// Attribute ...
-func (m *Media) Attribute() MediaAttribute {
-	return m.attr
-}

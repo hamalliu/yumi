@@ -26,8 +26,3 @@ type AliPayMerchant struct {
 	PublicKey string `db:"public_key" json:"public_key"`
 }
 
-// WxPayMerchantIDs ...
-type WxPayMerchantIDs struct {
-	MchID     string
-	SellerKey string
-}

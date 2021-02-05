@@ -89,7 +89,7 @@ func (u *User) VerifyPassword(password string) (err error) {
 	}
 
 	if !pass {
-		return status.New(codes.Unauthenticated, "密码错误")
+		return status.New(codes.FailedPrecondition, "密码错误")
 	}
 
 	return nil
