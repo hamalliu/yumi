@@ -30,6 +30,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/stretchr/testify v1.6.1
 	github.com/ugorji/go/codec v1.1.7
+	go.etcd.io/etcd v2.3.8+incompatible // indirect
 	go.mongodb.org/mongo-driver v1.4.4
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
 	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a // indirect

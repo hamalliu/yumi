@@ -33,6 +33,7 @@ type Server struct {
 	Addr         string             // 启动地址
 	WriteTimeout types.TimeDuration // http写超时
 	ReadTimeout  types.TimeDuration // http读超时
+	Color        DeployEnv          // 部署环境
 }
 
 // Media 媒体配置
