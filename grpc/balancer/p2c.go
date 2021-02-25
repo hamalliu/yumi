@@ -40,7 +40,7 @@ func Register(opts ...P2cOption) {
 	for _, opt := range opts {
 		opt.f(&p.opts)
 	}
-	bb := base.NewBalancerBuilder(Name, &p2cPickerBuilder{})
+	bb := base.NewBalancerBuilder(Name, &p2cPickerBuilder{}, base.Config{})
 	balancer.Register(bb)
 }
 
@@ -107,13 +107,13 @@ type p2cPickerBuilder struct {
 	opts p2cOptions
 }
 
-func (pb *p2cPickerBuilder) Build(readySCs map[resolver.Address]balancer.SubConn) balancer.Picker {
+func (pb *p2cPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 	p := &p2cPicker{
 		envColor: pb.opts.Color,
 		colors:   make(map[string]*p2cPicker),
 		r:        rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
-	for addr, sc := range readySCs {
+	for addr, sc := range info.ReadySCs {
 		meta, ok := addr.Metadata.(metadata.MD)
 		if !ok {
 			meta = metadata.MD{
@@ -158,13 +158,13 @@ type p2cPicker struct {
 	lk       sync.Mutex
 }
 
-func (p *p2cPicker) Pick(ctx context.Context, opts balancer.PickInfo) (balancer.SubConn, func(balancer.DoneInfo), error) {
+func (p *p2cPicker) Pick(opts balancer.PickInfo) (balancer.PickResult, error) {
 	if p.envColor != "" {
 		if cp, ok := p.colors[p.envColor]; ok {
-			return cp.pick(ctx, opts)
+			return cp.pick(opts.Ctx, opts)
 		}
 	}
-	return p.pick(ctx, opts)
+	return p.pick(opts.Ctx, opts)
 }
 
 // choose two distinct nodes
@@ -185,12 +185,13 @@ func (p *p2cPicker) prePick() (nodeA *subConn, nodeB *subConn) {
 	return
 }
 
-func (p *p2cPicker) pick(ctx context.Context, opts balancer.PickInfo) (balancer.SubConn, func(balancer.DoneInfo), error) {
+func (p *p2cPicker) pick(ctx context.Context, opts balancer.PickInfo) (balancer.PickResult, error) {
 	var pc, upc *subConn
+	var ret balancer.PickResult
 	start := time.Now().UnixNano()
 
 	if len(p.subConns) <= 0 {
-		return nil, nil, balancer.ErrNoSubConnAvailable
+		return ret, balancer.ErrNoSubConnAvailable
 	} else if len(p.subConns) == 1 {
 		pc = p.subConns[0]
 	} else {
@@ -216,7 +217,8 @@ func (p *p2cPicker) pick(ctx context.Context, opts balancer.PickInfo) (balancer.
 	}
 	atomic.AddInt64(&pc.inflight, 1)
 	atomic.AddInt64(&pc.reqs, 1)
-	return pc.conn, func(di balancer.DoneInfo) {
+	ret.SubConn = pc.conn
+	ret.Done = func(di balancer.DoneInfo) {
 		atomic.AddInt64(&pc.inflight, -1)
 		now := time.Now().UnixNano()
 		// get moving average ratio w
@@ -264,7 +266,8 @@ func (p *p2cPicker) pick(ctx context.Context, opts balancer.PickInfo) (balancer.
 				p.printStats()
 			}
 		}
-	}, nil
+	}
+	return ret, nil
 }
 
 func (p *p2cPicker) printStats() {
