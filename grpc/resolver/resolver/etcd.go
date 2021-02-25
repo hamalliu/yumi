@@ -3,7 +3,6 @@ package discover
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -12,8 +11,10 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/coreos/etcd/storage/storagepb"
+	"github.com/pkg/errors"
 	"go.etcd.io/etcd/clientv3"
-	"google.golang.org/grpc"
+	"google.golang.org/grpc/resolver"
 
 	"yumi/grpc/resolver/internal"
 	"yumi/pkg/log"
@@ -63,15 +64,15 @@ func Builder(c *clientv3.Config) internal.Builder {
 }
 
 // Build register resolver into default etcd.
-func Build(c *clientv3.Config, id string) internal.Resolver {
-	return Builder(c).Build(id)
+func Build(c *clientv3.Config, target resolver.Target) internal.Resolver {
+	return Builder(c).Build(target)
 }
 
 // EtcdBuilder is a etcd clientv3 EtcdBuilder
 type EtcdBuilder struct {
-	cli        *clientv3.Client
 	ctx        context.Context
 	cancelFunc context.CancelFunc
+	cli        *clientv3.Client
 
 	mutex    sync.RWMutex
 	apps     map[string]*appInfo
@@ -86,7 +87,7 @@ type appInfo struct {
 
 // Resolve etch resolver.
 type Resolve struct {
-	id    string
+	key   string
 	event chan struct{}
 	e     *EtcdBuilder
 	opt   *internal.BuildOptions
@@ -101,12 +102,12 @@ func New(c *clientv3.Config) (e *EtcdBuilder, err error) {
 		c = &clientv3.Config{
 			Endpoints:   strings.Split(endpoints, ","),
 			DialTimeout: time.Second * time.Duration(defaultDialTimeout),
-			DialOptions: []grpc.DialOption{grpc.WithBlock()},
+			// DialOptions: []grpc.DialOption{grpc.WithBlock()},
 		}
 	}
 	cli, err := clientv3.New(*c)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithStack(err)
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	e = &EtcdBuilder{
@@ -120,21 +121,26 @@ func New(c *clientv3.Config) (e *EtcdBuilder, err error) {
 }
 
 // Build disovery resovler builder.
-func (e *EtcdBuilder) Build(appid string, opts ...internal.BuildOption) internal.Resolver {
+func (e *EtcdBuilder) Build(target resolver.Target, opts ...internal.BuildOption) internal.Resolver {
+	appID := target.Endpoint
 	r := &Resolve{
-		id:    appid,
+		key:   appID,
 		e:     e,
 		event: make(chan struct{}, 1),
 		opt:   new(internal.BuildOptions),
 	}
+	for i := range opts {
+		opts[i].Apply(r.opt)
+	}
+
 	e.mutex.Lock()
-	app, ok := e.apps[appid]
+	app, ok := e.apps[appID]
 	if !ok {
 		app = &appInfo{
 			resolver: make(map[*Resolve]struct{}),
 			e:        e,
 		}
-		e.apps[appid] = app
+		e.apps[appID] = app
 	}
 	app.resolver[r] = struct{}{}
 	e.mutex.Unlock()
@@ -146,8 +152,8 @@ func (e *EtcdBuilder) Build(appid string, opts ...internal.BuildOption) internal
 	}
 
 	app.once.Do(func() {
-		go app.watch(appid)
-		log.Info("etcd: AddWatch(%s) already watch(%v)", appid, ok)
+		go app.watch(appID)
+		log.Info("etcd: AddWatch(%s) already watch(%v)", appID, ok)
 	})
 	return r
 }
@@ -167,7 +173,8 @@ func (e *EtcdBuilder) Register(ctx context.Context, ins *internal.Instance) (can
 	}
 	e.mutex.Unlock()
 	if err != nil {
-		return
+		err = errors.WithStack(err)
+		return 
 	}
 	ctx, cancel := context.WithCancel(e.ctx)
 	if err = e.register(ctx, ins); err != nil {
@@ -175,6 +182,7 @@ func (e *EtcdBuilder) Register(ctx context.Context, ins *internal.Instance) (can
 		delete(e.registry, ins.AppID)
 		e.mutex.Unlock()
 		cancel()
+		err = errors.WithStack(err)
 		return
 	}
 	ch := make(chan struct{}, 1)
@@ -206,16 +214,16 @@ func (e *EtcdBuilder) register(ctx context.Context, ins *internal.Instance) (err
 	prefix := e.keyPrefix(ins)
 	val, _ := json.Marshal(ins)
 
-	ttlResp, err := e.cli.Grant(context.TODO(), int64(registerTTL))
+	ttlResp, err := e.cli.Create(context.TODO(), int64(registerTTL))
 	if err != nil {
-		log.Error("etcd: register client.Grant(%v) error(%v)", registerTTL, err)
-		return err
+		log.Error("etcd: register client.Lease.Create (%v) error(%v)", registerTTL, err)
+		return errors.WithStack(err)
 	}
-	_, err = e.cli.Put(ctx, prefix, string(val), clientv3.WithLease(ttlResp.ID))
+	_, err = e.cli.Put(ctx, prefix, string(val), clientv3.WithLease(clientv3.LeaseID(ttlResp.ID)))
 	if err != nil {
 		log.Error("etcd: register client.Put(%v) appid(%s) hostname(%s) error(%v)",
 			prefix, ins.AppID, ins.Hostname, err)
-		return err
+		return errors.WithStack(err)
 	}
 	return nil
 }
@@ -225,6 +233,7 @@ func (e *EtcdBuilder) unregister(ins *internal.Instance) (err error) {
 	if _, err = e.cli.Delete(context.TODO(), prefix); err != nil {
 		log.Error("etcd: unregister client.Delete(%v) appid(%s) hostname(%s) error(%v)",
 			prefix, ins.AppID, ins.Hostname, err)
+		return errors.WithStack(err)
 	}
 	log.Info("etcd: unregister client.Delete(%v)  appid(%s) hostname(%s) success",
 		prefix, ins.AppID, ins.Hostname)
@@ -240,13 +249,14 @@ func (e *EtcdBuilder) Close() error {
 	e.cancelFunc()
 	return nil
 }
+
 func (a *appInfo) watch(appID string) {
 	_ = a.fetchstore(appID)
 	prefix := fmt.Sprintf("/%s/%s/", etcdPrefix, appID)
 	rch := a.e.cli.Watch(a.e.ctx, prefix, clientv3.WithPrefix())
 	for wresp := range rch {
 		for _, ev := range wresp.Events {
-			if ev.Type == mvccpb.PUT || ev.Type == mvccpb.DELETE {
+			if ev.Type == storagepb.PUT || ev.Type == storagepb.DELETE {
 				_ = a.fetchstore(appID)
 			}
 		}
@@ -258,9 +268,8 @@ func (a *appInfo) fetchstore(appID string) (err error) {
 	resp, err := a.e.cli.Get(a.e.ctx, prefix, clientv3.WithPrefix())
 	if err != nil {
 		log.Error("etcd: fetch client.Get(%s) error(%+v)", prefix, err)
-		return err
+		return errors.WithStack(err)
 	}
-
 	ins, err := a.paserIns(resp)
 	if err != nil {
 		return err
@@ -268,8 +277,22 @@ func (a *appInfo) fetchstore(appID string) (err error) {
 	a.store(ins)
 	return nil
 }
-func (a *appInfo) store(ins *internal.InstancesInfo) {
 
+func (a *appInfo) paserIns(resp *clientv3.GetResponse) (ins []*internal.Instance, err error) {
+	for _, ev := range resp.Kvs {
+		in := new(internal.Instance)
+
+		err := json.Unmarshal(ev.Value, in)
+		if err != nil {
+			return nil, errors.WithStack(err)
+		}
+		ins = append(ins, in)
+	}
+
+	return ins, nil
+}
+
+func (a *appInfo) store(ins []*internal.Instance) {
 	a.ins.Store(ins)
 	a.e.mutex.RLock()
 	for rs := range a.resolver {
@@ -281,34 +304,21 @@ func (a *appInfo) store(ins *internal.InstancesInfo) {
 	a.e.mutex.RUnlock()
 }
 
-func (a *appInfo) paserIns(resp *clientv3.GetResponse) (ins *internal.InstancesInfo, err error) {
-	ins = &internal.InstancesInfo{
-		Instances: make(map[string][]*internal.Instance, 0),
-	}
-	for _, ev := range resp.Kvs {
-		in := new(internal.Instance)
-
-		err := json.Unmarshal(ev.Value, in)
-		if err != nil {
-			return nil, err
-		}
-		ins.Instances[in.Zone] = append(ins.Instances[in.Zone], in)
-	}
-	return ins, nil
-}
-
 // Watch watch instance.
 func (r *Resolve) Watch() <-chan struct{} {
 	return r.event
 }
 
 // Fetch fetch resolver instance.
-func (r *Resolve) Fetch(ctx context.Context) (ins *internal.InstancesInfo, ok bool) {
+func (r *Resolve) Fetch(ctx context.Context) (ins []*internal.Instance, ok bool) {
 	r.e.mutex.RLock()
-	app, ok := r.e.apps[r.id]
+	app, ok := r.e.apps[r.key]
 	r.e.mutex.RUnlock()
 	if ok {
-		ins, ok = app.ins.Load().(*internal.InstancesInfo)
+		ins, ok = app.ins.Load().([]*internal.Instance)
+
+		// exec opts
+		ins = r.opt.Subset(ins, r.opt.SubsetSize)
 		return
 	}
 	return
@@ -317,7 +327,7 @@ func (r *Resolve) Fetch(ctx context.Context) (ins *internal.InstancesInfo, ok bo
 // Close close resolver.
 func (r *Resolve) Close() error {
 	r.e.mutex.Lock()
-	if app, ok := r.e.apps[r.id]; ok && len(app.resolver) != 0 {
+	if app, ok := r.e.apps[r.key]; ok && len(app.resolver) != 0 {
 		delete(app.resolver, r)
 	}
 	r.e.mutex.Unlock()

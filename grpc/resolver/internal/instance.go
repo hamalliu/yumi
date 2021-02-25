@@ -5,22 +5,21 @@ import (
 
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
-)
 
-const (
-	AttrKeyRegion  = "region"
-	AttrKeyZone    = "zone"
-	AttrKeyCluster = "cluster"
-	AttrKeyColor   = "color"
-	AttrKeyWeight  = "weight"
+	"yumi/grpc/balancer"
 )
 
 // Instance represents a server the client connects to.
 type Instance struct {
-	// AppID is mapping servicetree appid.
-	AppID string `json:"appid"`
+	// Region is region.
+	Region string `json:"region"`
+	// Zone is IDC.
+	Zone string `json:"zone"`
 	// Env prod/pre、uat/fat1
 	Env string `json:"env"`
+
+	// AppID is mapping servicetree appid.
+	AppID string `json:"appid"`
 	// Hostname is hostname from docker.
 	Hostname string `json:"hostname"`
 	// Addrs is the address of app instance
@@ -33,7 +32,9 @@ type Instance struct {
 	// Status instance status, eg: 1UP 2Waiting
 	Status int64 `json:"status"`
 
-	Attributes map[string]string `json:"attributes"`
+	Balancer balancer.ParamsFromResolver `json:"balancer"`
+
+	Attributes map[string]interface{} `json:"attributes"`
 }
 
 // ToGrpcAddress ...
@@ -42,27 +43,21 @@ func ToGrpcAddress(inss []*Instance) []resolver.Address {
 	for _, ins := range inss {
 		addr := resolver.Address{}
 		addr.Type = resolver.Backend
+		// 被（多证书）TLS,SSL服务器用于识别客户端需要的证书
 		// addr.ServerName = ins.AppID
 		for _, a := range ins.Addrs {
 			u, err := url.Parse(a)
 			if err == nil && u.Scheme == "grpc" {
 				addr.Addr = u.Host
+				continue
 			}
 		}
 		attrs := attributes.Attributes{}
-		attrs.WithValues(AttrKeyColor, ins.Attributes[AttrKeyColor])
-		attrs.WithValues(AttrKeyWeight, ins.Attributes[AttrKeyWeight])
+		attrs.WithValues(balancer.AttributesKey, ins.Balancer)
 		addr.Attributes = &attrs
 
 		addrs = append(addrs, addr)
 	}
 
 	return addrs
-}
-
-// InstancesInfo instance info.
-type InstancesInfo struct {
-	Instances map[string][]*Instance `json:"instances"`
-	LastTs    int64                  `json:"latest_timestamp"`
-	Scheduler *Scheduler             `json:"scheduler"`
 }

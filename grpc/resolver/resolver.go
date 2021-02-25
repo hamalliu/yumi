@@ -2,12 +2,8 @@ package resolver
 
 import (
 	"context"
-	"net/url"
-	"strconv"
-	"strings"
 	"sync"
 
-	"github.com/pkg/errors"
 	"google.golang.org/grpc/resolver"
 
 	"yumi/grpc/resolver/internal"
@@ -43,31 +39,9 @@ type Builder struct {
 
 // Build returns itself for Resolver, because it's both a builder and a resolver.
 func (b *Builder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {
-	var zone string
 	ss := int64(50)
-	clusters := map[string]struct{}{}
-	str := strings.SplitN(target.Endpoint, "?", 2)
-	if len(str) == 0 {
-		return nil, errors.Errorf("warden resolver: parse target.Endpoint(%s) failed!err:=endpoint is empty", target.Endpoint)
-	} else if len(str) == 2 {
-		m, err := url.ParseQuery(str[1])
-		if err == nil {
-			for _, c := range m[internal.MetaCluster] {
-				clusters[c] = struct{}{}
-			}
-			zones := m[internal.MetaZone]
-			if len(zones) > 0 {
-				zone = zones[0]
-			}
-			if sub, ok := m["subset"]; ok {
-				if t, err := strconv.ParseInt(sub[0], 10, 64); err == nil {
-					ss = t
-				}
-			}
-		}
-	}
 	r := &Resolver{
-		nr:   b.Builder.Build(str[0], internal.Filter(Scheme, clusters), internal.ScheduleNode(zone), internal.Subset(int(ss))),
+		nr:   b.Builder.Build(target, internal.Subset(int(ss))),
 		cc:   cc,
 		quit: make(chan struct{}, 1),
 	}
@@ -107,8 +81,8 @@ func (r *Resolver) updateproc() {
 				return
 			}
 		}
-		if ins, ok := r.nr.Fetch(context.Background()); ok {
-			addrs := internal.ToGrpcAddress(ins.Instances)
+		if inss, ok := r.nr.Fetch(context.Background()); ok {
+			addrs := internal.ToGrpcAddress(inss)
 			r.cc.UpdateState(resolver.State{Addresses: addrs})
 		}
 	}

@@ -2,6 +2,8 @@ package internal
 
 import (
 	"context"
+
+	"google.golang.org/grpc/resolver"
 )
 
 // Registry Register an instance and renew automatically.
@@ -12,13 +14,13 @@ type Registry interface {
 
 // Resolver resolve naming service
 type Resolver interface {
-	Fetch(context.Context) (*InstancesInfo, bool)
+	Fetch(context.Context) ([]*Instance, bool)
 	Watch() <-chan struct{}
 	Close() error
 }
 
 // Builder resolver builder.
 type Builder interface {
-	Build(id string, options ...BuildOption) Resolver
+	Build(target resolver.Target, options ...BuildOption) Resolver
 	Scheme() string
 }

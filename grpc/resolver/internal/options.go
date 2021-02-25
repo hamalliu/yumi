@@ -2,13 +2,8 @@ package internal
 
 // BuildOptions build options.
 type BuildOptions struct {
-	Filter     func(map[string][]*Instance) map[string][]*Instance
-
 	Subset     func([]*Instance, int) []*Instance
 	SubsetSize int
-	
-	ClientZone string
-	Scheduler  func(*InstancesInfo) []*Instance
 }
 
 // BuildOption build option interface.

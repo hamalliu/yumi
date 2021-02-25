@@ -6,14 +6,9 @@ import (
 	"yumi/pkg/types"
 )
 
-const (
-	envDebug   = "debug"
-	envRelease = "release"
-)
-
 // Config app config
 type Config struct {
-	Program    Program
+	Deploy     Deploy
 	Server     Server
 	Media      Media
 	DB         DB
@@ -22,18 +17,11 @@ type Config struct {
 	OnlyOffice OnlyOffice
 }
 
-// Program 程序配置
-type Program struct {
-	SysName     string // 系统名称
-	Environment string // 运行环境
-}
-
 // Server 服务器配置
 type Server struct {
 	Addr         string             // 启动地址
 	WriteTimeout types.TimeDuration // http写超时
 	ReadTimeout  types.TimeDuration // http读超时
-	Color        DeployEnv          // 部署环境
 }
 
 // Media 媒体配置
@@ -65,5 +53,5 @@ func Get() Config {
 
 // IsDebug 该程序是调试模式
 func IsDebug() bool {
-	return conf.Program.Environment == envDebug
+	return conf.Deploy.Env == DeployEnvDev
 }
