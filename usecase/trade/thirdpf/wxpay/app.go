@@ -1,4 +1,4 @@
-package thirdpf
+package wxpay
 
 import (
 	"encoding/json"
@@ -12,14 +12,14 @@ import (
 	"github.com/pkg/errors"
 )
 
-//NewWxPayApp ...
-func NewWxPayApp() WxPayApp {
-	return WxPayApp{}
+//NewApp ...
+func NewApp() App {
+	return App{}
 }
 
-//WxPayApp ...
-type WxPayApp struct {
-	InternalWxPay
+//App ...
+type App struct {
+	Internal
 }
 
 //RequestWxPayApp ...
@@ -34,8 +34,8 @@ type RequestWxPayApp struct {
 	PaySign   string `json:"paySign"`
 }
 
-//mashalWxAppPayRequest ...
-func mashalRequestWxPayApp(appID, mchID, privateKey, prePayID string) (string, error) {
+//mashalRequestApp ...
+func mashalRequestApp(appID, mchID, privateKey, prePayID string) (string, error) {
 	var req RequestWxPayApp
 
 	req.AppID = appID
@@ -55,7 +55,7 @@ func mashalRequestWxPayApp(appID, mchID, privateKey, prePayID string) (string, e
 }
 
 //Pay 发起支付
-func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+func (wxn1 App) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
 	ret := entity.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)
@@ -81,7 +81,7 @@ func (wxn1 WxPayApp) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) 
 
 	ret.AppID = wxMch.AppID
 	ret.MchID = wxMch.MchID
-	dataStr, err := mashalRequestWxPayApp(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
+	dataStr, err := mashalRequestApp(wxMch.AppID, wxMch.MchID, wxMch.PrivateKey, retuo.PrepayID)
 	if err != nil {
 		return ret, errors.WithStack(err)
 	}

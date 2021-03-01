@@ -1,4 +1,4 @@
-package thirdpf
+package wxpay
 
 import (
 	"encoding/json"
@@ -10,14 +10,14 @@ import (
 	"yumi/usecase/trade/entity"
 )
 
-//NewWxPayJsapi ...
-func NewWxPayJsapi() WxPayJsapi {
-	return WxPayJsapi{}
+//NewJsapi ...
+func NewJsapi() Jsapi {
+	return Jsapi{}
 }
 
-//WxPayJsapi ...
-type WxPayJsapi struct {
-	InternalWxPay
+//Jsapi ...
+type Jsapi struct {
+	Internal
 }
 
 //RequestWxPayh5 ...
@@ -50,7 +50,7 @@ func mashalRequestWxPayh5(appID, prePayID, privateKey string) (string, error) {
 }
 
 //Pay 发起支付
-func (wxn1 WxPayJsapi) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+func (wxn1 Jsapi) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
 	ret := entity.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)

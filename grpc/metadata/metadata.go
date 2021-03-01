@@ -1,11 +1,6 @@
 package metadata
 
 const (
+	// CPUUsage is grpc meta key
 	CPUUsage = "cpu_usage"
 )
-
-// MD is context metadata for balancer and resolver
-type MD struct {
-	Weight uint64
-	Color  string
-}

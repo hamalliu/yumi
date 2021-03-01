@@ -25,4 +25,3 @@ type AliPayMerchant struct {
 	//公钥
 	PublicKey string `db:"public_key" json:"public_key"`
 }
-

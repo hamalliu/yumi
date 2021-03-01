@@ -5,8 +5,8 @@ const (
 	AttributesKey = "balancer"
 )
 
-// ParamsFromResolver ...
-type ParamsFromResolver struct {
+// MetaFromResolver ...
+type MetaFromResolver struct {
 	Color  string `json:"color"`
-	Weight int    `json:"weight"`
+	Weight uint64 `json:"weight"`
 }

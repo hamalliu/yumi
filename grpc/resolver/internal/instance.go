@@ -32,7 +32,7 @@ type Instance struct {
 	// Status instance status, eg: 1UP 2Waiting
 	Status int64 `json:"status"`
 
-	Balancer balancer.ParamsFromResolver `json:"balancer"`
+	Balancer balancer.MetaFromResolver `json:"balancer"`
 
 	Attributes map[string]interface{} `json:"attributes"`
 }

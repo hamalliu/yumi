@@ -1,22 +1,22 @@
-package thirdpf
+package wxpay
 
 import (
 	"yumi/pkg/externalapi/txapi/wxpay"
 	"yumi/usecase/trade/entity"
 )
 
-//WxPayNative1 ...
-type WxPayNative1 struct {
-	InternalWxPay
+//Native1 ...
+type Native1 struct {
+	Internal
 }
 
-//NewWxPayNative1 ...
-func NewWxPayNative1() WxPayNative1 {
-	return WxPayNative1{}
+//NewNative1 ...
+func NewNative1() Native1 {
+	return Native1{}
 }
 
 //Pay 发起支付
-func (wxn1 WxPayNative1) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+func (wxn1 Native1) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
 	ret := entity.ReturnPay{}
 
 	//获取收款商户信息

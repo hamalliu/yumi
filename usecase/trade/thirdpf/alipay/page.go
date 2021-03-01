@@ -1,4 +1,4 @@
-package thirdpf
+package alipay
 
 import (
 	"fmt"
@@ -11,16 +11,16 @@ import (
 
 //AliPayPage ...
 
-//AliPayPage ...
-type AliPayPage string
+//Page ...
+type Page string
 
-//NewAliPayPage ...
-func NewAliPayPage() AliPayPage {
+//NewPage ...
+func NewPage() Page {
 	return ""
 }
 
 //Pay 发起支付
-func (alipp AliPayPage) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+func (alipp Page) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
 	ret := entity.ReturnPay{}
 
 	//下单
@@ -53,7 +53,7 @@ func (alipp AliPayPage) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, erro
 }
 
 //PayNotifyReq ...
-func (alipp AliPayPage) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify, error) {
+func (alipp Page) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify, error) {
 	ret := entity.ReturnPayNotify{}
 
 	rawQuery := req.URL.RawQuery
@@ -68,7 +68,7 @@ func (alipp AliPayPage) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify,
 }
 
 //PayNotifyCheck ...
-func (alipp AliPayPage) PayNotifyCheck(op entity.OrderPayAttribute, reqData interface{}) error {
+func (alipp Page) PayNotifyCheck(op entity.OrderPayAttribute, reqData interface{}) error {
 	aliMch, err := alipp.getMch(op.SellerKey)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (alipp AliPayPage) PayNotifyCheck(op entity.OrderPayAttribute, reqData inte
 }
 
 //PayNotifyResp ...
-func (alipp AliPayPage) PayNotifyResp(err error, resp http.ResponseWriter) {
+func (alipp Page) PayNotifyResp(err error, resp http.ResponseWriter) {
 	if err == nil {
 		_, _ = resp.Write([]byte("success"))
 	} else {
@@ -97,7 +97,7 @@ func (alipp AliPayPage) PayNotifyResp(err error, resp http.ResponseWriter) {
 }
 
 //QueryPayStatus ...
-func (alipp AliPayPage) QueryPayStatus(op entity.OrderPayAttribute) (entity.ReturnQueryPay, error) {
+func (alipp Page) QueryPayStatus(op entity.OrderPayAttribute) (entity.ReturnQueryPay, error) {
 	ret := entity.ReturnQueryPay{}
 
 	tradeQuery := alipay.TradeQuery{
@@ -144,7 +144,7 @@ func (alipp AliPayPage) QueryPayStatus(op entity.OrderPayAttribute) (entity.Retu
 }
 
 //TradeClose ...
-func (alipp AliPayPage) TradeClose(op entity.OrderPayAttribute) error {
+func (alipp Page) TradeClose(op entity.OrderPayAttribute) error {
 	tradeClose := alipay.TradeClose{
 		OutTradeNo: op.OutTradeNo,
 		TradeNo:    op.TransactionID,
@@ -172,7 +172,7 @@ func (alipp AliPayPage) TradeClose(op entity.OrderPayAttribute) error {
 }
 
 //Refund ...
-func (alipp AliPayPage) Refund(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) error {
+func (alipp Page) Refund(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) error {
 	//获取收款商户信息
 	aliMch, err := alipp.getMch(op.SellerKey)
 	if err != nil {
@@ -204,29 +204,29 @@ func (alipp AliPayPage) Refund(op entity.OrderPayAttribute, or entity.OrderRefun
 }
 
 //QueryRefundStatus ...
-func (alipp AliPayPage) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) (entity.ReturnQueryRefund, error) {
+func (alipp Page) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) (entity.ReturnQueryRefund, error) {
 	//TODO
 	return entity.ReturnQueryRefund{}, nil
 }
 
 // RefundNotifyReq ...
-func (alipp AliPayPage) RefundNotifyReq(req *http.Request) (entity.ReturnRefundNotify, error) {
+func (alipp Page) RefundNotifyReq(req *http.Request) (entity.ReturnRefundNotify, error) {
 	// TODO:
 	return entity.ReturnRefundNotify{}, nil
 }
 
 // RefundNotifyCheck 检查参数
-func (alipp AliPayPage) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefundAttribute, reqData interface{}) error {
+func (alipp Page) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefundAttribute, reqData interface{}) error {
 	// TODO:
 	return nil
 }
 
 // RefundNotifyResp 应答
-func (alipp AliPayPage) RefundNotifyResp(err error, resp http.ResponseWriter) {
+func (alipp Page) RefundNotifyResp(err error, resp http.ResponseWriter) {
 
 }
 
-func (alipp AliPayPage) getMch(sellerKey string) (alipay.Merchant, error) {
+func (alipp Page) getMch(sellerKey string) (alipay.Merchant, error) {
 	ret := alipay.Merchant{}
 	//获取收款商户信息
 	mch, err := getData().GetAliPayMerchant(sellerKey)
@@ -240,6 +240,6 @@ func (alipp AliPayPage) getMch(sellerKey string) (alipay.Merchant, error) {
 	return ret, nil
 }
 
-func (alipp AliPayPage) toPrice(amount int) string {
+func (alipp Page) toPrice(amount int) string {
 	return fmt.Sprintf("%d.%02d", amount/100, amount%100)
 }

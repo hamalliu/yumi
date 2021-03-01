@@ -1,6 +1,10 @@
 package thirdpf
 
-import "yumi/usecase/trade/entity"
+import (
+	"yumi/usecase/trade/entity"
+	"yumi/usecase/trade/thirdpf/alipay"
+	"yumi/usecase/trade/thirdpf/wxpay"
+)
 
 const (
 	//TradeWayAliPayPage ...
@@ -20,11 +24,11 @@ const (
 
 // Init trade platform
 func Init() {
-	entity.RegisterTrade(TradeWayAliPayPage, NewAliPayPage())
+	entity.RegisterTrade(TradeWayAliPayPage, alipay.NewPage())
 
-	entity.RegisterTrade(TradeWayWxPayAPP, NewWxPayApp())
-	entity.RegisterTrade(TradeWayWxPayJSAPI, NewWxPayJsapi())
-	entity.RegisterTrade(TradeWayWxPayMWEB, NewWxPayMweb(WxPayMwebConfig{}))
-	entity.RegisterTrade(TradeWayWxPayNATIVE1, NewWxPayNative1())
-	entity.RegisterTrade(TradeWayWxPayNATIVE2, NewWxPayNative2())
+	entity.RegisterTrade(TradeWayWxPayAPP, wxpay.NewApp())
+	entity.RegisterTrade(TradeWayWxPayJSAPI, wxpay.NewJsapi())
+	entity.RegisterTrade(TradeWayWxPayMWEB, wxpay.NewMweb(wxpay.MwebConfig{}))
+	entity.RegisterTrade(TradeWayWxPayNATIVE1, wxpay.NewNative1())
+	entity.RegisterTrade(TradeWayWxPayNATIVE2, wxpay.NewNative2())
 }

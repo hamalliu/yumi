@@ -3,6 +3,7 @@ package entity
 import (
 	"yumi/pkg/status"
 	"yumi/pkg/types"
+	"yumi/usecase/trade/entity/internal"
 )
 
 // PayExpireSecond 支付过期期限：30分钟
@@ -92,7 +93,7 @@ func (m *OrderPay) Submit() error {
 	if m.attr.TimeoutExpress < types.NowTimestamp()+types.Timestamp(PayExpireSecond) {
 		return status.InvalidArgument()
 	}
-	m.attr.Code = GetCode(OrderPayCode)
+	m.attr.Code = internal.GetCode(internal.OrderPayCode)
 	m.attr.SubmitTime = types.NowTimestamp()
 	return nil
 }
@@ -212,9 +213,12 @@ func (m *OrderPay) QueryPaid() (bool, error) {
 	return false, status.InvalidRequest()
 }
 
+// PayNotifyReq ...
+func (m *OrderPay) PayNotifyReq() ()
+
 // setWaitPay 设置待支付
 func (m *OrderPay) setWaitPay(tradeWay, notifyURL, clientIP string) {
-	m.attr.OutTradeNo = getOutTradeNo()
+	m.attr.OutTradeNo = internal.GetOutTradeNo()
 	m.attr.TradeWay = tradeWay
 	m.attr.NotifyURL = notifyURL
 	m.attr.SpbillCreateIP = clientIP

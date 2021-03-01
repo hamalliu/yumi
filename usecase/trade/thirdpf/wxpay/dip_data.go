@@ -1,13 +1,18 @@
-package thirdpf
+package wxpay
 
 import "yumi/usecase/trade/entity"
 
 var _data Data
 
+// FilterMerchantIDs ...
+type FilterMerchantIDs struct {
+	MchID     string
+	SellerKey string
+}
+
 // Data ...
 type Data interface {
-	GetWxPayMerchant(ids entity.WxPayMerchantIDs) (entity.WxPayMerchant, error)
-	GetAliPayMerchant(sellerKey string) (entity.AliPayMerchant, error)
+	GetWxPayMerchant(ids FilterMerchantIDs) (entity.WxPayMerchant, error)
 }
 
 // InitData ...
@@ -19,4 +24,3 @@ func InitData(data Data) {
 func getData() Data {
 	return _data
 }
-

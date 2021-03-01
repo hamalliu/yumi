@@ -1,4 +1,4 @@
-package thirdpf
+package wxpay
 
 import (
 	"encoding/json"
@@ -7,9 +7,9 @@ import (
 	"yumi/usecase/trade/entity"
 )
 
-//NewWxPayMweb ...
-func NewWxPayMweb(conf WxPayMwebConfig) WxPayMweb {
-	mweb := WxPayMweb{}
+//NewMweb ...
+func NewMweb(conf MwebConfig) Mweb {
+	mweb := Mweb{}
 	mweb.conf = conf
 	bytes, err := json.Marshal(conf)
 	if err != nil {
@@ -19,15 +19,15 @@ func NewWxPayMweb(conf WxPayMwebConfig) WxPayMweb {
 	return mweb
 }
 
-//WxPayMweb ...
-type WxPayMweb struct {
-	InternalWxPay
-	conf      WxPayMwebConfig
+//Mweb ...
+type Mweb struct {
+	Internal
+	conf      MwebConfig
 	sceneInfo string
 }
 
-//WxPayMwebConfig ...
-type WxPayMwebConfig struct {
+//MwebConfig ...
+type MwebConfig struct {
 	H5Info H5Info `json:"h5_info"`
 }
 
@@ -39,7 +39,7 @@ type H5Info struct {
 }
 
 //Pay 发起支付
-func (wxn1 WxPayMweb) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
+func (wxn1 Mweb) Pay(op entity.OrderPayAttribute) (entity.ReturnPay, error) {
 	ret := entity.ReturnPay{}
 	//获取收款商户信息
 	wxMch, err := wxn1.getMch(op.SellerKey)

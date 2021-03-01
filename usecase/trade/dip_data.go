@@ -17,9 +17,7 @@ type Data interface {
 	GetOrderRefund(orderID string) (entity.OrderRefundAttribute, error)
 
 	CreateWxPayMerchant(entity.WxPayMerchant) error
-	GetWxPayMerchant(ids entity.WxPayMerchantIDs) (entity.WxPayMerchant, error)
 	CreateAliPayMerchant(entity.AliPayMerchant) error
-	GetAliPayMerchant(sellerKey string) (entity.AliPayMerchant, error)
 }
 
 // InitData ...

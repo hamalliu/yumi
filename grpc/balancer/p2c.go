@@ -48,7 +48,7 @@ type subConn struct {
 	// metadata
 	conn balancer.SubConn
 	addr resolver.Address
-	meta metadata.MD
+	meta MetaFromResolver
 
 	//client statistic data
 	lag      uint64
@@ -113,16 +113,16 @@ func (pb *p2cPickerBuilder) Build(info base.PickerBuildInfo) balancer.Picker {
 		colors:   make(map[string]*p2cPicker),
 		r:        rand.New(rand.NewSource(time.Now().UnixNano())),
 	}
-	for addr, sc := range info.ReadySCs {
-		meta, ok := addr.Metadata.(metadata.MD)
+	for sc, sci := range info.ReadySCs {
+		meta, ok := sci.Address.Attributes.Value(AttributesKey).(MetaFromResolver)
 		if !ok {
-			meta = metadata.MD{
+			meta = MetaFromResolver{
 				Weight: 10,
 			}
 		}
 		subc := &subConn{
 			conn: sc,
-			addr: addr,
+			addr: sci.Address,
 			meta: meta,
 
 			svrCPU:   500,

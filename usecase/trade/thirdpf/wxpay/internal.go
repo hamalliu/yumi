@@ -1,4 +1,4 @@
-package thirdpf
+package wxpay
 
 import (
 	"encoding/json"
@@ -11,11 +11,11 @@ import (
 	"yumi/usecase/trade/entity"
 )
 
-//InternalWxPay ...
-type InternalWxPay struct{}
+//Internal ...
+type Internal struct{}
 
 //PayNotifyReq ...
-func (iwp InternalWxPay) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify, error) {
+func (intnl Internal) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify, error) {
 	ret := entity.ReturnPayNotify{}
 
 	//获取通知参数
@@ -30,9 +30,9 @@ func (iwp InternalWxPay) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify
 }
 
 //PayNotifyCheck ...
-func (iwp InternalWxPay) PayNotifyCheck(op entity.OrderPayAttribute, reqData interface{}) error {
+func (intnl Internal) PayNotifyCheck(op entity.OrderPayAttribute, reqData interface{}) error {
 	//获取收款商户信息
-	wxMch, err := iwp.getMch(op.SellerKey)
+	wxMch, err := intnl.getMch(op.SellerKey)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (iwp InternalWxPay) PayNotifyCheck(op entity.OrderPayAttribute, reqData int
 }
 
 //PayNotifyResp ...
-func (iwp InternalWxPay) PayNotifyResp(err error, resp http.ResponseWriter) {
+func (intnl Internal) PayNotifyResp(err error, resp http.ResponseWriter) {
 	respJ := wxpay.RespPayNotify{}
 	if err == nil {
 		respJ.ReturnCode = "SUCCESS"
@@ -68,10 +68,10 @@ func (iwp InternalWxPay) PayNotifyResp(err error, resp http.ResponseWriter) {
 }
 
 //QueryPayStatus ...
-func (iwp InternalWxPay) QueryPayStatus(op entity.OrderPayAttribute) (entity.ReturnQueryPay, error) {
+func (intnl Internal) QueryPayStatus(op entity.OrderPayAttribute) (entity.ReturnQueryPay, error) {
 	ret := entity.ReturnQueryPay{}
 	//获取收款商户信息
-	wxMch, err := iwp.getMch(op.SellerKey)
+	wxMch, err := intnl.getMch(op.SellerKey)
 	if err != nil {
 		return ret, err
 	}
@@ -109,9 +109,9 @@ func (iwp InternalWxPay) QueryPayStatus(op entity.OrderPayAttribute) (entity.Ret
 }
 
 //TradeClose ...
-func (iwp InternalWxPay) TradeClose(op entity.OrderPayAttribute) error {
+func (intnl Internal) TradeClose(op entity.OrderPayAttribute) error {
 	//获取收款商户信息
-	wxMch, err := iwp.getMch(op.SellerKey)
+	wxMch, err := intnl.getMch(op.SellerKey)
 	if err != nil {
 		return err
 	}
@@ -124,9 +124,9 @@ func (iwp InternalWxPay) TradeClose(op entity.OrderPayAttribute) error {
 }
 
 //Refund ...
-func (iwp InternalWxPay) Refund(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) error {
+func (intnl Internal) Refund(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) error {
 	//获取收款商户信息
-	wxMch, err := iwp.getMch(op.SellerKey)
+	wxMch, err := intnl.getMch(op.SellerKey)
 	if err != nil {
 		return err
 	}
@@ -166,10 +166,10 @@ func (iwp InternalWxPay) Refund(op entity.OrderPayAttribute, or entity.OrderRefu
 }
 
 //QueryRefundStatus ...
-func (iwp InternalWxPay) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) (entity.ReturnQueryRefund, error) {
+func (intnl Internal) QueryRefundStatus(op entity.OrderPayAttribute, or entity.OrderRefundAttribute) (entity.ReturnQueryRefund, error) {
 	ret := entity.ReturnQueryRefund{}
 	//获取收款商户信息
-	wxMch, err := iwp.getMch(op.SellerKey)
+	wxMch, err := intnl.getMch(op.SellerKey)
 	if err != nil {
 		return ret, err
 	}
@@ -204,7 +204,7 @@ func (iwp InternalWxPay) QueryRefundStatus(op entity.OrderPayAttribute, or entit
 }
 
 //RefundNotifyReq ...
-func (iwp InternalWxPay) RefundNotifyReq(req *http.Request) (entity.ReturnRefundNotify, error) {
+func (intnl Internal) RefundNotifyReq(req *http.Request) (entity.ReturnRefundNotify, error) {
 	ret := entity.ReturnRefundNotify{}
 
 	n, err := wxpay.GetRefundNotify(req)
@@ -213,7 +213,7 @@ func (iwp InternalWxPay) RefundNotifyReq(req *http.Request) (entity.ReturnRefund
 	}
 
 	//获取收款商户信息
-	wxMch, err := iwp.getMch2(n.MchID)
+	wxMch, err := intnl.getMch2(n.MchID)
 	if err != nil {
 		return ret, err
 	}
@@ -229,9 +229,9 @@ func (iwp InternalWxPay) RefundNotifyReq(req *http.Request) (entity.ReturnRefund
 }
 
 //RefundNotifyCheck ...
-func (iwp InternalWxPay) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefundAttribute, reqData interface{}) error {
+func (intnl Internal) RefundNotifyCheck(op entity.OrderPayAttribute, or entity.OrderRefundAttribute, reqData interface{}) error {
 	//获取收款商户信息
-	wxMch, err := iwp.getMch(op.SellerKey)
+	wxMch, err := intnl.getMch(op.SellerKey)
 	if err != nil {
 		return err
 	}
@@ -244,7 +244,7 @@ func (iwp InternalWxPay) RefundNotifyCheck(op entity.OrderPayAttribute, or entit
 }
 
 //RefundNotifyResp ...
-func (iwp InternalWxPay) RefundNotifyResp(err error, resp http.ResponseWriter) {
+func (intnl Internal) RefundNotifyResp(err error, resp http.ResponseWriter) {
 	respJ := wxpay.RespRefundNotify{}
 	if err == nil {
 		respJ.ReturnCode = "SUCCESS"
@@ -261,11 +261,11 @@ func (iwp InternalWxPay) RefundNotifyResp(err error, resp http.ResponseWriter) {
 	return
 }
 
-func (iwp InternalWxPay) getMch(sellerKey string) (wxpay.Merchant, error) {
+func (intnl Internal) getMch(sellerKey string) (wxpay.Merchant, error) {
 	ret := wxpay.Merchant{}
 
 	//获取收款商户信息
-	mch, err := getData().GetWxPayMerchant(entity.WxPayMerchantIDs{SellerKey: sellerKey})
+	mch, err := getData().GetWxPayMerchant(FilterMerchantIDs{SellerKey: sellerKey})
 	if err != nil {
 		return ret, err
 	}
@@ -276,11 +276,11 @@ func (iwp InternalWxPay) getMch(sellerKey string) (wxpay.Merchant, error) {
 	return ret, nil
 }
 
-func (iwp InternalWxPay) getMch2(mchID string) (wxpay.Merchant, error) {
+func (intnl Internal) getMch2(mchID string) (wxpay.Merchant, error) {
 	ret := wxpay.Merchant{}
 
 	//获取收款商户信息
-	mch, err := getData().GetWxPayMerchant(entity.WxPayMerchantIDs{MchID: mchID})
+	mch, err := getData().GetWxPayMerchant(FilterMerchantIDs{MchID: mchID})
 	if err != nil {
 		return ret, err
 	}

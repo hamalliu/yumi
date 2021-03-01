@@ -2,6 +2,7 @@ package data
 
 import (
 	"yumi/usecase/trade/entity"
+	"yumi/usecase/trade/thirdpf/wxpay"
 
 	"github.com/pkg/errors"
 )
@@ -12,7 +13,7 @@ func (db *MysqlDB) CreateWxPayMerchant(entity.WxPayMerchant) error {
 }
 
 // GetWxPayMerchant ...
-func (db *MysqlDB) GetWxPayMerchant(req entity.WxPayMerchantIDs) (mch entity.WxPayMerchant, err error) {
+func (db *MysqlDB) GetWxPayMerchant(req wxpay.FilterMerchantIDs) (mch entity.WxPayMerchant, err error) {
 	sqlStr := `
 	SELECT 
 		seq_id, 

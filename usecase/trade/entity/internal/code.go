@@ -1,4 +1,4 @@
-package entity
+package internal
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 	"yumi/pkg/random"
 )
 
-// 获取商户订单号
-func getOutTradeNo() string {
+// GetOutTradeNo 获取商户订单号
+func GetOutTradeNo() string {
 	prefix := strings.ReplaceAll(time.Now().Format("06121545.999999999"), ".", "")
 	return fmt.Sprintf("%s%s", prefix, random.Get(7, random.NUMBER))
 }
