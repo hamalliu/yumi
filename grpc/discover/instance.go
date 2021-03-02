@@ -1,4 +1,4 @@
-package internal
+package discover
 
 import (
 	"net/url"

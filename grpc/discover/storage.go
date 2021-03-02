@@ -1,4 +1,4 @@
-package internal
+package discover
 
 import (
 	"context"
@@ -21,6 +21,6 @@ type Resolver interface {
 
 // Builder resolver builder.
 type Builder interface {
-	Build(target resolver.Target, options ...BuildOption) Resolver
+	Build(target resolver.Target) Resolver
 	Scheme() string
 }
