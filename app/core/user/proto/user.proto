@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "yumi.app.core.user";
+option java_outer_classname = "UserProto";
+
+package proto;
+
+service User {
+   rpc Create(CreateRequest) returns (CreateResponse) {}
+}
+
+message CreateRequest {
+    string user_id = 1;
+	string password = 2;
+	string user_name = 3;
+	string phone_number = 4;
+}
+
+message CreateResponse {
+    int32 error = 1;
+    string message = 2;
+    string details = 3;
+}

@@ -1,4 +1,4 @@
-package discover
+package discovery
 
 import (
 	"math/rand"

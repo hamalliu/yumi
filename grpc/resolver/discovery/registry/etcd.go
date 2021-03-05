@@ -1,4 +1,4 @@
-package storage
+package registry
 
 import (
 	"context"
@@ -16,8 +16,7 @@ import (
 	"go.etcd.io/etcd/clientv3"
 	"google.golang.org/grpc/resolver"
 
-	"yumi/grpc/discover"
-	"yumi/pkg/log"
+	"yumi/grpc/resolver/discovery"
 )
 
 var (
@@ -53,7 +52,7 @@ func defaultString(env, value string) string {
 	return v
 }
 
-var _ discover.Builder = &EtcdBuilder{}
+var _ discovery.Builder = &EtcdBuilder{}
 
 // EtcdBuilder is a etcd clientv3 EtcdBuilder
 type EtcdBuilder struct {
@@ -100,7 +99,7 @@ func NewEtcdBuilder(c *clientv3.Config) (e *EtcdBuilder, err error) {
 }
 
 // Build disovery resovler builder.
-func (e *EtcdBuilder) Build(target resolver.Target) discover.Resolver {
+func (e *EtcdBuilder) Build(target resolver.Target) discovery.Resolver {
 	appID := target.Endpoint
 	r := &Resolve{
 		key:   appID,
@@ -128,7 +127,7 @@ func (e *EtcdBuilder) Build(target resolver.Target) discover.Resolver {
 
 	app.once.Do(func() {
 		go app.watch(appID)
-		log.Info("etcd: AddWatch(%s) already watch(%v)", appID, ok)
+		// log.Info("etcd: AddWatch(%s) already watch(%v)", appID, ok)
 	})
 	return r
 }
@@ -154,8 +153,7 @@ func (a *appInfo) fetchstore(appID string) (err error) {
 	prefix := fmt.Sprintf("/%s/%s/", etcdPrefix, appID)
 	resp, err := a.e.cli.Get(context.TODO(), prefix, clientv3.WithPrefix())
 	if err != nil {
-		log.Error("etcd: fetch client.Get(%s) error(%+v)", prefix, err)
-		return errors.WithStack(err)
+		return errors.WithStack(fmt.Errorf("etcd: fetch client.Get(%s) error(%+v)", prefix, err))
 	}
 	ins, err := a.paserIns(resp)
 	if err != nil {
@@ -164,9 +162,9 @@ func (a *appInfo) fetchstore(appID string) (err error) {
 	a.store(ins)
 	return nil
 }
-func (a *appInfo) paserIns(resp *clientv3.GetResponse) (ins []*discover.Instance, err error) {
+func (a *appInfo) paserIns(resp *clientv3.GetResponse) (ins []*discovery.Instance, err error) {
 	for _, ev := range resp.Kvs {
-		in := new(discover.Instance)
+		in := new(discovery.Instance)
 
 		err := json.Unmarshal(ev.Value, in)
 		if err != nil {
@@ -177,7 +175,7 @@ func (a *appInfo) paserIns(resp *clientv3.GetResponse) (ins []*discover.Instance
 
 	return ins, nil
 }
-func (a *appInfo) store(ins []*discover.Instance) {
+func (a *appInfo) store(ins []*discovery.Instance) {
 	a.ins.Store(ins)
 	a.e.mutex.RLock()
 	for rs := range a.resolver {
@@ -195,12 +193,12 @@ func (r *Resolve) Watch() <-chan struct{} {
 }
 
 // Fetch fetch resolver instance.
-func (r *Resolve) Fetch(ctx context.Context) (ins []*discover.Instance, ok bool) {
+func (r *Resolve) Fetch(ctx context.Context) (ins []*discovery.Instance, ok bool) {
 	r.e.mutex.RLock()
 	app, ok := r.e.apps[r.key]
 	r.e.mutex.RUnlock()
 	if ok {
-		ins, ok = app.ins.Load().([]*discover.Instance)
+		ins, ok = app.ins.Load().([]*discovery.Instance)
 		return
 	}
 	return
@@ -218,7 +216,7 @@ func (r *Resolve) Close() error {
 
 // =======================EtcdRegistry===============================
 
-var _ discover.Registry = &EtcdRegistry{}
+var _ discovery.Registry = &EtcdRegistry{}
 
 // EtcdRegistry ...
 type EtcdRegistry struct {
@@ -247,16 +245,16 @@ func NewEtcdRegistry(c *clientv3.Config) (e *EtcdRegistry, err error) {
 	}
 	ctx, cancel := context.WithCancel(context.Background())
 	e = &EtcdRegistry{
-		cli:  cli,
-		ctx: ctx,
+		cli:        cli,
+		ctx:        ctx,
 		cancelFunc: cancel,
-		registry: make(map[string]struct{}),
+		registry:   make(map[string]struct{}),
 	}
 	return
 }
 
 // Register is register instance
-func (e *EtcdRegistry) Register(ctx context.Context, ins *discover.Instance) (cancelFunc context.CancelFunc, err error) {
+func (e *EtcdRegistry) Register(ctx context.Context, ins *discovery.Instance) (cancelFunc context.CancelFunc, err error) {
 	e.mutex.Lock()
 	if _, ok := e.registry[ins.AppID]; ok {
 		err = ErrDuplication
@@ -302,36 +300,35 @@ func (e *EtcdRegistry) Register(ctx context.Context, ins *discover.Instance) (ca
 }
 
 //注册和续约公用一个操作
-func (e *EtcdRegistry) register(ctx context.Context, ins *discover.Instance) (err error) {
+func (e *EtcdRegistry) register(ctx context.Context, ins *discovery.Instance) (err error) {
 	prefix := e.keyPrefix(ins)
 	val, _ := json.Marshal(ins)
 
 	ttlResp, err := e.cli.Create(context.TODO(), int64(registerTTL))
 	if err != nil {
-		log.Error("etcd: register client.Lease.Create (%v) error(%v)", registerTTL, err)
-		return errors.WithStack(err)
+		return errors.WithStack(fmt.Errorf("etcd: register client.Lease.Create (%v) error(%v)", registerTTL, err))
 	}
 	_, err = e.cli.Put(ctx, prefix, string(val), clientv3.WithLease(clientv3.LeaseID(ttlResp.ID)))
 	if err != nil {
-		log.Error("etcd: register client.Put(%v) appid(%s) hostname(%s) error(%v)",
-			prefix, ins.AppID, ins.Hostname, err)
+		err = fmt.Errorf("etcd: register client.Put(%v) appid(%s) hostname(%s) error(%v)",
+		prefix, ins.AppID, ins.Hostname, err)
 		return errors.WithStack(err)
 	}
 	return nil
 }
-func (e *EtcdRegistry) unregister(ins *discover.Instance) (err error) {
+func (e *EtcdRegistry) unregister(ins *discovery.Instance) (err error) {
 	prefix := e.keyPrefix(ins)
 
 	if _, err = e.cli.Delete(context.TODO(), prefix); err != nil {
-		log.Error("etcd: unregister client.Delete(%v) appid(%s) hostname(%s) error(%v)",
+		err = fmt.Errorf("etcd: unregister client.Delete(%v) appid(%s) hostname(%s) error(%v)",
 			prefix, ins.AppID, ins.Hostname, err)
 		return errors.WithStack(err)
 	}
-	log.Info("etcd: unregister client.Delete(%v)  appid(%s) hostname(%s) success",
-		prefix, ins.AppID, ins.Hostname)
+	// log.Info("etcd: unregister client.Delete(%v)  appid(%s) hostname(%s) success",
+	// 	prefix, ins.AppID, ins.Hostname)
 	return
 }
-func (e *EtcdRegistry) keyPrefix(ins *discover.Instance) string {
+func (e *EtcdRegistry) keyPrefix(ins *discovery.Instance) string {
 	return fmt.Sprintf("/%s/%s/%s", etcdPrefix, ins.AppID, ins.Hostname)
 }
 

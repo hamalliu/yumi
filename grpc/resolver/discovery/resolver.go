@@ -1,4 +1,4 @@
-package discover
+package discovery
 
 import (
 	"context"
@@ -27,6 +27,11 @@ func Set(b Builder, opts ...BuildOption) {
 	mu.Lock()
 	defer mu.Unlock()
 	resolver.Register(&BaseBuilder{b, opts})
+}
+
+// New a BaseBuilder
+func New(b Builder, opts ...BuildOption) *BaseBuilder {
+	return &BaseBuilder{b, opts}
 }
 
 // BaseBuilder is also a resolver builder.
