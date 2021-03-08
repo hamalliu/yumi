@@ -1,4 +1,4 @@
-package wrapper
+package grpcwrapper
 
 import (
 	"context"

@@ -1,9 +1,8 @@
-package wrapper
+package grpcwrapper
 
 import (
 	"fmt"
 	"net"
-	"time"
 
 	"google.golang.org/grpc"
 
