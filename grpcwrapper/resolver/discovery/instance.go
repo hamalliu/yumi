@@ -6,7 +6,7 @@ import (
 	"google.golang.org/grpc/attributes"
 	"google.golang.org/grpc/resolver"
 
-	"yumi/grpc/balancer"
+	"yumi/grpcwrapper/balancer"
 )
 
 // Instance represents a server the client connects to.

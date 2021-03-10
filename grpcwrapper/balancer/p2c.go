@@ -15,7 +15,7 @@ import (
 	"google.golang.org/grpc/resolver"
 	"google.golang.org/grpc/status"
 
-	"yumi/grpc/metadata"
+	"yumi/grpcwrapper/metadata"
 )
 
 const (

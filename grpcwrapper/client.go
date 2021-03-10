@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"yumi/grpc/resolver/discovery"
+	"yumi/grpcwrapper/resolver/discovery"
 )
 
 // clientOptions is gRPC Client

@@ -16,7 +16,7 @@ import (
 	"go.etcd.io/etcd/clientv3"
 	"google.golang.org/grpc/resolver"
 
-	"yumi/grpc/resolver/discovery"
+	"yumi/grpcwrapper/resolver/discovery"
 )
 
 var (
