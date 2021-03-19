@@ -2,6 +2,7 @@ package types
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -13,7 +14,7 @@ type Timestamp int64
 
 // UnmarshalJSON ...
 func (jt *Timestamp) UnmarshalJSON(data []byte) (err error) {
-	t, err := time.Parse(`"` + timeformat + `"`, string(data))
+	t, err := time.Parse(`"`+timeformat+`"`, string(data))
 	if err != nil {
 		return err
 	}
@@ -30,12 +31,16 @@ func (jt *Timestamp) MarshalJSON() ([]byte, error) {
 // Scan scan time.
 func (jt *Timestamp) Scan(src interface{}) (err error) {
 	switch sc := src.(type) {
+	case int64:
+		*jt = Timestamp(sc)
 	case time.Time:
 		*jt = Timestamp(sc.Unix())
 	case string:
 		var i int64
 		i, err = strconv.ParseInt(sc, 10, 64)
 		*jt = Timestamp(i)
+	default:
+		err = fmt.Errorf("timestamp no support type: %T, value: %v", err, err)
 	}
 	return
 }
