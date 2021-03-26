@@ -11,7 +11,6 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/coreos/etcd/storage/storagepb"
 	"github.com/pkg/errors"
 	"go.etcd.io/etcd/clientv3"
 	"google.golang.org/grpc/resolver"
@@ -143,7 +142,7 @@ func (a *appInfo) watch(appID string) {
 	rch := a.e.cli.Watch(context.TODO(), prefix, clientv3.WithPrefix())
 	for wresp := range rch {
 		for _, ev := range wresp.Events {
-			if ev.Type == storagepb.PUT || ev.Type == storagepb.DELETE {
+			if ev.Type == clientv3.EventTypePut || ev.Type == clientv3.EventTypeDelete {
 				_ = a.fetchstore(appID)
 			}
 		}
@@ -304,7 +303,7 @@ func (e *EtcdRegistry) register(ctx context.Context, ins *discovery.Instance) (e
 	prefix := e.keyPrefix(ins)
 	val, _ := json.Marshal(ins)
 
-	ttlResp, err := e.cli.Create(context.TODO(), int64(registerTTL))
+	ttlResp, err := e.cli.Grant(context.TODO(), int64(registerTTL))
 	if err != nil {
 		return errors.WithStack(fmt.Errorf("etcd: register client.Lease.Create (%v) error(%v)", registerTTL, err))
 	}
