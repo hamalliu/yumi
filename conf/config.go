@@ -8,33 +8,26 @@ import (
 
 // Config app config
 type Config struct {
-	Deploy     Deploy
-	Server     Server
-	Media      Media
+	// 运维层配置
+	HostEnv    HostEnv
+	HttpServer HTTPServer
 	DB         DB
 	Mongo      Mongo
-	CORS       CORS
+
+	// 业务层配置
+	Media      Media
 	OnlyOffice OnlyOffice
 }
 
-// Server 服务器配置
-type Server struct {
+// HTTPServer 服务器配置
+type HTTPServer struct {
 	Addr         string             // 启动地址
 	WriteTimeout types.TimeDuration // http写超时
 	ReadTimeout  types.TimeDuration // http读超时
-}
 
-// Media 媒体配置
-type Media struct {
-	StoragePath                string          // 附件路径
-	MultipleFileUploadsMaxSize types.SpaceSize // 多媒体上传最大限制
-	SingleFileUploadsMaxSize   types.SpaceSize // 单媒体上传最大限制
-}
-
-// CORS CORS配置
-type CORS struct {
-	AllowedOrigins []string           // 允许的头
-	MaxAge         types.TimeDuration // 最大持续时间
+	// CORS 配置
+	CORSAllowedOrigins []string           // 允许的头
+	CORSMaxAge         types.TimeDuration // 最大持续时间
 }
 
 var conf Config
@@ -53,5 +46,5 @@ func Get() Config {
 
 // IsDebug 该程序是调试模式
 func IsDebug() bool {
-	return conf.Deploy.Env == DeployEnvDev
+	return conf.HostEnv.Environment == DeployEnvDev
 }

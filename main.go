@@ -47,7 +47,7 @@ func main() {
 	usecase.Init(mgoCli.Database(mgoConf.DBName), myCLi)
 
 	log.Info("构建服务器")
-	srvconf := conf.Get().Server
+	srvconf := conf.Get().HttpServer
 	mux := gin.NewMux()
 	server := http.Server{
 		Handler:      mux,
@@ -57,7 +57,7 @@ func main() {
 	}
 	mux.Use(
 		middleware.Recovery(),
-		middleware.Cors(conf.Get().CORS.AllowedOrigins, int(conf.Get().CORS.MaxAge.Duration()/time.Second)),
+		middleware.Cors(conf.Get().HttpServer.CORSAllowedOrigins, int(conf.Get().HttpServer.CORSMaxAge.Duration()/time.Second)),
 		middleware.Debug(conf.IsDebug()),
 	)
 
@@ -66,7 +66,7 @@ func main() {
 	api.Mount(router)
 
 	//启动服务
-	log.Info("启动服务器，侦听地址：" + conf.Get().Server.Addr)
+	log.Info("启动服务器，侦听地址：" + conf.Get().HttpServer.Addr)
 	go func() {
 		if err := gin.Run(&server); err != nil {
 			log.Info(fmt.Errorf("启动服务器失败: %s", err.Error()))

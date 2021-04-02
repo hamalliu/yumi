@@ -1,26 +1,33 @@
-[Program]
-    SysName = "erpsys"
-    Environment = "debug"
-[Server]
+[HostEnv]
+    SysName = "yumi"
+    Environment = "dev"
+
+[HTTPServer]
     Addr = "0.0.0.0:8888"
     WriteTimeout = "15s"
     ReadTimeout = "15s"
-[Media]
-    StoragePath = "media"
-    MultipleFileUploadsMaxSize = "32mb"
-    SingleFileUploadsMaxSize = "2mb"
 [DBC]
     DBName = ""
     Dsn = ""
     MaxOpenConns = 10
     MaxIdleConns = 10
     ConnMaxLifetime = "2h"
+[Mongodb]
+
 [Cache]
 
+[Log]
+
+
+# 业务配置
 [Email]
 
 [Pay]
 
+[Media]
+    StoragePath = "media"
+    MultipleFileUploadsMaxSize = "32mb"
+    SingleFileUploadsMaxSize = "2mb"
 [OnlyOffice]
     ConfigPath = "./office_config.json"
     SiteUrl = "http://localhost/"

@@ -5,7 +5,6 @@ go 1.15
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
 	github.com/BurntSushi/toml v0.3.1
-	github.com/Shopify/sarama v1.28.0 // indirect
 	github.com/casbin/casbin v1.9.1
 	github.com/coreos/bbolt v1.3.2 // indirect
 	github.com/coreos/etcd v3.3.25+incompatible // indirect
