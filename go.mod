@@ -24,6 +24,7 @@ require (
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/gomodule/redigo v2.0.0+incompatible
 	github.com/google/uuid v1.2.0 // indirect
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jhillyerd/enmime v0.8.4
 	github.com/jmoiron/sqlx v1.3.1
