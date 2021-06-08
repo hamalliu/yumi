@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"yumi/conf"
 	"yumi/gin"
-	"yumi/pkg/status"
+	"yumi/status"
 	"yumi/usecase/media"
 )
 
@@ -28,7 +28,7 @@ func UploadMultipart(c *gin.Context) {
 	mediaConf := conf.Get().Media
 	if err = req.ParseMultipartForm(mediaConf.MultipleFileUploadsMaxSize.Size()); err != nil {
 		if err == http.ErrLineTooLong {
-			c.JSON(nil, status.FailedPrecondition().WithMessage("多文件总和大小限制:"+mediaConf.MultipleFileUploadsMaxSize.String()))
+			c.JSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
 		} else {
 			c.JSON(nil, status.InvalidArgument().WithDetails(err))
 		}
@@ -60,18 +60,16 @@ func UploadMultipart(c *gin.Context) {
 
 	resp, err := mediaSrv.BatchCreate(fs)
 	c.JSON(resp, err)
-	return
 }
 
 //Upload 单文件上传
 func Upload(c *gin.Context) {
 	req := c.Request
 
-	mediaConf := conf.Get().Media
 	mulf, mulfh, err := req.FormFile("file")
 	if err != nil {
 		if err == http.ErrLineTooLong {
-			c.JSON(nil, status.FailedPrecondition().WithMessage("单文件大小限制:"+mediaConf.SingleFileUploadsMaxSize.String()))
+			c.JSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
 		} else {
 			c.JSON(nil, status.InvalidArgument().WithDetails(err))
 		}
@@ -89,5 +87,4 @@ func Upload(c *gin.Context) {
 
 	resp, err := mediaSrv.Create(f)
 	c.JSON(resp, err)
-	return
 }

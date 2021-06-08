@@ -29,16 +29,14 @@ type LoginByBcryptRequest struct {
 
 // LoginByBcryptResponse ...
 type LoginByBcryptResponse struct {
-	UserID    string
-	SecureKey string
+	UserID            string
+	SecureKey         string
 }
 
 // DisableRequest ...
 type DisableRequest struct {
-	
 }
 
 // AuthentcateRequest ...
 type AuthentcateRequest struct {
-
 }

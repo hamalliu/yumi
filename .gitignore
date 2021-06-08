@@ -1,6 +1,7 @@
 *.exe
 tmp.json
 .idea
+.vscode
 yumi.code-workspace
 logfile
 test

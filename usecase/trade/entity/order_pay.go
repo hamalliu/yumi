@@ -1,8 +1,8 @@
 package entity
 
 import (
-	"yumi/pkg/status"
 	"yumi/pkg/types"
+	"yumi/status"
 	"yumi/usecase/trade/entity/internal"
 )
 
@@ -114,7 +114,7 @@ func (m *OrderPay) Cancel() error {
 		}
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
-			return status.FailedPrecondition().WithMessage("订单支付成功不能取消")
+			return status.FailedPrecondition().WithMessage(status.OrderFinishedRefuseCancel)
 		}
 		err = thirdpf.TradeClose(*m.attr)
 		if err != nil {
@@ -133,7 +133,7 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 	if m.attr.Status == Submitted {
 		now := types.NowTimestamp()
 		if now > m.attr.TimeoutExpress {
-			return "", status.FailedPrecondition().WithMessage("订单已过期，不能发起支付")
+			return "", status.DeadlineExceeded().WithMessage(status.OrderTimeout)
 		}
 
 		thirdpf, err := GetThirdpf(Way(tradeWay))
@@ -161,7 +161,7 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 		}
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
-			return "", status.FailedPrecondition().WithMessage("订单支付成功不能重复下单")
+			return "", status.AlreadyExists().WithMessage(status.OrderAlreadyExists)
 		}
 		// 前提：如果该支付订单已支付，三方支付接口应该返回错误
 		err = thirdpf1.TradeClose(*m.attr)
@@ -214,7 +214,9 @@ func (m *OrderPay) QueryPaid() (bool, error) {
 }
 
 // PayNotifyReq ...
-func (m *OrderPay) PayNotifyReq() ()
+func (m *OrderPay) PayNotifyReq() {
+
+}
 
 // setWaitPay 设置待支付
 func (m *OrderPay) setWaitPay(tradeWay, notifyURL, clientIP string) {
@@ -224,7 +226,6 @@ func (m *OrderPay) setWaitPay(tradeWay, notifyURL, clientIP string) {
 	m.attr.SpbillCreateIP = clientIP
 	m.attr.PayExpire = types.NowTimestamp() + PayExpireSecond
 	m.attr.Status = WaitPay
-	return
 }
 
 // setPaid 支付成功，更新订单状态（待支付->已支付）
@@ -233,14 +234,12 @@ func (m *OrderPay) setPaid(transactionID, buyerLogonID string) {
 	m.attr.TransactionID = transactionID
 	m.attr.Status = Paid
 	m.attr.PayTime = types.NowTimestamp()
-	return
 }
 
 // setCancelled 设置取消订单
 func (m *OrderPay) setCancelled() {
 	m.attr.Status = Cancelled
 	m.attr.CancelTime = types.NowTimestamp()
-	return
 }
 
 // setError 设置订单错误
@@ -248,5 +247,4 @@ func (m *OrderPay) setError(remarks string) {
 	m.attr.Status = Error
 	m.attr.Remarks = remarks
 	m.attr.ErrorTime = types.NowTimestamp()
-	return
 }

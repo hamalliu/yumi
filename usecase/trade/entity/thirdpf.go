@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"yumi/pkg/status"
+	"yumi/status"
 )
 
 //StatusTradePlatform ...

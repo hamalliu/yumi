@@ -14,7 +14,7 @@ import (
 	"yumi/gin/valuer"
 	"yumi/pkg/binding"
 	"yumi/pkg/render"
-	"yumi/pkg/status"
+	"yumi/status"
 )
 
 const _abortIndex int8 = math.MaxInt8 / 2

@@ -3,7 +3,7 @@ package trade
 import (
 	"net/http"
 
-	"yumi/pkg/status"
+	"yumi/status"
 	"yumi/usecase/trade/entity"
 )
 

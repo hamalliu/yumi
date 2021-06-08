@@ -14,7 +14,7 @@ type Status struct {
 }
 
 // New returns a Status representing c and msg.
-func New(c codes.Code, msg string) *Status {
+func new(c codes.Code, msg string) *Status {
 	return &Status{code: int32(c), message: msg}
 }
 
@@ -68,8 +68,9 @@ func (s *Status) WithDetails(details ...error) *Status {
 }
 
 // WithMessage ...
-func (s *Status) WithMessage(msg string) *Status {
-	s.message = msg
+func (s *Status) WithMessage(msg messageEntry) *Status {
+	// TODO 实现i18n
+	s.message = ""
 	return s
 }
 

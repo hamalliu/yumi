@@ -1,7 +1,7 @@
 package user
 
 import (
-	"yumi/pkg/status"
+	"yumi/status"
 	"yumi/usecase/user/entity"
 )
 
@@ -54,7 +54,7 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 		return resp, err
 	}
 	if !exist {
-		return resp, status.FailedPrecondition().WithMessage("用户名不存在")
+		return resp, status.NotFound().WithMessage(status.UserNotFound)
 	}
 
 	u := entity.NewUser(&attr)

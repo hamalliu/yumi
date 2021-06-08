@@ -18,7 +18,7 @@ import (
 	"yumi/pkg/binding"
 	"yumi/pkg/fileutility"
 	"yumi/pkg/log"
-	"yumi/pkg/status"
+	"yumi/status"
 	"yumi/usecase/onlyoffice"
 )
 

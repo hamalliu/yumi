@@ -7,7 +7,7 @@ import (
 	"runtime"
 
 	"yumi/gin"
-	"yumi/pkg/status"
+	"yumi/status"
 )
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.
