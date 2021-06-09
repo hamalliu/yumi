@@ -16,7 +16,7 @@ type CreateOrderPayRequest struct {
 }
 
 // Attribute ...
-func (m *CreateOrderPayRequest) Attribute(attr *entity.OrderPayAttribute) {
+func (m *CreateOrderPayRequest) Attribute() (attr entity.OrderPayAttribute) {
 	attr.BuyerAccountGUID = m.BuyerAccountGUID
 	attr.SellerKey = m.SellerKey
 	attr.TotalFee = m.TotalFee

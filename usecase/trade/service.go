@@ -20,8 +20,7 @@ func New() (*Service, error) {
 
 // CreateOrderPay 提交支付订单
 func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPayResponse, err error) {
-	attr := entity.OrderPayAttribute{}
-	req.Attribute(&attr)
+	attr := req.Attribute()
 	op := entity.NewOrderPay(&attr)
 	err = op.Submit()
 	if err != nil {

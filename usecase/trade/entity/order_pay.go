@@ -102,8 +102,7 @@ func (m *OrderPay) Submit() error {
 func (m *OrderPay) Cancel() error {
 	if m.attr.Status == Submitted {
 		m.setCancelled()
-	}
-	if m.attr.Status == WaitPay {
+	} else if m.attr.Status == WaitPay {
 		thirdpf, err := GetThirdpf(Way(m.attr.TradeWay))
 		if err != nil {
 			return err
@@ -148,9 +147,7 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 		}
 
 		return ret.Data, nil
-	}
-
-	if m.attr.Status == WaitPay {
+	} else if m.attr.Status == WaitPay {
 		thirdpf1, err := GetThirdpf(Way(m.attr.TradeWay))
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
@@ -162,11 +159,12 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
 			return "", status.AlreadyExists().WithMessage(status.OrderAlreadyExists)
-		}
-		// 前提：如果该支付订单已支付，三方支付接口应该返回错误
-		err = thirdpf1.TradeClose(*m.attr)
-		if err != nil {
-			return "", status.Internal().WithDetails(err)
+		} else if ret1.TradeStatus == StatusTradePlatformNotPay {
+			// 前提：如果该支付订单已支付，三方支付接口应该返回错误
+			err = thirdpf1.TradeClose(*m.attr)
+			if err != nil {
+				return "", status.Internal().WithDetails(err)
+			}
 		}
 
 		// 重新下单
@@ -205,8 +203,7 @@ func (m *OrderPay) QueryPaid() (bool, error) {
 		if tpq.TradeStatus == StatusTradePlatformNotPay {
 			return false, nil
 		}
-	}
-	if m.attr.Status == Paid {
+	} else if m.attr.Status == Paid {
 		return true, nil
 	}
 
