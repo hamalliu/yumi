@@ -1,0 +1,40 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "D:\\mine\\go\\pkg\\mod\\go.uber.org\\zap@v1.17.0"
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.windows": {
+			"GOPATH": "D:\\mine\\go",
+			"GO111MODULE": "on",
+			"GOPROXY": "https://goproxy.io,direct"
+		},
+		"terminal.integrated.profiles.windows": {
+			"PowerShell": {
+				"source": "PowerShell",
+				"icon": "terminal-powershell",
+				"env": {
+					"GOPATH": "D:\\mine\\go",
+					"GO111MODULE": "on",
+					"GOPROXY": "https://goproxy.io,direct"
+				}
+			},
+			"Command Prompt": {
+				"path": [
+					"${env:windir}\\Sysnative\\cmd.exe",
+					"${env:windir}\\System32\\cmd.exe"
+				],
+				"args": [],
+				"icon": "terminal-cmd"
+			},
+			"Git Bash": {
+				"source": "Git Bash"
+			}
+		},
+		"go.gopath": "D:\\mine\\go"
+	}
+}

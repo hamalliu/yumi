@@ -73,4 +73,3 @@ func (s *Status) WithMessage(msg messageEntry) *Status {
 	s.message = ""
 	return s
 }
-

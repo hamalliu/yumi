@@ -13,8 +13,6 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 
-	"yumi/conf"
-	"yumi/pkg/log"
 	"yumi/pkg/stores/dbc"
 )
 
@@ -23,7 +21,6 @@ const dirverName = "mysql"
 //Client mysql 客户端
 type Client struct {
 	*sqlx.DB
-	conf conf.DB
 }
 
 //New 新建一个 mysql 客户端
@@ -45,12 +42,10 @@ func New(dsn string, options ...dbc.ClientOption) (*Client, error) {
 	//创建存储过程
 	f, err := os.Open("./page_select.sql")
 	if err != nil {
-		log.Error(err)
 		return nil, err
 	}
 	sqlb, err := ioutil.ReadAll(f)
 	if err != nil {
-		log.Error(err)
 		return nil, err
 	}
 	_, _ = m.Query(string(sqlb))

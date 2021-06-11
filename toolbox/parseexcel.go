@@ -18,7 +18,7 @@ const (
 )
 
 // ParseExcelToStruct ...
-func ParseExcelToStruct(path string, tabIndex int, structItf interface{}, kyExcel string, keys []int) error {
+func ParseExcelToStruct(path string, tabIndex int, structItf interface{}, kyExcel string, start int, keys []int) error {
 	if kyExcel == "" {
 		kyExcel = kyExcelCell
 	}
@@ -37,6 +37,7 @@ func ParseExcelToStruct(path string, tabIndex int, structItf interface{}, kyExce
 		}
 	case reflect.Slice:
 		l := getExcelLen(kyExcel, tabname, x, keys, v)
+		l -= start
 		mv := reflect.MakeSlice(v.Elem().Type(), l, l)
 		for i := 0; i < l; i++ {
 			if err := setSheetToStruct(x, tabname, mv.Index(i), mv.Index(i).Type(), i, kyExcel); err != nil {
@@ -54,6 +55,11 @@ func ParseExcelToStruct(path string, tabIndex int, structItf interface{}, kyExce
 
 func setSheetToStruct(x *excelize.File, tabName string, v reflect.Value, t reflect.Type, index int, kyExcel string) error {
 	for i := 0; i < t.NumField(); i++ {
+		if t.Field(i).Type.Kind() == reflect.Struct {
+			if err := setSheetToStruct(x, tabName, v.Field(i), v.Field(i).Type(), index, kyExcel); err != nil {
+				return err
+			}
+		}
 		axissstr := t.Field(i).Tag.Get("xls")
 		axiss := strings.Split(axissstr, ",")
 		axis := ""
@@ -100,7 +106,6 @@ func setSheetToStruct(x *excelize.File, tabName string, v reflect.Value, t refle
 					v.Field(i).SetInt(int64(vi))
 				}
 			default:
-				return errors.New("服务器内部错误,导入失败")
 			}
 		}
 	}
@@ -117,7 +122,7 @@ func getExcelLen(kyExcel, tabname string, x *excelize.File, keys []int, v reflec
 		for i := l - 1; i >= 0; i-- {
 			sub := false
 			for _, key := range keys {
-				if rows[i][key] == "" {
+				if strings.TrimSpace(rows[i][key]) == "" {
 					sub = true
 					break
 				}

@@ -151,7 +151,7 @@ func getCallbackURL(c *gin.Context, fileName, userID string) string {
 }
 
 func renderError(c *gin.Context, err error) {
-	log.Error2(err)
+	log.ErrorWithDepth(2, err)
 	t, _ := template.ParseFiles("./views/onlyoffice/editor.tpl")
 	_ = t.Execute(c.Writer, struct{ message string }{message: "服务器内部错误"})
 }

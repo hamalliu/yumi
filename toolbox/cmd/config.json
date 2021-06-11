@@ -1,0 +1,7 @@
+{
+    "dsn": "mongodb://root:Admin_123@10.34.4.16:27017",
+    "db_name": "client",
+    "collection_name": "clientinfo",
+    "lead_in_path": "./topav.xlsx",
+    "tenancy_id": ""
+}

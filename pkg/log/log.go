@@ -1,90 +1,66 @@
 package log
 
 import (
-	"os"
+	"fmt"
+	"path/filepath"
+	"runtime"
 
-	"github.com/op/go-logging"
-
-	"yumi/conf"
+	"github.com/sirupsen/logrus"
 )
 
-var infolog = logging.MustGetLogger("info")
-var warninglog = logging.MustGetLogger("warning")
-var errorlog = logging.MustGetLogger("error")
-var criticallog = logging.MustGetLogger("critical")
-var log = logging.MustGetLogger("log")
+var infoLog = logrus.New()
+var errorLog = logrus.New()
 
 //Init ...
-func Init() {
-	var format = logging.MustStringFormatter(
-		`%{time:2006-01-02 15:04:05.000} %{level:.4s} %{longfile} %{message}`,
-	)
-	logging.SetFormatter(format)
-
-	stdBackend := logging.NewLogBackend(os.Stdout, "", 0)
-	stdBackend.Color = true
-
-	infoBackend := logging.NewLogBackend(New("[INFO]", 2<<26, true), "", 0)
-	lvlInfoBackend := logging.AddModuleLevel(infoBackend)
-	lvlInfoBackend.SetLevel(logging.INFO, "")
-
-	warningBackend := logging.NewLogBackend(New("[Warning]", 2<<26, true), "", 0)
-	lvlWarningBackend := logging.AddModuleLevel(warningBackend)
-	lvlWarningBackend.SetLevel(logging.WARNING, "")
-
-	errBackend := logging.NewLogBackend(New("[ERROR]", 2<<26, true), "", 0)
-	lvlErrBackend := logging.AddModuleLevel(errBackend)
-	lvlErrBackend.SetLevel(logging.ERROR, "")
-
-	criticalBackend := logging.NewLogBackend(New("[CRITICAL]", 2<<26, true), "", 0)
-	lvlCriticalBackend := logging.AddModuleLevel(criticalBackend)
-	lvlCriticalBackend.SetLevel(logging.CRITICAL, "")
-
-	logging.SetBackend(stdBackend)
-	infolog.SetBackend(lvlInfoBackend)
-	warninglog.SetBackend(lvlInfoBackend)
-	errorlog.SetBackend(lvlErrBackend)
-	criticallog.SetBackend(lvlCriticalBackend)
-}
-
-//Critical ...
-func Critical(args ...interface{}) {
-	criticallog.ExtraCalldepth = 1
-	criticallog.Critical(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 1
-		log.Debug(args)
+func Init(options ...LogOption) error {
+	logs := LogOptions{}
+	for _, option := range options {
+		option.F(&logs)
 	}
+	formatter := &logrus.TextFormatter{
+		ForceColors:     true,
+		FullTimestamp:   true,
+		PadLevelText:    true,
+		TimestampFormat: "2006-01-02 15:04:05",
+		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+			_, fileName := filepath.Split(frame.File)
+			file = fmt.Sprintf("%s:%d", fileName, frame.Line)
+			return
+		},
+		EnvironmentOverrideColors: true,
+	}
+
+	infoLog.SetLevel(logrus.InfoLevel)
+	infoLog.SetReportCaller(true)
+	infoLog.SetFormatter(formatter)
+	infoWriter, err := logs.NewFileWriter("INFO")
+	if err != nil {
+		return err
+	}
+	infoLog.SetOutput(infoWriter)
+
+	errorLog.SetLevel(logrus.InfoLevel)
+	errorLog.SetReportCaller(true)
+	errorLog.SetFormatter(formatter)
+	errorWriter, err := logs.NewFileWriter("INFO")
+	if err != nil {
+		return err
+	}
+	errorLog.SetOutput(errorWriter)
+
+	return nil
 }
 
 //Error ...
 func Error(args ...interface{}) {
-	errorlog.ExtraCalldepth = 1
-	errorlog.Error(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 1
-		log.Debug(args)
-	}
-}
-
-//Warning ...
-func Warning(args ...interface{}) {
-	warninglog.ExtraCalldepth = 1
-	warninglog.Warning(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 1
-		log.Debug(args)
-	}
+	errorLog.SetReportCaller() = 1
+	errorLog.Error(args)
 }
 
 //Info ...
 func Info(args ...interface{}) {
 	infolog.ExtraCalldepth = 1
 	infolog.Info(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 1
-		log.Debug(args)
-	}
 }
 
 //Debug ...
@@ -93,48 +69,3 @@ func Debug(args ...interface{}) {
 	log.Debug(args)
 }
 
-//Debug3 ...
-func Debug3(args ...interface{}) {
-	log.ExtraCalldepth = 3
-	log.Debug(args)
-}
-
-//Critical2 ...
-func Critical2(args ...interface{}) {
-	criticallog.ExtraCalldepth = 2
-	criticallog.Critical(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 2
-		log.Debug(args)
-	}
-}
-
-//Error2 ...
-func Error2(args ...interface{}) {
-	errorlog.ExtraCalldepth = 2
-	errorlog.Error(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 2
-		log.Debug(args)
-	}
-}
-
-//Info2 ...
-func Info2(args ...interface{}) {
-	infolog.ExtraCalldepth = 2
-	infolog.Info(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 2
-		log.Debug(args)
-	}
-}
-
-//Info3 ...
-func Info3(args ...interface{}) {
-	infolog.ExtraCalldepth = 3
-	infolog.Info(args)
-	if conf.IsDebug() {
-		log.ExtraCalldepth = 3
-		log.Debug(args)
-	}
-}
