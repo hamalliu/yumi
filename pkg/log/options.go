@@ -24,7 +24,7 @@ type LogOptions struct {
 	RotationTime time.Duration
 }
 
-func (lo *LogOptions) NewFileWriter(subDir string) (io.Writer, error) {
+func (lo *LogOptions) newFileOutput(subDir string) (io.Writer, error) {
 	storageDir := ""
 	if subDir != "" {
 		storageDir = filepath.Join(lo.StorageDir, subDir)
@@ -38,11 +38,24 @@ func (lo *LogOptions) NewFileWriter(subDir string) (io.Writer, error) {
 		return nil, err
 	}
 
-	if lo.IsOutputStd {
-		return io.MultiWriter(os.Stdout, r), nil
+	return r, nil
+}
+
+func (lo *LogOptions) NewOutput(level Level) (io.Writer, error) {
+	var w io.Writer
+	if level < DEBUG {
+		fileOutput, err := lo.newFileOutput(level.ToString())
+		if err != nil {
+			return nil, err
+		}
+		w = fileOutput
 	}
 
-	return r, nil
+	if lo.IsOutputStd {
+		return io.MultiWriter(os.Stdout, w), nil
+	}
+
+	return w, nil
 }
 
 // SetStorageDir ...

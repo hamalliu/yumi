@@ -14,6 +14,7 @@ type MongoStore struct {
 
 // NewMongoStore ...
 func NewMongoStore() *MongoStore {
+	// TODO:
 	return nil
 }
 

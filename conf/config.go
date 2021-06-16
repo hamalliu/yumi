@@ -13,6 +13,7 @@ type Config struct {
 	HttpServer HTTPServer
 	DB         DB
 	Mongo      Mongo
+	Log        Log
 
 	// 业务层配置
 	Media      Media

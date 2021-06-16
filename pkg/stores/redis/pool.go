@@ -2,14 +2,11 @@ package redis
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/gomodule/redigo/redis"
-
-	"yumi/pkg/log"
 )
 
 // PoolMulAddr containing multiple addresses
@@ -62,9 +59,7 @@ func (pma *PoolMulAddr) New(maxIdle, maxActive, idleTimeoutSecond int, wait bool
 			retryTimes := 3
 			for i := 0; i < retryTimes; i++ {
 				c, err = redis.Dial("tcp", addr)
-				if err != nil {
-					log.Warning("redis: %s", err.Error())
-				} else {
+				if err == nil {
 					break
 				}
 			}
@@ -99,7 +94,7 @@ func (pma *PoolMulAddr) New(maxIdle, maxActive, idleTimeoutSecond int, wait bool
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			v, ok := pma.conns.Load(c)
 			if !ok {
-				log.Warning(fmt.Errorf("redis: redis conn leak"))
+				return errors.New("redis: redis conn leak")
 			}
 			pc := v.(*poolConn)
 

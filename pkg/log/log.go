@@ -8,14 +8,36 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var infoLog = logrus.New()
-var errorLog = logrus.New()
+type Level int8
+
+const (
+	ERROR Level = iota
+	INFO
+	DEBUG
+)
+
+func (l Level) ToString() string {
+	switch l {
+	case ERROR:
+		return "ERROR"
+	case INFO:
+		return "INFO"
+	case DEBUG:
+		return "DEBUG"
+	default:
+		return ""
+	}
+}
+
+var debugLog *logrus.Logger
+var infoLog *logrus.Logger
+var errorLog *logrus.Logger
 
 //Init ...
 func Init(options ...LogOption) error {
-	logs := LogOptions{}
+	opts := LogOptions{}
 	for _, option := range options {
-		option.F(&logs)
+		option.F(&opts)
 	}
 	formatter := &logrus.TextFormatter{
 		ForceColors:     true,
@@ -30,42 +52,59 @@ func Init(options ...LogOption) error {
 		EnvironmentOverrideColors: true,
 	}
 
-	infoLog.SetLevel(logrus.InfoLevel)
-	infoLog.SetReportCaller(true)
-	infoLog.SetFormatter(formatter)
-	infoWriter, err := logs.NewFileWriter("INFO")
+	debugOutput, err := opts.NewOutput(DEBUG)
 	if err != nil {
 		return err
 	}
-	infoLog.SetOutput(infoWriter)
+	if debugOutput != nil {
+		debugLog = logrus.New()
+		debugLog.SetLevel(logrus.DebugLevel)
+		debugLog.SetFormatter(formatter)
+		debugLog.SetOutput(debugOutput)	
+	}
 
-	errorLog.SetLevel(logrus.InfoLevel)
-	errorLog.SetReportCaller(true)
-	errorLog.SetFormatter(formatter)
-	errorWriter, err := logs.NewFileWriter("INFO")
+	infoOutput, err := opts.NewOutput(INFO)
 	if err != nil {
 		return err
 	}
-	errorLog.SetOutput(errorWriter)
+	if infoOutput != nil {
+		infoLog = logrus.New()
+		infoLog.SetLevel(logrus.InfoLevel)
+		infoLog.SetFormatter(formatter)
+		infoLog.SetOutput(infoOutput)
+	}
+
+	errorOutput, err := opts.NewOutput(ERROR)
+	if err != nil {
+		return err
+	}
+	if errorOutput != nil {
+		errorLog = logrus.New()
+		errorLog.SetLevel(logrus.InfoLevel)
+		errorLog.SetFormatter(formatter)
+		errorLog.SetOutput(errorOutput)
+	}
 
 	return nil
 }
 
 //Error ...
 func Error(args ...interface{}) {
-	errorLog.SetReportCaller() = 1
-	errorLog.Error(args)
+	if errorLog != nil {
+		errorLog.Error(args)
+	}
 }
 
 //Info ...
 func Info(args ...interface{}) {
-	infolog.ExtraCalldepth = 1
-	infolog.Info(args)
+	if infoLog != nil {
+		infoLog.Info(args)
+	}
 }
 
 //Debug ...
 func Debug(args ...interface{}) {
-	log.ExtraCalldepth = 1
-	log.Debug(args)
+	if debugLog != nil {
+		debugLog.Debug(args)
+	}
 }
-

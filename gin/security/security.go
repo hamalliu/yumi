@@ -9,14 +9,11 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
 	"yumi/pkg/codec"
-	"yumi/gin/header"
-	"yumi/pkg/log"
 )
 
 const (
@@ -24,10 +21,11 @@ const (
 )
 
 const (
-	keyField       = "key"
+	publicKeyField = "key"
 	secretField    = "secret"
 	signatureField = "signature"
 
+	realSecretField  = "real_secret"
 	contentTypeField = "content_type"
 	timestampField   = "timestamp"
 	nonceField       = "nonce"
@@ -69,22 +67,29 @@ func parseHeader(cs string) (attrs map[string]string) {
 	return nil
 }
 
+func computeBodySignature(r *http.Request) string {
+	var buf bytes.Buffer
+	tee := io.TeeReader(r.Body, &buf)
+	sha := sha256.New()
+	io.Copy(sha, tee)
+	r.Body = ioutil.NopCloser(&buf)
+	return fmt.Sprintf("%x", sha.Sum(nil))
+}
+
 // ParseContentSecurity ...
 func ParseContentSecurity(decrypters map[string]codec.RsaDecrypter, r *http.Request) (
 	*ContentSecurityHeader, error) {
-	contentSecurity := header.ContentSecurity(r)
+	contentSecurity := r.Header.Get("X-Content-Security")
 	attrs := parseHeader(contentSecurity)
-	fingerprint := attrs[keyField]
+	publicKey := attrs[publicKeyField]
 	secret := attrs[secretField]
 	signature := attrs[signatureField]
 
-	if len(fingerprint) == 0 || len(secret) == 0 || len(signature) == 0 {
-		log.Error(r.URL.Path)
-		log.Error(ErrInvalidHeader)
+	if len(publicKey) == 0 || len(secret) == 0 || len(signature) == 0 {
 		return nil, ErrInvalidHeader
 	}
 
-	decrypter, ok := decrypters[fingerprint]
+	decrypter, ok := decrypters[publicKey]
 	if !ok {
 		return nil, ErrInvalidPublicKey
 	}
@@ -95,18 +100,18 @@ func ParseContentSecurity(decrypters map[string]codec.RsaDecrypter, r *http.Requ
 	}
 
 	attrs = parseHeader(string(decryptedSecret))
-	base64Key := attrs[keyField]
+	realSecret := attrs[realSecretField]
 	timestamp := attrs[timestampField]
 	nonce := attrs[nonceField]
 	contentType := attrs[contentTypeField]
 
-	key, err := base64.StdEncoding.DecodeString(base64Key)
+	realSecretBytes, err := base64.StdEncoding.DecodeString(realSecret)
 	if err != nil {
 		return nil, ErrInvalidKey
 	}
 
 	return &ContentSecurityHeader{
-		Key:         key,
+		Key:         realSecretBytes,
 		Timestamp:   timestamp,
 		Nonce:       nonce,
 		ContentType: contentType,
@@ -127,13 +132,12 @@ func VerifySignature(r *http.Request, securityHeader *ContentSecurityHeader, tol
 		return ErrInvalidTime
 	}
 
-	reqPath, reqQuery := getPathQuery(r)
 	signContent := strings.Join([]string{
 		securityHeader.Timestamp,
 		securityHeader.Nonce,
 		r.Method,
-		reqPath,
-		reqQuery,
+		r.URL.Path,
+		r.URL.RawQuery,
 		computeBodySignature(r),
 	}, "\n")
 	actualSignature := codec.HmacBase64(securityHeader.Key, signContent)
@@ -146,25 +150,19 @@ func VerifySignature(r *http.Request, securityHeader *ContentSecurityHeader, tol
 	return nil
 }
 
-func computeBodySignature(r *http.Request) string {
-	var buf bytes.Buffer
-	tee := io.TeeReader(r.Body, &buf)
-	sha := sha256.New()
-	io.Copy(sha, tee)
-	r.Body = ioutil.NopCloser(&buf)
-	return fmt.Sprintf("%x", sha.Sum(nil))
-}
-
-func getPathQuery(r *http.Request) (string, string) {
-	requestURI := header.RequestURI(r)
-	if len(requestURI) == 0 {
-		return r.URL.Path, r.URL.RawQuery
+func ParseBodySecurity(r *http.Request, securityHeader *ContentSecurityHeader) error {
+	if r.Body == nil {
+		return nil
 	}
-
-	uri, err := url.Parse(requestURI)
+	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		return r.URL.Path, r.URL.RawQuery
+		return nil
 	}
-
-	return uri.Path, uri.RawQuery
+	decryptBodyBytes, err := codec.EcbDecrypt(securityHeader.Key, bodyBytes)
+	if err != nil {
+		return err
+	}
+	buf := bytes.NewBuffer(decryptBodyBytes)
+	r.Body = io.NopCloser(buf)
+	return nil
 }

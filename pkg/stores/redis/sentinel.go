@@ -44,7 +44,7 @@ func (ns NoSentinelsAvailable) Error() string {
 	if ns.lastError != nil {
 		return fmt.Sprintf("redigo: no sentinels available; last error: %s", ns.lastError.Error())
 	}
-	return fmt.Sprintf("redigo: no sentinels available")
+	return "redigo: no sentinels available"
 }
 
 // NewSentinel create a sentinel

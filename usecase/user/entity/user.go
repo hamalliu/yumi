@@ -7,7 +7,7 @@ import (
 	"yumi/pkg/codec"
 	"yumi/pkg/login"
 	"yumi/pkg/sessions"
-	"yumi/pkg/strfmt"
+	"yumi/pkg/regexputility"
 	"yumi/pkg/types"
 	"yumi/status"
 )
@@ -49,12 +49,12 @@ func NewUser(attr *UserAttribute) *User {
 // LawEnforcement 执法：检查当前数据是否合乎业务规定
 func (u *User) LawEnforcement() (err error) {
 	// 1. 用户名格式
-	if !strfmt.RegexpUser(u.attr.UserID) {
+	if !regexputility.RegexpUser(u.attr.UserID) {
 		return status.FailedPrecondition().WithMessage(status.UserFmtIncorrect)
 	}
 
 	// 2. 密码强度
-	if strfmt.RegexpPassword(u.attr.Password) {
+	if regexputility.RegexpPassword(u.attr.Password) {
 		return status.FailedPrecondition().WithMessage(status.PasswordFmtIncorrect)
 	}
 

@@ -1,4 +1,4 @@
-package strfmt
+package regexputility
 
 import (
 	"fmt"
