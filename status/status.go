@@ -37,6 +37,9 @@ func (s *Status) Message() string {
 
 // Details ...
 func (s *Status) Details() []string {
+	if s == nil {
+		return []string{}
+	}
 	return s.details
 }
 

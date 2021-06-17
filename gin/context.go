@@ -14,7 +14,6 @@ import (
 	"yumi/gin/valuer"
 	"yumi/pkg/binding"
 	"yumi/pkg/render"
-	"yumi/status"
 )
 
 const _abortIndex int8 = math.MaxInt8 / 2
@@ -108,12 +107,10 @@ func (c *Context) Set(key valuer.Key, value interface{}) {
 }
 
 // Get returns the value for the given key
-func (c *Context) Get(key valuer.Key) *valuer.Valuer {
+func (c *Context) Get(key valuer.Key) (value *valuer.Valuer) {
 	if c.KeysMutex == nil {
 		c.KeysMutex = &sync.RWMutex{}
 	}
-
-	value := &valuer.Valuer{}
 	c.KeysMutex.RLock()
 	value = c.Keys[key]
 	c.KeysMutex.RUnlock()
@@ -257,28 +254,8 @@ func (c *Context) Render(code int, r render.Render) {
 
 // JSON serializes the given struct as JSON into the response body.
 // It also sets the Content-Type as "application/json".
-func (c *Context) JSON(data interface{}, err error) {
-	c.Error = err
-
-	if data == nil {
-		data = struct{}{}
-	}
-	resp := render.JSON{}
-	s := status.OK()
-	if err != nil {
-		ss, ok := err.(*status.Status)
-		if ok {
-			s = ss
-		} else {
-			s = status.Unknown().WithDetails(err)
-		}
-	}
-	resp.Code = int(s.Code())
-	resp.Message = s.Message()
-	resp.Details = s.Details()
-	resp.Data = data
-
-	c.Render(s.Code().HTTPStatus(), resp)
+func (c *Context) JSON(code int, obj interface{}) {
+	c.Render(code, render.JSON{Data: obj})
 }
 
 // XML serializes the given struct as XML into the response body.

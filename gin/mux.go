@@ -60,12 +60,12 @@ type Mux struct {
 }
 
 func default404Handler(c *Context) {
-	c.Bytes(404, "text/plain", []byte(http.StatusText(404)))
+	c.Bytes(http.StatusNotFound, "text/plain", []byte(http.StatusText(http.StatusNotFound)))
 	c.Abort()
 }
 
 func default405Handler(c *Context) {
-	c.Bytes(405, "text/plain", []byte(http.StatusText(405)))
+	c.Bytes(http.StatusMethodNotAllowed, "text/plain", []byte(http.StatusText(http.StatusMethodNotAllowed)))
 	c.Abort()
 }
 
@@ -168,7 +168,6 @@ func (mux *Mux) handleHTTPRequest(c *Context) {
 	}
 	c.handlers = mux.allNoRoute
 	c.Next()
-	return
 }
 
 func (mux *Mux) addRoute(method, path string, handlers ...HandlerFunc) {

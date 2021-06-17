@@ -14,10 +14,6 @@ import (
 
 // JSON contains the given interface object.
 type JSON struct {
-	Code    int         `json:"code"`
-	Message string      `json:"message"`
-	Details []string    `json:"details"`
-	TTL     int         `json:"ttl"`
 	Data    interface{} `json:"data"`
 }
 
@@ -35,10 +31,6 @@ type SecureJSON struct {
 // JsonpJSON contains the given interface object its callback.
 type JsonpJSON struct {
 	Callback  string
-	Code      int
-	Message   string
-	ParamsErr string
-	TTL       int `json:"ttl"`
 	Data      interface{}
 }
 

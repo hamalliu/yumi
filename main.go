@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
 	"yumi/api"
 	"yumi/conf"
@@ -55,11 +54,6 @@ func main() {
 		ReadTimeout:  srvconf.ReadTimeout.Duration(),
 		WriteTimeout: srvconf.WriteTimeout.Duration(),
 	}
-	mux.Use(
-		middleware.Recovery(),
-		middleware.Cors(conf.Get().HttpServer.CORSAllowedOrigins, int(conf.Get().HttpServer.CORSMaxAge.Duration()/time.Second)),
-		middleware.Debug(conf.IsDebug()),
-	)
 
 	log.Info("加载路由")
 	router := mux.Group("/")

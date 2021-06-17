@@ -1,15 +1,14 @@
 package middleware
 
 import (
-	"context"
 	"errors"
-	"net/http"
 
 	"github.com/dgrijalva/jwt-go"
 
 	"yumi/gin"
 	"yumi/gin/valuer"
 	"yumi/pkg/token"
+	"yumi/status"
 )
 
 const (
@@ -38,13 +37,15 @@ func AuthToken(secret string, opts ...AuthorizeOption) gin.HandlerFunc {
 		}
 
 		if !token.Valid {
-			c.Writer.WriteHeader(http.StatusUnauthorized)
+			c.WriteJSON(nil, status.Unauthenticated())
+			c.Abort()
 			return
 		}
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			c.Writer.WriteHeader(http.StatusUnauthorized)
+			c.WriteJSON(nil, status.Unauthenticated())
+			c.Abort()
 			return
 		}
 
@@ -52,26 +53,22 @@ func AuthToken(secret string, opts ...AuthorizeOption) gin.HandlerFunc {
 			switch k {
 			case jwtAudience, jwtExpire, jwtID, jwtIssueAt, jwtIssuer, jwtNotBefore, jwtSubject:
 				// ignore the standard claims
+			case string(valuer.KeyUser):
+				c.Set(valuer.KeyUser, v)
 			default:
-				key := valuer.SwitchKey(k)
-				if key != "" {
-					// 框架固定的数据
-					c.Set(key, v)
-				} else {
-					// 业务自定义的数据
-					c.Context = context.WithValue(c.Context, k, v)
-				}
+				c.Set(valuer.Key(k), v)
 			}
+		}
+
+		if c.Get(valuer.KeyUser) == nil {
+			c.WriteJSON(nil, status.Internal().WithDetails(errors.New("the token does not contain a user name")))
+			c.Abort()
+			return
 		}
 
 		c.Next()
 	}
 }
-
-var (
-	errInvalidToken = errors.New("invalid auth token")
-	errNoClaims     = errors.New("no auth params")
-)
 
 type (
 	// AuthorizeOptions ...

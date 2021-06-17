@@ -30,7 +30,7 @@ func NewSession(store Store, name, client string, limit int) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
-	if len >= limit {
+	if len >= limit && limit != -1 {
 		err = deleteSession(store, name, client, limit)
 		if err != nil {
 			return nil, err

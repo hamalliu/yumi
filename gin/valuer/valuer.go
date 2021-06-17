@@ -1,11 +1,19 @@
 package valuer
 
+import (
+	"fmt"
+)
+
 //Key ...
 type Key string
 
 const (
 	//KeyUser ...
-	KeyUser Key = "user"
+	KeyUser      Key = "user"
+	KeySecret    Key = "secret"
+	KeyTimestamp Key = "timestamp"
+	KeyNonce     Key = "nonce"
+	KeySignature Key = "signature"
 )
 
 //Valuer ...
@@ -17,16 +25,6 @@ type Valuer struct {
 type User struct {
 	UserID   string
 	UserName string
-}
-
-// SwitchKey ...
-func SwitchKey(key string) Key {
-	switch key {
-	case "user":
-		return KeyUser
-	default:
-		return ""
-	}
 }
 
 //User ...
@@ -45,7 +43,16 @@ func (v Valuer) String() string {
 	if ok {
 		return val
 	}
-	return ""
+	panic(fmt.Errorf("%v is not string", v.Value))
+}
+
+//Bytes ...
+func (v Valuer) Bytes() []byte {
+	val, ok := v.Value.([]byte)
+	if ok {
+		return val
+	}
+	panic(fmt.Errorf("%v is not bytes", v.Value))
 }
 
 //Float64 ...
@@ -54,7 +61,7 @@ func (v Valuer) Float64() float64 {
 	if ok {
 		return val
 	}
-	return 0
+	panic(fmt.Errorf("%v is not float64", v.Value))
 }
 
 //Float32 ...
@@ -63,7 +70,7 @@ func (v Valuer) Float32() float32 {
 	if ok {
 		return val
 	}
-	return 0
+	panic(fmt.Errorf("%v is not float32", v.Value))
 }
 
 //Int ...
@@ -71,9 +78,8 @@ func (v Valuer) Int() int {
 	val, ok := v.Value.(int)
 	if ok {
 		return val
-	} else {
-		return 0
 	}
+	panic(fmt.Errorf("%v is not int", v.Value))
 }
 
 //Int64 ...
@@ -82,5 +88,5 @@ func (v Valuer) Int64() int64 {
 	if ok {
 		return val
 	}
-	return 0
+	panic(fmt.Errorf("%v is not int64", v.Value))
 }

@@ -18,8 +18,8 @@ func init() {
 	}
 }
 
-//UploadMultipart 多文件上传
-func UploadMultipart(c *gin.Context) {
+//UploadMultiple 多文件上传
+func UploadMultiple(c *gin.Context) {
 	req := c.Request
 	var (
 		err error
@@ -28,9 +28,9 @@ func UploadMultipart(c *gin.Context) {
 	mediaConf := conf.Get().Media
 	if err = req.ParseMultipartForm(mediaConf.MultipleFileUploadsMaxSize.Size()); err != nil {
 		if err == http.ErrLineTooLong {
-			c.JSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
+			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
 		} else {
-			c.JSON(nil, status.InvalidArgument().WithDetails(err))
+			c.WriteJSON(nil, status.InvalidArgument().WithDetails(err))
 		}
 		return
 	}
@@ -41,7 +41,7 @@ func UploadMultipart(c *gin.Context) {
 	for i := 0; i < l; i++ {
 		mulf, err := fds[i].Open()
 		if err != nil {
-			c.JSON(nil, status.InvalidArgument().WithDetails(err))
+			c.WriteJSON(nil, status.InvalidArgument().WithDetails(err))
 			return
 		}
 
@@ -59,7 +59,7 @@ func UploadMultipart(c *gin.Context) {
 	}
 
 	resp, err := mediaSrv.BatchCreate(fs)
-	c.JSON(resp, err)
+	c.WriteJSON(resp, err)
 }
 
 //Upload 单文件上传
@@ -69,9 +69,9 @@ func Upload(c *gin.Context) {
 	mulf, mulfh, err := req.FormFile("file")
 	if err != nil {
 		if err == http.ErrLineTooLong {
-			c.JSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
+			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
 		} else {
-			c.JSON(nil, status.InvalidArgument().WithDetails(err))
+			c.WriteJSON(nil, status.InvalidArgument().WithDetails(err))
 		}
 	}
 
@@ -86,5 +86,5 @@ func Upload(c *gin.Context) {
 	f.Perm = 0444
 
 	resp, err := mediaSrv.Create(f)
-	c.JSON(resp, err)
+	c.WriteJSON(resp, err)
 }
