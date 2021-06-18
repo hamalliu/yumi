@@ -1,0 +1,103 @@
+{
+    "name": "yumi",
+    "source": "",
+    "actions": [],
+    "children": [
+        {
+            "name": "后台管理系统",
+            "source": "management_system",
+            "actions": [],
+            "children": [
+                {
+                    "name": "用户",
+                    "source": "users",
+                    "actions": [
+                        "create",
+                        "get",
+                        "delete",
+                        "update"
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "众智云擎",
+            "source": "engine",
+            "actions": [],
+            "children": [
+                {
+                    "name": "商城",
+                    "source": "mall",
+                    "actions": [],
+                    "children": [
+                        {
+                            "name": "商品",
+                            "source": "goods",
+                            "actions": [
+                                "create",
+                                "update",
+                                "delete",
+                                "get",
+                                "list"
+                            ]
+                        },
+                        {
+                            "name": "订单",
+                            "source": "order",
+                            "actions": [
+                                "submit",
+                                "pay",
+                                "cancel",
+                                "get",
+                                "list"
+                            ]
+                        },
+                        {
+                            "name": "购物车",
+                            "source": "cert",
+                            "actions": [
+                                "create",
+                                "update",
+                                "delete",
+                                "get",
+                                "list"
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "搜索",
+                    "source": "",
+                    "multiple_choice": true,
+                    "actions": [],
+                    "children": [
+                        {
+                            "name": "智能搜索",
+                            "source": "smart_search",
+                            "priority": 1,
+                            "actions": [
+                                "search"
+                            ]
+                        },
+                        {
+                            "name": "全国版智能搜索",
+                            "source": "national_smart_search",
+                            "priority": 2,
+                            "actions": [
+                                "search"
+                            ]
+                        },
+                        {
+                            "name": "本地版智能搜索",
+                            "source": "local_smart_search/:division",
+                            "priority": 3,
+                            "actions": [
+                                "search"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
