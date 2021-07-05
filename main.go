@@ -56,7 +56,7 @@ func main() {
 	}
 
 	log.Info("加载路由")
-	router := mux.Group("/")
+	router := mux.Group("yumi", "/")
 	api.Mount(router)
 
 	//启动服务
@@ -81,9 +81,7 @@ end:
 			}
 			break end
 		case syscall.SIGHUP:
-			break
 		default:
-			break
 		}
 	}
 }

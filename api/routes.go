@@ -2,9 +2,9 @@ package api
 
 import (
 	"time"
+
 	"yumi/api/admin"
 	"yumi/api/doc"
-	"yumi/api/login"
 	"yumi/api/media"
 	"yumi/api/onlyoffice"
 	"yumi/conf"
@@ -13,8 +13,8 @@ import (
 )
 
 //Mount ...
-func Mount(r *gin.RouterGroup) {
-	ar := r.Group("api")
+func Mount(r gin.GroupRoutes) {
+	ar := r.Group("接口", "api")
 	ar.Use(
 		middleware.Recovery(),
 		middleware.Cors(conf.Get().HttpServer.CORSAllowedOrigins, int(conf.Get().HttpServer.CORSMaxAge.Duration()/time.Second)),
@@ -26,14 +26,6 @@ func Mount(r *gin.RouterGroup) {
 	// 接口文档接口
 	doc.Mount(ar)
 
-	// 登录接口
-	login.Mount(ar)
-
-	//↑↑↑↑ 以上接口不需要这些中间件 ↑↑↑↑
-	ar.Use(
-		middleware.AuthToken(""),
-		middleware.NoLoginSecurity(nil, time.Second*15),
-	)
 	// 业务接口
 	admin.Mount(ar)
 	media.Mount(ar)

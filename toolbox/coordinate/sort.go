@@ -8,6 +8,7 @@ type Provinces []*Province
 func (p Provinces) Len() int {
 	return len(p)
 }
+// 从小到大
 func (p Provinces) Less(i, j int) bool {
 	return p[i].Distance < p[j].Distance
 }
@@ -21,6 +22,7 @@ type Cities []*City
 func (c Cities) Len() int {
 	return len(c)
 }
+// 从小到大
 func (c Cities) Less(i, j int) bool {
 	return c[i].Distance < c[j].Distance
 }

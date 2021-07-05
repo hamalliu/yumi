@@ -7,3 +7,7 @@ import (
 func logout(c *gin.Context) {
 
 }
+
+func login(c *gin.Context) {
+
+}

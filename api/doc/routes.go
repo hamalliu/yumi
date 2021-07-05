@@ -5,6 +5,6 @@ import (
 )
 
 //Mount ...
-func Mount(r *gin.RouterGroup) {
-	r.GET("doc", APIDoc)
+func Mount(r gin.GroupRoutes) {
+	r.GET("接口文档", "doc", APIDoc)
 }

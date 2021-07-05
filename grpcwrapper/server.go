@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	"yumi/log"
+	"yumi/pkg/log"
 )
 
 const loggerName = "transport/grpc"
@@ -28,13 +28,6 @@ func Address(addr string) ServerOption {
 	}
 }
 
-// Logger with server logger.
-func Logger(logger log.Logger) ServerOption {
-	return func(s *Server) {
-		s.log = log.NewHelper(loggerName, logger)
-	}
-}
-
 // Options with grpc options.
 func Options(opts ...grpc.ServerOption) ServerOption {
 	return func(s *Server) {
@@ -48,7 +41,6 @@ type Server struct {
 	lis      net.Listener
 	network  string
 	address  string
-	log      *log.Helper
 	grpcOpts []grpc.ServerOption
 }
 
@@ -57,7 +49,6 @@ func NewServer(opts ...ServerOption) *Server {
 	srv := &Server{
 		network: "tcp",
 		address: ":0",
-		log:     log.NewHelper(loggerName, log.DefaultLogger),
 	}
 	for _, o := range opts {
 		o(srv)
@@ -90,13 +81,13 @@ func (s *Server) Start() error {
 		return err
 	}
 	s.lis = lis
-	s.log.Infof("[gRPC] server listening on: %s", lis.Addr().String())
+	log.Info("[gRPC] server listening on: ", lis.Addr().String())
 	return s.Serve(lis)
 }
 
 // Stop stop the gRPC server.
 func (s *Server) Stop() error {
 	s.GracefulStop()
-	s.log.Info("[gRPC] server stopping")
+	log.Info("[gRPC] server stopping")
 	return nil
 }

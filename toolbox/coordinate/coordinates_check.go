@@ -72,7 +72,6 @@ func CheckCoordinates2(c XY, provinces []Province, cityCenters []Center) (parent
 	outprovince:
 		for _, plg := range province.Polygons {
 			if c.In(plg) {
-				parent = province.Code
 				hitProvince = province
 				break outprovince
 			}

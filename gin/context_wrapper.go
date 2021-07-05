@@ -31,11 +31,13 @@ func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) 
 
 	respObj := struct {
 		Code    int         `json:"code"`
+		Status  string      `json:"status"`
 		Message string      `json:"message"`
 		Details []string    `json:"details"`
 		Data    interface{} `json:"data"`
 	}{}
 	respObj.Code = int(s.Code())
+	respObj.Status = s.Code().String()
 	respObj.Message = s.Message()
 	respObj.Details = s.Details()
 	respObj.Data = data
@@ -110,7 +112,7 @@ func (c *Context) DecryptBody() error {
 	return nil
 }
 
-// EncryptBytes 加密指定的bytes 
+// EncryptBytes 加密指定的bytes
 func (c *Context) EncryptBytes(bs []byte) ([]byte, error) {
 	encryptBodyBytes, err := codec.EcbEncrypt(c.Get(valuer.KeySecret).Bytes(), bs)
 	if err != nil {
