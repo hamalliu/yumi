@@ -17,14 +17,14 @@ const (
 )
 
 const (
-	//TradeStatusWaitBuyerPay ...
+	//TradeStatusWaitBuyerPay 交易创建，等待买家付款
 	TradeStatusWaitBuyerPay = "WAIT_BUYER_PAY"
-	//TradeStatusSuccess ...
-	TradeStatusSuccess      = "TRADE_SUCCESS"
-	//TradeStatusCloseed ...
-	TradeStatusCloseed      = "TRADE_CLOSED"
-	//TradeStatusFinished ...
-	TradeStatusFinished     = "TRADE_FINISHED"
+	//TradeStatusCloseed 未付款交易超时关闭，或支付完成后全额退款
+	TradeStatusCloseed = "TRADE_CLOSED"
+	//TradeStatusSuccess 交易支付成功
+	TradeStatusSuccess = "TRADE_SUCCESS"
+	//TradeStatusFinished 交易结束，不可退款
+	TradeStatusFinished = "TRADE_FINISHED"
 )
 
 //PayAPI ...

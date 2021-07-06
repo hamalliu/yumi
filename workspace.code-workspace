@@ -4,7 +4,10 @@
 			"path": "."
 		},
 		{
-			"path": "D:\\mine\\go\\pkg\\mod\\go.uber.org\\zap@v1.17.0"
+			"path": "D:\\mine\\go\\pkg\\mod\\github.com\\nicksnyder\\go-i18n@v1.10.1"
+		},
+		{
+			"path": "D:\\mine\\go\\pkg\\mod\\go.mongodb.org\\mongo-driver@v1.4.6"
 		}
 	],
 	"settings": {

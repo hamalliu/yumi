@@ -6,10 +6,10 @@ import (
 
 	"yumi/pkg/codec"
 	"yumi/pkg/login"
-	"yumi/pkg/sessions"
 	"yumi/pkg/regexputility"
+	"yumi/pkg/sessions"
 	"yumi/pkg/types"
-	"yumi/status"
+	"yumi/pkg/status"
 )
 
 // UserStatus ...
@@ -50,12 +50,12 @@ func NewUser(attr *UserAttribute) *User {
 func (u *User) LawEnforcement() (err error) {
 	// 1. 用户名格式
 	if !regexputility.RegexpUser(u.attr.UserID) {
-		return status.FailedPrecondition().WithMessage(status.UserFmtIncorrect)
+		return status.FailedPrecondition().WithMessage(UserFmtIncorrect)
 	}
 
 	// 2. 密码强度
 	if regexputility.RegexpPassword(u.attr.Password) {
-		return status.FailedPrecondition().WithMessage(status.PasswordFmtIncorrect)
+		return status.FailedPrecondition().WithMessage(PasswordFmtIncorrect)
 	}
 
 	return nil
@@ -80,7 +80,7 @@ func (u *User) VerifyPassword(password string) (err error) {
 	}
 
 	if !pass {
-		return status.FailedPrecondition().WithMessage(status.PasswordIncorrect)
+		return status.FailedPrecondition().WithMessage(PasswordIncorrect)
 	}
 
 	return nil

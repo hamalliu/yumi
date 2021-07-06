@@ -9,7 +9,7 @@ import (
 // Status ...
 type Status struct {
 	code    int32
-	message string
+	message I18nMessageID
 	details []string
 }
 
@@ -27,12 +27,12 @@ func (s *Status) Code() codes.Code {
 }
 
 // Message ...
-func (s *Status) Message() string {
+func (s *Status) Message(language string) string {
 	if s == nil {
 		return ""
 	}
 
-	return s.message
+	return s.message.T(language)
 }
 
 // Details ...
@@ -58,7 +58,7 @@ func (s *Status) Error() string {
 		return ""
 	}
 
-	return fmt.Sprintf("status: code =%d desc = %s", s.code, s.message)
+	return fmt.Sprintf("status: code = %d; desc = %s", s.code, s.message)
 }
 
 // WithDetails ...
@@ -71,8 +71,7 @@ func (s *Status) WithDetails(details ...error) *Status {
 }
 
 // WithMessage ...
-func (s *Status) WithMessage(msg messageEntry) *Status {
-	// TODO 实现i18n
-	s.message = ""
+func (s *Status) WithMessage(msg I18nMessageID) *Status {
+	s.message = msg
 	return s
 }

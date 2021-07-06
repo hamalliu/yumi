@@ -1,13 +1,20 @@
 package onlyoffice
 
 import (
+	"time"
+	
 	"yumi/gin"
+	"yumi/gin/middleware"
 )
 
 //Mount ...
 func Mount(r gin.GroupRoutes) {
 	mr := r.Group("在线office", "media")
 
+	mr.Use(
+		middleware.AuthToken(""),
+		middleware.NoLoginSecurity(nil, time.Second*15),
+	)
 	mr.POST("上传", "/upload", Upload)
 	mr.POST("上传样板", "/sample", Sample)
 	mr.GET("获取编辑器", "/editor", Editor)

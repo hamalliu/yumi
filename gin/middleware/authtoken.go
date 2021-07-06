@@ -8,7 +8,7 @@ import (
 	"yumi/gin"
 	"yumi/gin/valuer"
 	"yumi/pkg/token"
-	"yumi/status"
+	"yumi/pkg/status"
 )
 
 const (

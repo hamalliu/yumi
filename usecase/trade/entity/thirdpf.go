@@ -5,7 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"yumi/status"
+	"yumi/pkg/status"
 )
 
 //StatusTradePlatform ...
@@ -16,11 +16,6 @@ const (
 	StatusTradePlatformSuccess StatusTradePlatform = "SUCCESS"
 	//StatusTradePlatformClosed 关闭
 	StatusTradePlatformClosed StatusTradePlatform = "CLOSED"
-	//StatusTradePlatformFinished 完成
-	StatusTradePlatformFinished StatusTradePlatform = "FINISHED"
-	//StatusTradePlatformError 错误（异常）
-	StatusTradePlatformError StatusTradePlatform = "ERROR"
-
 	//StatusTradePlatformNotPay 未支付
 	StatusTradePlatformNotPay StatusTradePlatform = "NOTPAY"
 	//StatusTradePlatformRefundProcessing 退款处理中

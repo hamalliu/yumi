@@ -2,7 +2,7 @@ package entity
 
 import (
 	"yumi/pkg/types"
-	"yumi/status"
+	"yumi/pkg/status"
 	"yumi/usecase/trade/entity/internal"
 )
 
@@ -113,7 +113,7 @@ func (m *OrderPay) Cancel() error {
 		}
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
-			return status.FailedPrecondition().WithMessage(status.OrderFinishedRefuseCancel)
+			return status.FailedPrecondition().WithMessage(OrderFinishedRefuseCancel)
 		}
 		err = thirdpf.TradeClose(*m.attr)
 		if err != nil {
@@ -132,7 +132,7 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 	if m.attr.Status == Submitted {
 		now := types.NowTimestamp()
 		if now > m.attr.TimeoutExpress {
-			return "", status.DeadlineExceeded().WithMessage(status.OrderTimeout)
+			return "", status.DeadlineExceeded().WithMessage(OrderTimeout)
 		}
 
 		thirdpf, err := GetThirdpf(Way(tradeWay))
@@ -157,27 +157,24 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 			return "", status.Internal().WithDetails(err)
 		}
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
+			// 设置已支付
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
-			return "", status.AlreadyExists().WithMessage(status.OrderAlreadyExists)
+			return "", status.AlreadyExists().WithMessage(OrderAlreadyExists)
 		} else if ret1.TradeStatus == StatusTradePlatformNotPay {
-			// 前提：如果该支付订单已支付，三方支付接口应该返回错误
-			err = thirdpf1.TradeClose(*m.attr)
+			// TODO: 直接返回之前数据
+		} else if ret1.TradeStatus == StatusTradePlatformClosed {
+			// 重新下单
+			thirdpf2, err := GetThirdpf(Way(tradeWay))
 			if err != nil {
 				return "", status.Internal().WithDetails(err)
 			}
+			m.setWaitPay(tradeWay, notifyURL, clientIP)
+			ret2, err := thirdpf2.Pay(*m.attr)
+			if err != nil {
+				return "", status.Internal().WithDetails(err)
+			}
+			return ret2.Data, nil
 		}
-
-		// 重新下单
-		thirdpf2, err := GetThirdpf(Way(tradeWay))
-		if err != nil {
-			return "", status.Internal().WithDetails(err)
-		}
-		m.setWaitPay(tradeWay, notifyURL, clientIP)
-		ret2, err := thirdpf2.Pay(*m.attr)
-		if err != nil {
-			return "", status.Internal().WithDetails(err)
-		}
-		return ret2.Data, nil
 	}
 
 	return "", status.InvalidRequest()
@@ -237,11 +234,4 @@ func (m *OrderPay) setPaid(transactionID, buyerLogonID string) {
 func (m *OrderPay) setCancelled() {
 	m.attr.Status = Cancelled
 	m.attr.CancelTime = types.NowTimestamp()
-}
-
-// setError 设置订单错误
-func (m *OrderPay) setError(remarks string) {
-	m.attr.Status = Error
-	m.attr.Remarks = remarks
-	m.attr.ErrorTime = types.NowTimestamp()
 }

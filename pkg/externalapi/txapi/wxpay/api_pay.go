@@ -37,25 +37,27 @@ const (
 )
 
 const (
-	//TradeStateSuccess ...
+	//TradeStateSuccess 支付成功，退款申请成功
 	TradeStateSuccess = "SUCCESS"
-	//TradeStateRefund ...
-	TradeStateRefund = "REFUND"
-	//TradeStateNotpay ...
-	TradeStateNotpay = "NOTPAY"
-	//TradeStateClosed ...
+	//TradeStateClosed 已关闭
 	TradeStateClosed = "CLOSED"
-	//TradeStateRevoked ...
+
+	//TradeStateRefund 转入退款
+	TradeStateRefund = "REFUND"
+	//TradeStateNotpay 未支付
+	TradeStateNotpay = "NOTPAY"
+	//TradeStateRevoked 已撤销（付款码支付）
 	TradeStateRevoked = "REVOKED"
-	//TradeStateUserPaying ...
+	//TradeStateUserPaying 用户支付中（付款码支付）
 	TradeStateUserPaying = "USERPAYING"
-	//TradeStatePayError ...
+	//TradeStatePayError 支付失败(其他原因，如银行返回失败)
 	TradeStatePayError = "PAYERROR"
-	//TradeStateRefundClose ...
+	//TradeStateRefundClose 已接收，等待扣款
 	TradeStateRefundClose = "REFUNDCLOSE"
-	//TradeStateProcessing ...
+	
+	//TradeStateProcessing 退款处理中
 	TradeStateProcessing = "PROCESSING"
-	//TradeStateChange ...
+	//TradeStateChange 退款异常
 	TradeStateChange = "CHANGE"
 )
 

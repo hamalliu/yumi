@@ -10,7 +10,7 @@ import (
 	"yumi/gin/valuer"
 	"yumi/pkg/binding"
 	"yumi/pkg/codec"
-	"yumi/status"
+	"yumi/pkg/status"
 )
 
 func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) {
@@ -38,7 +38,7 @@ func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) 
 	}{}
 	respObj.Code = int(s.Code())
 	respObj.Status = s.Code().String()
-	respObj.Message = s.Message()
+	respObj.Message = s.Message(c.Request.Header.Get("Accept-Language"))
 	respObj.Details = s.Details()
 	respObj.Data = data
 

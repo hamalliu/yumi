@@ -11,7 +11,7 @@ import (
 	"yumi/gin/security"
 	"yumi/gin/valuer"
 	"yumi/pkg/codec"
-	"yumi/status"
+	"yumi/pkg/status"
 )
 
 var (

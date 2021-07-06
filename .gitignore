@@ -1,8 +1,8 @@
 *.exe
-tmp.json
+*.code-workspace
 .idea
 .vscode
-yumi.code-workspace
 logfile
 test
 pay_record
+tmp.json

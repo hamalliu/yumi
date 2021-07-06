@@ -95,11 +95,13 @@ func (intnl Internal) QueryPayStatus(op entity.OrderPayAttribute) (entity.Return
 	switch resp.TradeState {
 	case wxpay.TradeStateSuccess:
 		ret.TradeStatus = entity.StatusTradePlatformSuccess
-	case wxpay.TradeStateNotpay, wxpay.TradeStateUserPaying, wxpay.TradeStatePayError,
-		wxpay.TradeStateRefund, wxpay.TradeStateRevoked:
+
+	case wxpay.TradeStateRefund, wxpay.TradeStateNotpay, wxpay.TradeStateUserPaying:
 		ret.TradeStatus = entity.StatusTradePlatformNotPay
-	case wxpay.TradeStateClosed:
+
+	case wxpay.TradeStateClosed, wxpay.TradeStatePayError, wxpay.TradeStateRevoked:
 		ret.TradeStatus = entity.StatusTradePlatformClosed
+
 	default:
 		err := fmt.Errorf("微信支付状态发生变动，请管理员及时更改")
 		return ret, err
@@ -190,12 +192,12 @@ func (intnl Internal) QueryRefundStatus(op entity.OrderPayAttribute, or entity.O
 	switch resp.RefundStatusn {
 	case wxpay.TradeStateSuccess:
 		ret.TradeStatus = entity.StatusTradePlatformSuccess
-	case wxpay.TradeStateRefundClose:
+
+	case wxpay.TradeStateChange, wxpay.TradeStateClosed:
 		ret.TradeStatus = entity.StatusTradePlatformClosed
+
 	case wxpay.TradeStateProcessing:
 		ret.TradeStatus = entity.StatusTradePlatformRefundProcessing
-	case wxpay.TradeStateChange:
-		ret.TradeStatus = entity.StatusTradePlatformError
 	default:
 		err := fmt.Errorf("微信退款状态未识别 %s", resp.RefundStatusn)
 		return ret, err

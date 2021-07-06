@@ -2,9 +2,10 @@ package media
 
 import (
 	"net/http"
+	
 	"yumi/conf"
 	"yumi/gin"
-	"yumi/status"
+	"yumi/pkg/status"
 	"yumi/usecase/media"
 )
 

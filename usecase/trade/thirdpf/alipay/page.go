@@ -128,14 +128,12 @@ func (alipp Page) QueryPayStatus(op entity.OrderPayAttribute) (entity.ReturnQuer
 	ret.BuyerLogonID = resp.BuyerlogonID
 
 	switch ret.TradeStatus {
-	case alipay.TradeStatusSuccess:
+	case alipay.TradeStatusFinished, alipay.TradeStatusSuccess:
 		ret.TradeStatus = entity.StatusTradePlatformSuccess
 	case alipay.TradeStatusWaitBuyerPay:
 		ret.TradeStatus = entity.StatusTradePlatformNotPay
 	case alipay.TradeStatusCloseed:
 		ret.TradeStatus = entity.StatusTradePlatformClosed
-	case alipay.TradeStatusFinished:
-		ret.TradeStatus = entity.StatusTradePlatformFinished
 	default:
 		err := fmt.Errorf("支付宝状态发生变动，请管理员及时更改")
 		return ret, err
