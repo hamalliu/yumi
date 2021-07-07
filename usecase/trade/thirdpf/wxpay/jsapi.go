@@ -11,8 +11,8 @@ import (
 )
 
 //NewJsapi ...
-func NewJsapi() Jsapi {
-	return Jsapi{}
+func NewJsapi(data Data) Jsapi {
+	return Jsapi{Internal: Internal{data: data}}
 }
 
 //Jsapi ...

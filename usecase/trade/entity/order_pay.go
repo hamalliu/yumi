@@ -1,8 +1,8 @@
 package entity
 
 import (
-	"yumi/pkg/types"
 	"yumi/pkg/status"
+	"yumi/pkg/types"
 	"yumi/usecase/trade/entity/internal"
 )
 
@@ -80,12 +80,13 @@ type OrderPayAttribute struct {
 
 // OrderPay ...
 type OrderPay struct {
-	attr *OrderPayAttribute
+	attr  *OrderPayAttribute
+	trade Trade
 }
 
 // NewOrderPay ...
-func NewOrderPay(attr *OrderPayAttribute) OrderPay {
-	return OrderPay{attr: attr}
+func NewOrderPay(attr *OrderPayAttribute, trade Trade) OrderPay {
+	return OrderPay{attr: attr, trade: trade}
 }
 
 // Submit ...
@@ -103,11 +104,7 @@ func (m *OrderPay) Cancel() error {
 	if m.attr.Status == Submitted {
 		m.setCancelled()
 	} else if m.attr.Status == WaitPay {
-		thirdpf, err := GetThirdpf(Way(m.attr.TradeWay))
-		if err != nil {
-			return err
-		}
-		ret1, err := thirdpf.QueryPayStatus(*m.attr)
+		ret1, err := m.trade.QueryPayStatus(*m.attr)
 		if err != nil {
 			return err
 		}
@@ -115,7 +112,7 @@ func (m *OrderPay) Cancel() error {
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
 			return status.FailedPrecondition().WithMessage(OrderFinishedRefuseCancel)
 		}
-		err = thirdpf.TradeClose(*m.attr)
+		err = m.trade.TradeClose(*m.attr)
 		if err != nil {
 			return err
 		}
@@ -128,31 +125,22 @@ func (m *OrderPay) Cancel() error {
 }
 
 // Pay ...
-func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
+func (m *OrderPay) Pay(curTrade Trade, tradeWay, notifyURL, clientIP string) (string, error) {
 	if m.attr.Status == Submitted {
 		now := types.NowTimestamp()
 		if now > m.attr.TimeoutExpress {
 			return "", status.DeadlineExceeded().WithMessage(OrderTimeout)
 		}
 
-		thirdpf, err := GetThirdpf(Way(tradeWay))
-		if err != nil {
-			return "", status.Internal().WithDetails(err)
-		}
-
 		m.setWaitPay(tradeWay, notifyURL, clientIP)
-		ret, err := thirdpf.Pay(*m.attr)
+		ret, err := curTrade.Pay(*m.attr)
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
 
 		return ret.Data, nil
 	} else if m.attr.Status == WaitPay {
-		thirdpf1, err := GetThirdpf(Way(m.attr.TradeWay))
-		if err != nil {
-			return "", status.Internal().WithDetails(err)
-		}
-		ret1, err := thirdpf1.QueryPayStatus(*m.attr)
+		ret1, err := m.trade.QueryPayStatus(*m.attr)
 		if err != nil {
 			return "", status.Internal().WithDetails(err)
 		}
@@ -163,13 +151,8 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 		} else if ret1.TradeStatus == StatusTradePlatformNotPay {
 			// TODO: 直接返回之前数据
 		} else if ret1.TradeStatus == StatusTradePlatformClosed {
-			// 重新下单
-			thirdpf2, err := GetThirdpf(Way(tradeWay))
-			if err != nil {
-				return "", status.Internal().WithDetails(err)
-			}
 			m.setWaitPay(tradeWay, notifyURL, clientIP)
-			ret2, err := thirdpf2.Pay(*m.attr)
+			ret2, err := curTrade.Pay(*m.attr)
 			if err != nil {
 				return "", status.Internal().WithDetails(err)
 			}
@@ -182,14 +165,9 @@ func (m *OrderPay) Pay(tradeWay, notifyURL, clientIP string) (string, error) {
 
 // QueryPaid ...
 func (m *OrderPay) QueryPaid() (bool, error) {
-	thirdpf, err := GetThirdpf(Way(m.attr.TradeWay))
-	if err != nil {
-		return false, err
-	}
-
 	if m.attr.Status == WaitPay {
 		//查询支付状态
-		tpq, err := thirdpf.QueryPayStatus(*m.attr)
+		tpq, err := m.trade.QueryPayStatus(*m.attr)
 		if err != nil {
 			return false, err
 		}

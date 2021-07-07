@@ -1,4 +1,4 @@
-package trade
+package service
 
 import (
 	"yumi/pkg/types"

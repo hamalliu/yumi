@@ -11,8 +11,8 @@ type Native2 struct {
 }
 
 //NewNative2 ...
-func NewNative2() Native2 {
-	return Native2{}
+func NewNative2(data Data) Native2 {
+	return Native2{Internal: Internal{data: data}}
 }
 
 //Pay 发起支付

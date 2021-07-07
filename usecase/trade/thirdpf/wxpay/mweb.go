@@ -8,7 +8,7 @@ import (
 )
 
 //NewMweb ...
-func NewMweb(conf MwebConfig) Mweb {
+func NewMweb(conf MwebConfig, data Data) Mweb {
 	mweb := Mweb{}
 	mweb.conf = conf
 	bytes, err := json.Marshal(conf)
@@ -16,6 +16,7 @@ func NewMweb(conf MwebConfig) Mweb {
 		panic(err)
 	}
 	mweb.sceneInfo = string(bytes)
+	mweb.Internal = Internal{data: data}
 	return mweb
 }
 

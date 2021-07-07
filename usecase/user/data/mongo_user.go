@@ -7,32 +7,56 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"yumi/pkg/sessions"
+	"yumi/pkg/stores/mgoc"
 	"yumi/usecase/user"
 	"yumi/usecase/user/entity"
 )
 
-// MongoDB ...
-type MongoDB struct {
-	*mongo.Database
+// MongoCli ...
+type MongoCli struct {
+	*mgoc.Client
 }
 
-var _ user.Data = &MongoDB{}
+var _ user.Data = &MongoCli{}
 
 // New ...
-func New(db *mongo.Database) *MongoDB {
-	return &MongoDB{Database: db}
+func New(cli *mgoc.Client) *MongoCli {
+	return &MongoCli{Client: cli}
 }
 
-func (db *MongoDB) collUsers() *mongo.Collection {
-	return db.Collection("users")
+type MongoTX struct {
+	*MongoCli
+	*mgoc.MongoTX
+}
+
+func (tx MongoTX) Ctx() context.Context {
+	return tx.Sctx
+}
+
+func (cli *MongoCli) NewTx() (*MongoTX, error) {
+	sess, err := cli.StartSession()
+	if err != nil {
+		return nil, err
+	}
+
+	sctx := mongo.NewSessionContext(cli.Ctx(), sess)
+
+	return &MongoTX{MongoCli: cli, MongoTX: &mgoc.MongoTX{Sctx: sctx}}, nil
+}
+
+func (cli *MongoCli) collUsers() *mongo.Collection {
+	return cli.Database("yumi").Collection("users")
+}
+
+func (cli *MongoCli) Ctx() context.Context {
+	return context.Background()
 }
 
 // Create ...
-func (db *MongoDB) Create(ua entity.UserAttribute) error {
-	coll := db.collUsers()
+func (cli *MongoCli) Create(ua entity.UserAttribute) error {
+	coll := cli.collUsers()
 
-	ctx := context.Background()
-	_, err := coll.InsertOne(ctx, ua)
+	_, err := coll.InsertOne(cli.Ctx(), ua)
 	if err != nil {
 		return err
 	}
@@ -41,11 +65,10 @@ func (db *MongoDB) Create(ua entity.UserAttribute) error {
 }
 
 // Update ...
-func (db *MongoDB) Update(ua entity.UserAttribute) error {
-	coll := db.collUsers()
+func (cli *MongoCli) Update(ua entity.UserAttribute) error {
+	coll := cli.collUsers()
 
-	ctx := context.Background()
-	_, err := coll.ReplaceOne(ctx, primitive.M{"user_uuid": ua.UserUUID}, ua)
+	_, err := coll.ReplaceOne(cli.Ctx(), primitive.M{"user_uuid": ua.UserUUID}, ua)
 	if err != nil {
 		return err
 	}
@@ -53,11 +76,10 @@ func (db *MongoDB) Update(ua entity.UserAttribute) error {
 }
 
 // Get ...
-func (db *MongoDB) Get(ids entity.UserAttributeIDs) (ua entity.UserAttribute, err error) {
-	coll := db.collUsers()
+func (cli *MongoCli) Get(ids entity.UserAttributeIDs) (ua entity.UserAttribute, err error) {
+	coll := cli.collUsers()
 
-	ctx := context.Background()
-	ret := coll.FindOne(ctx, db.filterIDs(ids))
+	ret := coll.FindOne(cli.Ctx(), cli.filterIDs(ids))
 	if ret.Err() != nil {
 		err = ret.Err()
 		return
@@ -72,11 +94,10 @@ func (db *MongoDB) Get(ids entity.UserAttributeIDs) (ua entity.UserAttribute, er
 }
 
 // Exist ...
-func (db *MongoDB) Exist(ids entity.UserAttributeIDs) (exist bool, ua entity.UserAttribute, err error) {
-	coll := db.collUsers()
+func (cli *MongoCli) Exist(ids entity.UserAttributeIDs) (exist bool, ua entity.UserAttribute, err error) {
+	coll := cli.collUsers()
 
-	ctx := context.Background()
-	ret := coll.FindOne(ctx, db.filterIDs(ids))
+	ret := coll.FindOne(cli.Ctx(), cli.filterIDs(ids))
 	if ret.Err() != nil {
 		err = ret.Err()
 		if err == mongo.ErrNoDocuments {
@@ -93,7 +114,7 @@ func (db *MongoDB) Exist(ids entity.UserAttributeIDs) (exist bool, ua entity.Use
 	return true, ua, nil
 }
 
-func (db *MongoDB) filterIDs(ids entity.UserAttributeIDs) map[string]interface{} {
+func (cli *MongoCli) filterIDs(ids entity.UserAttributeIDs) map[string]interface{} {
 	filter := make(map[string]interface{})
 	if ids.UserUUID != "" {
 		filter["user_uuid"] = ids.UserUUID
@@ -112,6 +133,6 @@ func (db *MongoDB) filterIDs(ids entity.UserAttributeIDs) map[string]interface{}
 }
 
 // GetSessionsStore ...
-func (db *MongoDB) GetSessionsStore() sessions.Store {
+func (cli *MongoCli) GetSessionsStore() sessions.Store {
 	return nil
 }

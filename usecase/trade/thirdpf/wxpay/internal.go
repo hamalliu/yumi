@@ -12,7 +12,9 @@ import (
 )
 
 //Internal ...
-type Internal struct{}
+type Internal struct{
+	data Data
+}
 
 //PayNotifyReq ...
 func (intnl Internal) PayNotifyReq(req *http.Request) (entity.ReturnPayNotify, error) {
@@ -267,7 +269,7 @@ func (intnl Internal) getMch(sellerKey string) (wxpay.Merchant, error) {
 	ret := wxpay.Merchant{}
 
 	//获取收款商户信息
-	mch, err := getData().GetWxPayMerchant(FilterMerchantIDs{SellerKey: sellerKey})
+	mch, err := intnl.data.GetWxPayMerchant(FilterMerchantIDs{SellerKey: sellerKey})
 	if err != nil {
 		return ret, err
 	}
@@ -282,7 +284,7 @@ func (intnl Internal) getMch2(mchID string) (wxpay.Merchant, error) {
 	ret := wxpay.Merchant{}
 
 	//获取收款商户信息
-	mch, err := getData().GetWxPayMerchant(FilterMerchantIDs{MchID: mchID})
+	mch, err := intnl.data.GetWxPayMerchant(FilterMerchantIDs{MchID: mchID})
 	if err != nil {
 		return ret, err
 	}

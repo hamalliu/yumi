@@ -13,8 +13,8 @@ import (
 )
 
 //NewApp ...
-func NewApp() App {
-	return App{}
+func NewApp(data Data) App {
+	return App{Internal: Internal{data: data}}
 }
 
 //App ...

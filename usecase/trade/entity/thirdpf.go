@@ -2,10 +2,6 @@ package entity
 
 import (
 	"net/http"
-
-	"github.com/pkg/errors"
-
-	"yumi/pkg/status"
 )
 
 //StatusTradePlatform ...
@@ -70,6 +66,7 @@ type Trade interface {
 	QueryPayStatus(op OrderPayAttribute) (ReturnQueryPay, error)
 	// 关闭交易
 	TradeClose(op OrderPayAttribute) error
+
 	// 退款
 	Refund(op OrderPayAttribute, or OrderRefundAttribute) error
 	// 查询退款状态
@@ -81,30 +78,4 @@ type Trade interface {
 	RefundNotifyCheck(op OrderPayAttribute, or OrderRefundAttribute, reqData interface{}) error
 	// 应答
 	RefundNotifyResp(err error, resp http.ResponseWriter)
-}
-
-//Way ...
-type Way string
-
-var trades map[Way]Trade
-
-//RegisterTrade 注册交易方式
-func RegisterTrade(way Way, trade Trade) {
-	if trades == nil {
-		trades = make(map[Way]Trade)
-	}
-	trades[way] = trade
-}
-
-// GetThirdpf ...
-func GetThirdpf(tradeWay Way) (Trade, error) {
-	if trades[tradeWay] == nil {
-		return nil, status.Internal().WithDetails(errors.New("unsupported trade way"))
-	}
-	return trades[tradeWay], nil
-}
-
-//Merchant 商户应该实现的接口
-type Merchant interface {
-	BuildOutTradeNo()
 }

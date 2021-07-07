@@ -1,12 +1,11 @@
 package data
 
 import (
-	"go.mongodb.org/mongo-driver/mongo"
-
+	"yumi/pkg/stores/mgoc"
 	"yumi/usecase/user"
 )
 
 // Init ...
-func Init(db *mongo.Database) {
-	user.InitData(New(db))
+func Init(cli *mgoc.Client) {
+	user.InitData(New(cli))
 }

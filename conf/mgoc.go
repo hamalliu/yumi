@@ -9,7 +9,6 @@ import (
 // Mongo mongodb 数据库配置
 type Mongo struct {
 	Dsn               string
-	DBName            string
 	MaxPoolSize       uint64             // 连接池最多打开连接数
 	MinPoolSize       uint64             // 连接池最少打开连接数
 	MaxConnIdleTime   types.TimeDuration // 空闲连接断开时间

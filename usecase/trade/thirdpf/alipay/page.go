@@ -12,11 +12,13 @@ import (
 //AliPayPage ...
 
 //Page ...
-type Page string
+type Page struct {
+	data Data
+}
 
 //NewPage ...
-func NewPage() Page {
-	return ""
+func NewPage(data Data) Page {
+	return Page{data: data}
 }
 
 //Pay 发起支付
@@ -227,7 +229,7 @@ func (alipp Page) RefundNotifyResp(err error, resp http.ResponseWriter) {
 func (alipp Page) getMch(sellerKey string) (alipay.Merchant, error) {
 	ret := alipay.Merchant{}
 	//获取收款商户信息
-	mch, err := getData().GetAliPayMerchant(sellerKey)
+	mch, err := alipp.data.GetAliPayMerchant(sellerKey)
 	if err != nil {
 		return ret, err
 	}

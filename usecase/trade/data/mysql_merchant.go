@@ -26,7 +26,7 @@ func (db *MysqlDB) GetWxPayMerchant(req wxpay.FilterMerchantIDs) (mch entity.WxP
 		wx_pay_merchants 
 	WHERE 
 		seller_key = ?`
-	if err = db.Get(&mch, sqlStr, req.SellerKey); err != nil {
+	if err = db.curd.Get(&mch, sqlStr, req.SellerKey); err != nil {
 		return mch, errors.WithStack(err)
 	}
 
@@ -51,7 +51,7 @@ func (db *MysqlDB) GetAliPayMerchant(sellerKey string) (mch entity.AliPayMerchan
 		ali_pay_merchants 
 	WHERE 
 		seller_key = ?`
-	if err = db.Get(&mch, sqlStr, sellerKey); err != nil {
+	if err = db.curd.Get(&mch, sqlStr, sellerKey); err != nil {
 		return mch, errors.WithStack(err)
 	}
 	return

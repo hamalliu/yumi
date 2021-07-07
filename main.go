@@ -43,7 +43,7 @@ func main() {
 	middleware.InitCasbin("", nil) //TODO:
 
 	log.Info("初始化usecase")
-	usecase.Init(mgoCli.Database(mgoConf.DBName), myCLi)
+	usecase.Init(mgoCli, myCLi)
 
 	log.Info("构建服务器")
 	srvconf := conf.Get().HttpServer

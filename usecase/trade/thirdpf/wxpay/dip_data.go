@@ -14,13 +14,3 @@ type FilterMerchantIDs struct {
 type Data interface {
 	GetWxPayMerchant(ids FilterMerchantIDs) (entity.WxPayMerchant, error)
 }
-
-// InitData ...
-func InitData(data Data) {
-	_data = data
-}
-
-// getData ...
-func getData() Data {
-	return _data
-}

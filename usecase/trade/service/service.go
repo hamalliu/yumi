@@ -1,35 +1,39 @@
-package trade
+package service
 
 import (
 	"net/http"
 
 	"yumi/pkg/status"
 	"yumi/usecase/trade/entity"
+	"yumi/usecase/trade/thirdpf"
 )
-
-const timeFormat = "2006-01-02 15:04:05.999"
 
 // Service ...
 type Service struct {
+	data   Data
+	trades thirdpf.Trades
 }
 
 // New a Service object
-func New() (*Service, error) {
+func New(data Data, trades *thirdpf.Trades) (*Service, error) {
 	return &Service{}, nil
 }
 
 // CreateOrderPay 提交支付订单
 func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPayResponse, err error) {
 	attr := req.Attribute()
-	op := entity.NewOrderPay(&attr)
+	trade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
+	if err != nil {
+		return
+	}
+	op := entity.NewOrderPay(&attr, trade)
 	err = op.Submit()
 	if err != nil {
 		return
 	}
 
-	data := getData()
 	// 持久化
-	err = data.CreateOrderPay(attr)
+	err = s.data.CreateOrderPay(attr)
 	if err != nil {
 		return
 	}
@@ -40,19 +44,21 @@ func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPay
 
 // CancelOrderPay 取消支付订单
 func (s *Service) CancelOrderPay(code string) (err error) {
-	data := getData()
-
-	attr, err := data.GetOrderPay(code)
+	attr, err := s.data.GetOrderPay(code)
 	if err != nil {
 		return err
 	}
-	op := entity.NewOrderPay(&attr)
+	trade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
+	if err != nil {
+		return
+	}
+	op := entity.NewOrderPay(&attr, trade)
 	err = op.Cancel()
 	if err != nil {
 		return err
 	}
 
-	err = data.UpdateOrderPay(attr)
+	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
 		return err
 	}
@@ -62,21 +68,27 @@ func (s *Service) CancelOrderPay(code string) (err error) {
 
 // Pay 发起支付
 func (s *Service) Pay(req PayRequest) (PayResponse, error) {
-	data := getData()
 	resp := PayResponse{}
 
-	attr, err := data.GetOrderPay(req.Code)
+	attr, err := s.data.GetOrderPay(req.Code)
+	if err != nil {
+		return resp, err
+	}
+	trade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
+	if err != nil {
+		return resp, err
+	}
+	op := entity.NewOrderPay(&attr, trade)
+	curTrade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
+	if err != nil {
+		return resp, err
+	}
+	resp.Data, err = op.Pay(curTrade, req.TradeWay, req.ClientIP, req.NotifyURL)
 	if err != nil {
 		return resp, err
 	}
 
-	op := entity.NewOrderPay(&attr)
-	resp.Data, err = op.Pay(req.TradeWay, req.ClientIP, req.NotifyURL)
-	if err != nil {
-		return resp, err
-	}
-
-	err = data.UpdateOrderPay(attr)
+	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
 		return resp, err
 	}
@@ -87,19 +99,21 @@ func (s *Service) Pay(req PayRequest) (PayResponse, error) {
 
 // QueryPaid 查询支付成功（只查询待支付订单）
 func (s *Service) QueryPaid(code string) (paid bool, err error) {
-	data := getData()
-
-	attr, err := data.GetOrderPay(code)
+	attr, err := s.data.GetOrderPay(code)
 	if err != nil {
 		return
 	}
-	op := entity.NewOrderPay(&attr)
+	trade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
+	if err != nil {
+		return
+	}
+	op := entity.NewOrderPay(&attr, trade)
 	paid, err = op.QueryPaid()
 	if err != nil {
 		return
 	}
 
-	err = data.UpdateOrderPay(attr)
+	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
 		return
 	}
@@ -109,52 +123,55 @@ func (s *Service) QueryPaid(code string) (paid bool, err error) {
 
 // PayNotify 支付通知(待支付时处理通知)
 func (s *Service) PayNotify(tradeWay string, w http.ResponseWriter, req *http.Request) error {
-	thirdpf, err := entity.GetThirdpf(entity.Way(tradeWay))
+	curTrade, err := s.trades.GetTrade(thirdpf.Way(tradeWay))
 	if err != nil {
-		thirdpf.PayNotifyResp(err, w)
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 
 	//解析通知参数
-	ret, err := thirdpf.PayNotifyReq(req)
+	ret, err := curTrade.PayNotifyReq(req)
 	if err != nil {
-		thirdpf.PayNotifyResp(err, w)
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 
-	data := getData()
-	attr, err := data.GetOrderPay(ret.OrderPayCode)
+	attr, err := s.data.GetOrderPay(ret.OrderPayCode)
 	if err != nil {
-		thirdpf.PayNotifyResp(err, w)
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 	//检查通知参数
-	if err := thirdpf.PayNotifyCheck(attr, ret.ReqData); err != nil {
-		thirdpf.PayNotifyResp(err, w)
+	if err := curTrade.PayNotifyCheck(attr, ret.ReqData); err != nil {
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 
 	// 处理notify
-	op := entity.NewOrderPay(&attr)
+	trade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
+	if err != nil {
+		return err
+	}
+	op := entity.NewOrderPay(&attr, trade)
 	paid, err := op.QueryPaid()
 	if err != nil {
-		thirdpf.PayNotifyResp(err, w)
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 	if !paid {
 		err = status.InvalidRequest()
-		thirdpf.PayNotifyResp(err, w)
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 
 	// 持久化
-	err = data.UpdateOrderPay(attr)
+	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
-		thirdpf.PayNotifyResp(err, w)
+		curTrade.PayNotifyResp(err, w)
 		return err
 	}
 
-	thirdpf.PayNotifyResp(nil, w)
+	curTrade.PayNotifyResp(nil, w)
 	return nil
 }
 

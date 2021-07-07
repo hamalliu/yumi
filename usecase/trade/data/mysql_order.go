@@ -3,22 +3,8 @@ package data
 import (
 	"github.com/pkg/errors"
 
-	"yumi/pkg/stores/dbc/mysqlx"
-	"yumi/usecase/trade"
 	"yumi/usecase/trade/entity"
 )
-
-// MysqlDB ...
-type MysqlDB struct {
-	*mysqlx.Client
-}
-
-// New ...
-func New(db *mysqlx.Client) *MysqlDB {
-	return &MysqlDB{Client: db}
-}
-
-var _ trade.Data = &MysqlDB{}
 
 // CreateOrderPay ...
 func (db *MysqlDB) CreateOrderPay(attr entity.OrderPayAttribute) error {
@@ -31,7 +17,7 @@ func (db *MysqlDB) CreateOrderPay(attr entity.OrderPayAttribute) error {
 		VALUES 
 			(?, ?, ?, ?, ?,  ?, ?, ?, ?, ?, ?)`
 	var err error
-	if _, err = db.Insert(sqlStr,
+	if _, err = db.curd.Insert(sqlStr,
 		attr.Code, attr.BuyerAccountGUID, attr.SellerKey, attr.OutTradeNo, attr.NotifyURL, attr.TotalFee, attr.Body, attr.Detail,
 		attr.TimeoutExpress, attr.SubmitTime, attr.Status); err != nil {
 		return errors.WithStack(err)
@@ -69,7 +55,7 @@ func (db *MysqlDB) UpdateOrderPay(attr entity.OrderPayAttribute) error {
 			"remarks" = ?
 		WHERE 
 			"code" = ?`
-	if _, err := db.Exec(sqlStr, attr.TradeWay, attr.SellerKey, attr.AppID, attr.MchID, attr.TransactionID, attr.NotifyURL, attr.BuyerLogonID,
+	if _, err := db.curd.Exec(sqlStr, attr.TradeWay, attr.SellerKey, attr.AppID, attr.MchID, attr.TransactionID, attr.NotifyURL, attr.BuyerLogonID,
 		attr.SpbillCreateIP, attr.BuyerAccountGUID, attr.TotalFee, attr.Body, attr.Detail, attr.OutTradeNo, attr.TimeoutExpress, attr.PayExpire,
 		attr.PayTime, attr.CancelTime, attr.ErrorTime, attr.SubmitTime, attr.Status, attr.Remarks, attr.Code); err != nil {
 		return errors.WithStack(err)
@@ -111,7 +97,7 @@ func (db *MysqlDB) GetOrderPay(code string) (op entity.OrderPayAttribute, err er
 			WHERE 
 				"code" = ?
 			`
-	if err = db.Get(&op, sqlStr, code); err != nil {
+	if err = db.curd.Get(&op, sqlStr, code); err != nil {
 		return op, errors.WithStack(err)
 	}
 	return op, nil
@@ -127,7 +113,7 @@ func (db *MysqlDB) CreateOrderRefund(attr entity.OrderRefundAttribute) error {
 			"refund_fee", "refund_desc", "submit_time", "timeout_express", "status") 
 			VALUES 
 			(?, ?, ?, ?, ?,  ?, ?, ?, ?, ?,  ?, ?)`
-	if _, err := db.Insert(sqlStr,
+	if _, err := db.curd.Insert(sqlStr,
 		attr.Code, attr.RefundAccountGUID, attr.SerialNum, attr.NotifyURL, attr.RefundAccountGUID, attr.RefundWay, attr.OutRefundNo,
 		attr.RefundFee, attr.RefundDesc, attr.SubmitTime, attr.TimeoutExpress, attr.Status); err != nil {
 		return errors.WithStack(err)
@@ -157,7 +143,7 @@ func (db *MysqlDB) UpdateOrderRefund(attr entity.OrderRefundAttribute) error {
 			"remarks" = ?
 		WHERE 
 			"code" = ?`
-	if _, err := db.Exec(sqlStr, attr.SerialNum, attr.NotifyURL, attr.RefundAccountGUID, attr.RefundWay, attr.RefundID, attr.OutRefundNo,
+	if _, err := db.curd.Exec(sqlStr, attr.SerialNum, attr.NotifyURL, attr.RefundAccountGUID, attr.RefundWay, attr.RefundID, attr.OutRefundNo,
 		attr.RefundFee, attr.RefundDesc, attr.RefundedTime, attr.SubmitTime, attr.CancelTime, attr.Status, attr.Remarks, attr.Code); err != nil {
 		return errors.WithStack(err)
 	}
@@ -191,7 +177,7 @@ func (db *MysqlDB) GetOrderRefund(code string) (or entity.OrderRefundAttribute, 
 		WHERE 
 			code = ?
 			`
-	if err := db.Get(&or, sqlStr, code); err != nil {
+	if err := db.curd.Get(&or, sqlStr, code); err != nil {
 		return or, errors.WithStack(err)
 	}
 
