@@ -1,11 +1,9 @@
-package user
+package service
 
 import (
-	"yumi/usecase/user/entity"
 	"yumi/pkg/sessions"
+	"yumi/usecase/user/entity"
 )
-
-var _data Data
 
 // Data ...
 type Data interface {
@@ -15,14 +13,4 @@ type Data interface {
 	Exist(ids entity.UserAttributeIDs) (bool, entity.UserAttribute, error)
 
 	GetSessionsStore() sessions.Store
-}
-
-// InitData ...
-func InitData(data Data) {
-	_data = data
-}
-
-// GetData ...
-func GetData() Data {
-	return _data
 }

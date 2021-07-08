@@ -1,4 +1,4 @@
-package user
+package service
 
 import (
 	"yumi/pkg/status"
@@ -7,17 +7,16 @@ import (
 
 // Service ...
 type Service struct {
+	data Data
 }
 
 // New a Service object
-func New() (*Service, error) {
-	return &Service{}, nil
+func New(data Data) (*Service, error) {
+	return &Service{data: data}, nil
 }
 
 // Create ...
 func (s *Service) Create(req CreateRequest) (err error) {
-	data := GetData()
-
 	ua := req.userAttribute()
 	u := entity.NewUser(&ua)
 	err = u.LawEnforcement()
@@ -30,7 +29,7 @@ func (s *Service) Create(req CreateRequest) (err error) {
 	}
 
 	// 持久化
-	err = data.Create(ua)
+	err = s.data.Create(ua)
 	if err != nil {
 		return err
 	}
@@ -46,10 +45,9 @@ func (s *Service) Disable(req DisableRequest) (err error) {
 // LoginByBcrypt ...
 // 密码必须经过MD5加密
 func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse, error) {
-	data := GetData()
 	resp := LoginByBcryptResponse{}
 
-	exist, attr, err := data.Exist(entity.UserAttributeIDs{UserID: req.UserID})
+	exist, attr, err := s.data.Exist(entity.UserAttributeIDs{UserID: req.UserID})
 	if err != nil {
 		return resp, err
 	}
@@ -64,7 +62,7 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 	}
 
 	//构建session
-	sessID, err := u.Session(data.GetSessionsStore(), req.UserID, req.Password, req.Client)
+	sessID, err := u.Session(s.data.GetSessionsStore(), req.UserID, req.Password, req.Client)
 	if err != nil {
 		return resp, err
 	}

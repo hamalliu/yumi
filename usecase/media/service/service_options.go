@@ -1,4 +1,4 @@
-package media
+package service
 
 // ServiceOption ...
 type ServiceOption struct {

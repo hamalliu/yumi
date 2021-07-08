@@ -8,21 +8,8 @@ import (
 
 	"yumi/pkg/sessions"
 	"yumi/pkg/stores/mgoc"
-	"yumi/usecase/user"
 	"yumi/usecase/user/entity"
 )
-
-// MongoCli ...
-type MongoCli struct {
-	*mgoc.Client
-}
-
-var _ user.Data = &MongoCli{}
-
-// New ...
-func New(cli *mgoc.Client) *MongoCli {
-	return &MongoCli{Client: cli}
-}
 
 type MongoTX struct {
 	*MongoCli

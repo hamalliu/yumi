@@ -1,4 +1,4 @@
-package media
+package service
 
 import "yumi/usecase/media/entity"
 
@@ -7,17 +7,17 @@ type Config struct{}
 
 // Service ...
 type Service struct {
-	conf Config
+	data Data
 }
 
 // New a Service object
-func New(options ...ServiceOption) (*Service, error) {
+func New(data Data, options ...ServiceOption) (*Service, error) {
 	do := serviceOptions{}
 	for _, option := range options {
 		option.f(&do)
 	}
 
-	return nil, nil
+	return &Service{data: data}, nil
 }
 
 // Create a media file
@@ -30,8 +30,7 @@ func (s *Service) Create(f FileInfo) (resp CreateResponse, err error) {
 	}
 
 	// 持久化
-	data := GetData()
-	err = data.Create(attr)
+	err = s.data.Create(attr)
 	if err != nil {
 		return
 	}

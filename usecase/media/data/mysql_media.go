@@ -1,19 +1,8 @@
 package data
 
 import (
-	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/usecase/media/entity"
 )
-
-// MysqlDB ...
-type MysqlDB struct {
-	*mysqlx.Client
-}
-
-// New ...
-func New(db *mysqlx.Client) *MysqlDB {
-	return &MysqlDB{Client: db}
-}
 
 //Create ...
 func (db *MysqlDB) Create(ma entity.MediaAttribute) error {
