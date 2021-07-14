@@ -9,15 +9,6 @@ import (
 	"yumi/usecase/media"
 )
 
-var mediaSrv *media.Service
-
-func init() {
-	var err error
-	mediaSrv, err = media.New()
-	if err != nil {
-		panic(err)
-	}
-}
 
 //UploadMultiple 多文件上传
 func UploadMultiple(c *gin.Context) {

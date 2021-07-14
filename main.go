@@ -11,7 +11,6 @@ import (
 	"yumi/api"
 	"yumi/conf"
 	"yumi/gin"
-	"yumi/gin/middleware"
 	"yumi/pkg/log"
 	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/pkg/stores/mgoc"
@@ -39,11 +38,9 @@ func main() {
 		panic(err)
 	}
 
-	log.Info("初始化casbin")
-	middleware.InitCasbin("", nil) //TODO:
-
-	log.Info("初始化usecase")
-	usecase.Init(mgoCli, myCLi)
+	log.Info("安装usecase")
+	usecase.InstallTrade(mgoCli, myCLi, conf.Get().Trade.MwebConfig())
+	usecase.InstallUser(mgoCli)
 
 	log.Info("构建服务器")
 	srvconf := conf.Get().HttpServer

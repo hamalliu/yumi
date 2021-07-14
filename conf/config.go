@@ -14,10 +14,12 @@ type Config struct {
 	DB         DB
 	Mongo      Mongo
 	Log        Log
+	Casbin     Casbin
 
 	// 业务层配置
 	Media      Media
 	OnlyOffice OnlyOffice
+	Trade      Trade
 }
 
 // HTTPServer 服务器配置
@@ -29,6 +31,10 @@ type HTTPServer struct {
 	// CORS 配置
 	CORSAllowedOrigins []string           // 允许的头
 	CORSMaxAge         types.TimeDuration // 最大持续时间
+}
+
+type Casbin struct {
+	ModelFile string
 }
 
 var conf Config

@@ -48,11 +48,13 @@ func WithLogic(logic Logic) Option {
 var enforcer *casbin.Enforcer
 
 // InitCasbin ...
-func InitCasbin(modelFile string, policyAdapter interface{}) {
+func InitCasbin(modelFile string, policyAdapter interface{}) gin.HandlerFunc {
 	once := sync.Once{}
 	once.Do(func() {
 		enforcer = casbin.NewEnforcer(modelFile, policyAdapter)
 	})
+
+	return func(c *gin.Context) {}
 }
 
 // RequiresPermissions tries to find the current subject by calling SubjectFn
