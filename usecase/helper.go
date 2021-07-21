@@ -7,7 +7,9 @@ import (
 	tradeservice "yumi/usecase/trade/service"
 	"yumi/usecase/trade/thirdpf/wxpay"
 	"yumi/usecase/user"
+	"yumi/usecase/media"
 	userservice "yumi/usecase/user/service"
+	mediaservice "yumi/usecase/media/service"
 )
 
 var tradeSrv *tradeservice.Service
@@ -36,4 +38,18 @@ func InstallUser(mongoC *mgoc.Client) {
 
 func User() *userservice.Service {
 	return userSrv
+}
+
+var mediaSrv *mediaservice.Service
+
+func InstallMedia(mysqlC *mysqlx.Client) {
+	var err error
+	mediaSrv, err = media.Usecase(mysqlC)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func Media() *mediaservice.Service {
+	return mediaSrv
 }

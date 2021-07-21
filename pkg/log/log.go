@@ -14,7 +14,6 @@ var defaultErrorLog Logger
 func Error(args ...interface{}) {
 	if defaultErrorLog != nil {
 		defaultErrorLog.Error(args...)
-		defaultInfoLog.Error(args...)
 	}
 }
 

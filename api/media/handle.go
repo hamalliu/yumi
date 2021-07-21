@@ -2,13 +2,14 @@ package media
 
 import (
 	"net/http"
-	
+
 	"yumi/conf"
 	"yumi/gin"
 	"yumi/pkg/status"
-	"yumi/usecase/media"
+	"yumi/usecase"
+	"yumi/usecase/media/service"
+	"yumi/usecase/media/entity"
 )
-
 
 //UploadMultiple 多文件上传
 func UploadMultiple(c *gin.Context) {
@@ -20,14 +21,14 @@ func UploadMultiple(c *gin.Context) {
 	mediaConf := conf.Get().Media
 	if err = req.ParseMultipartForm(mediaConf.MultipleFileUploadsMaxSize.Size()); err != nil {
 		if err == http.ErrLineTooLong {
-			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
+			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(entity.FileIsTooLarge))
 		} else {
 			c.WriteJSON(nil, status.InvalidArgument().WithDetails(err))
 		}
 		return
 	}
 
-	fs := []media.FileInfo{}
+	fs := []service.FileInfo{}
 	fds := req.MultipartForm.File["file[]"]
 	l := len(fds)
 	for i := 0; i < l; i++ {
@@ -37,7 +38,7 @@ func UploadMultiple(c *gin.Context) {
 			return
 		}
 
-		f := media.FileInfo{}
+		f := service.FileInfo{}
 		f.Name = fds[i].Filename
 		f.Size = fds[i].Size
 		f.File = mulf
@@ -50,7 +51,7 @@ func UploadMultiple(c *gin.Context) {
 		fs = append(fs, f)
 	}
 
-	resp, err := mediaSrv.BatchCreate(fs)
+	resp, err := usecase.Media().BatchCreate(fs)
 	c.WriteJSON(resp, err)
 }
 
@@ -61,13 +62,14 @@ func Upload(c *gin.Context) {
 	mulf, mulfh, err := req.FormFile("file")
 	if err != nil {
 		if err == http.ErrLineTooLong {
-			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(status.FileIsTooLarge))
+			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(entity.FileIsTooLarge))
 		} else {
 			c.WriteJSON(nil, status.InvalidArgument().WithDetails(err))
 		}
+		return
 	}
 
-	f := media.FileInfo{}
+	f := service.FileInfo{}
 	f.Name = mulfh.Filename
 	f.Size = mulfh.Size
 	f.File = mulf
@@ -77,6 +79,6 @@ func Upload(c *gin.Context) {
 	f.Groups = nil
 	f.Perm = 0444
 
-	resp, err := mediaSrv.Create(f)
+	resp, err := usecase.Media().Create(f)
 	c.WriteJSON(resp, err)
 }

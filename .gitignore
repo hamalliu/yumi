@@ -1,4 +1,5 @@
 *.exe
+*.rar
 *.code-workspace
 .idea
 .vscode

@@ -3,7 +3,6 @@ package log
 import (
 	"fmt"
 	"io"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -24,21 +23,16 @@ type LogOptions struct {
 	RotationTime  time.Duration
 }
 
-func (lo *LogOptions) NewOutput(level Level) (io.Writer, error) {
-	var w io.Writer
-	if level < DEBUG {
-		fileOutput, err := lo.newFileOutput(level.ToString())
-		if err != nil {
-			return nil, err
-		}
-		w = fileOutput
+func (lo *LogOptions) NewFileOutput(upOutput io.Writer, level Level) (io.Writer, error) {
+	fileOutput, err := lo.newFileOutput(level.ToString())
+	if err != nil {
+		return nil, err
+	}
+	if upOutput != nil {
+		return io.MultiWriter(fileOutput, upOutput), nil
 	}
 
-	if lo.IsOutputStd {
-		return io.MultiWriter(os.Stdout, w), nil
-	}
-
-	return w, nil
+	return fileOutput, nil
 }
 
 func (lo *LogOptions) defaultSet() {
@@ -65,7 +59,6 @@ func (lo *LogOptions) newFileOutput(subDir string) (io.Writer, error) {
 	}
 	r, err := rotatelogs.New(filepath.Join(storageDir, lo.FileName+"-%Y%m%d.log"),
 		rotatelogs.WithLinkName(filepath.Join(storageDir, fmt.Sprintf("%s.log", lo.FileName))), // 生成软链，指向最新日志文件
-		rotatelogs.WithMaxAge(time.Hour*24),                                                    // 文件最长保存时间（写死1天）
 		rotatelogs.WithRotationCount(lo.RotationCount),                                         // 文件最多保存多少个
 		rotatelogs.WithRotationTime(lo.RotationTime),                                           // 轮询日志切割时间间隔
 	)
