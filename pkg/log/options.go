@@ -36,24 +36,17 @@ func (lo *LogOptions) NewFileOutput(upOutput io.Writer, level Level) (io.Writer,
 }
 
 func (lo *LogOptions) defaultSet() {
-	if lo.StorageDir == "" {
-		lo.StorageDir = "logfile"
-	}
-	if lo.FileName == "" {
-		lo.FileName = "yumi"
-	}
-	if lo.RotationCount == 0 {
-		lo.RotationCount = 30
-	}
-	if lo.RotationTime == 0 {
-		lo.RotationTime = time.Minute
-	}
+	lo.StorageDir = "logfile"
+	lo.FileName = "yumi"
+	lo.RotationCount = 30
+	lo.RotationTime = time.Hour*24
+	lo.IsOutputStd = true
 }
 
 func (lo *LogOptions) newFileOutput(subDir string) (io.Writer, error) {
 	lo.defaultSet()
 
-	storageDir := ""
+	storageDir := lo.StorageDir
 	if subDir != "" {
 		storageDir = filepath.Join(lo.StorageDir, subDir)
 	}

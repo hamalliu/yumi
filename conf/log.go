@@ -3,6 +3,7 @@ package conf
 import "yumi/pkg/log"
 
 type Log struct {
+	Level       log.Level
 	StorageDir  string
 	FileName    string
 	IsOutputStd bool

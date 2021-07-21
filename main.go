@@ -22,7 +22,8 @@ func main() {
 	signal.Notify(c, syscall.SIGINT, syscall.SIGQUIT, syscall.SIGTERM, syscall.SIGHUP)
 
 	conf.Load()
-	log.InitStdlog()
+	logconf := conf.Get().Log
+	log.InitStdlog(logconf.Level, logconf.Options()...)
 
 	log.Info("构建mongodb客户端")
 	mgoConf := conf.Get().Mongo
