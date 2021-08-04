@@ -135,14 +135,14 @@ func (m *OrderPay) Pay(curTrade Trade, tradeWay, notifyURL, clientIP string) (st
 		m.setWaitPay(tradeWay, notifyURL, clientIP)
 		ret, err := curTrade.Pay(*m.attr)
 		if err != nil {
-			return "", status.Internal().WithDetails(err)
+			return "", status.Internal().WithError(err)
 		}
 
 		return ret.Data, nil
 	} else if m.attr.Status == WaitPay {
 		ret1, err := m.trade.QueryPayStatus(*m.attr)
 		if err != nil {
-			return "", status.Internal().WithDetails(err)
+			return "", status.Internal().WithError(err)
 		}
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
 			// 设置已支付
@@ -154,7 +154,7 @@ func (m *OrderPay) Pay(curTrade Trade, tradeWay, notifyURL, clientIP string) (st
 			m.setWaitPay(tradeWay, notifyURL, clientIP)
 			ret2, err := curTrade.Pay(*m.attr)
 			if err != nil {
-				return "", status.Internal().WithDetails(err)
+				return "", status.Internal().WithError(err)
 			}
 			return ret2.Data, nil
 		}

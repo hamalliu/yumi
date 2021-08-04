@@ -15,6 +15,7 @@ import (
 
 func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) {
 	c.Error = err
+
 	if data == nil {
 		data = struct{}{}
 	}
@@ -25,7 +26,7 @@ func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) 
 		if ok {
 			s = ss
 		} else {
-			s = status.Unknown().WithDetails(err)
+			s = status.Unknown().WithError(err)
 		}
 	}
 
@@ -33,13 +34,11 @@ func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) 
 		Code    int         `json:"code"`
 		Status  string      `json:"status"`
 		Message string      `json:"message"`
-		Details []string    `json:"details"`
 		Data    interface{} `json:"data"`
 	}{}
 	respObj.Code = int(s.Code())
 	respObj.Status = s.Code().String()
 	respObj.Message = s.Message(c.Request.Header.Get("Accept-Language"))
-	respObj.Details = s.Details()
 	respObj.Data = data
 
 	bs, err := json.Marshal(respObj)
@@ -80,8 +79,8 @@ func (c *Context) DecryptBodyAndBind(obj interface{}) error {
 	return c.Bind(obj)
 }
 
-// DecryptBodyAndBingWith 解密请求中的body再通过指定的绑定器，绑定到指定结构体
-func (c *Context) DecryptBodyAndBingWith(obj interface{}, b binding.Binding) error {
+// DecryptBodyAndBindWith 解密请求中的body再通过指定的绑定器，绑定到指定结构体
+func (c *Context) DecryptBodyAndBindWith(obj interface{}, b binding.Binding) error {
 	err := c.DecryptBody()
 	if err != nil {
 		return err

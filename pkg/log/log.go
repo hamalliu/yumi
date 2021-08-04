@@ -2,11 +2,13 @@ package log
 
 type Logger interface {
 	Error(args ...interface{})
+	Warn(args ...interface{})
 	Info(args ...interface{})
 	Debug(args ...interface{})
 }
 
 var defaultDebugLog Logger
+var defaultWarnLog Logger
 var defaultInfoLog Logger
 var defaultErrorLog Logger
 
@@ -14,6 +16,13 @@ var defaultErrorLog Logger
 func Error(args ...interface{}) {
 	if defaultErrorLog != nil {
 		defaultErrorLog.Error(args...)
+	}
+}
+
+// Warn ...
+func Warn(args ...interface{}) {
+	if defaultWarnLog != nil {
+		defaultWarnLog.Warn(args...)
 	}
 }
 

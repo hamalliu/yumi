@@ -28,12 +28,8 @@ func InitLogrus(level Level, options ...LogOption) {
 		EnvironmentOverrideColors: true,
 	}
 
-	var (
-		debugFileOutput, infoFileOutput, errorFileOutput io.Writer
-		err                                  error
-	)
 	if level >= DEBUG {
-		debugFileOutput, err = opts.NewFileOutput(nil, DEBUG)
+		debugFileOutput, err := opts.NewFileOutput(DEBUG)
 		if err != nil {
 			panic(err)
 		}
@@ -51,7 +47,7 @@ func InitLogrus(level Level, options ...LogOption) {
 	}
 
 	if level >= INFO {
-		infoFileOutput, err = opts.NewFileOutput(debugFileOutput, INFO)
+		infoFileOutput, err := opts.NewFileOutput(INFO)
 		if err != nil {
 			panic(err)
 		}
@@ -68,8 +64,26 @@ func InitLogrus(level Level, options ...LogOption) {
 		}
 	}
 
+	if level >= WARN {
+		warnFileOutput, err := opts.NewFileOutput(WARN)
+		if err != nil {
+			panic(err)
+		}
+		output := warnFileOutput
+		if opts.IsOutputStd {
+			output = io.MultiWriter(output, os.Stdout)
+		}
+		if output != nil {
+			warnLog := logrus.New()
+			warnLog.SetLevel(logrus.WarnLevel)
+			warnLog.SetFormatter(formatter)
+			warnLog.SetOutput(output)
+			defaultWarnLog = warnLog
+		}
+	}
+
 	if level >= ERROR {
-		errorFileOutput, err = opts.NewFileOutput(infoFileOutput, ERROR)
+		errorFileOutput, err := opts.NewFileOutput(ERROR)
 		if err != nil {
 			panic(err)
 		}

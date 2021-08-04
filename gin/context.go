@@ -38,9 +38,9 @@ type Context struct {
 	Keys      map[valuer.Key]*valuer.Valuer
 	KeysMutex *sync.RWMutex
 
-	Error error
-
-	Params Params
+	Error      error
+	Params     Params
+	BindObject interface{}
 }
 
 //Code ...
@@ -142,6 +142,7 @@ func (c *Context) BindWith(obj interface{}, b binding.Binding) error {
 	if err := b.Bind(c.Request, obj); err != nil {
 		return err
 	}
+	c.BindObject = obj
 	return nil
 }
 

@@ -59,21 +59,21 @@ func LoginSecurity(decrypters map[string]codec.RsaDecrypter, tolerance time.Dura
 		signature := attrs[signatureField]
 
 		if len(publicKey) == 0 || len(secret) == 0 || len(signature) == 0 {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(ErrInvalidHeader))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidHeader))
 			c.Abort()
 			return
 		}
 
 		decrypter, ok := decrypters[publicKey]
 		if !ok {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(ErrInvalidPublicKey))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidPublicKey))
 			c.Abort()
 			return
 		}
 
 		decryptedSecret, err := decrypter.DecryptBase64(secret)
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(ErrInvalidSecret))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidSecret))
 			c.Abort()
 			return
 		}
@@ -83,14 +83,14 @@ func LoginSecurity(decrypters map[string]codec.RsaDecrypter, tolerance time.Dura
 		timestamp := attrs[timestampField]
 		nonce := attrs[nonceField]
 		if len(realSecret) == 0 || len(timestamp) == 0 || len(nonce) == 0 {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(ErrInvalidHeader))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidHeader))
 			c.Abort()
 			return
 		}
 
 		realSecretBytes, err := base64.StdEncoding.DecodeString(realSecret)
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(ErrInvalidKey))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidKey))
 			c.Abort()
 			return
 		}
@@ -104,7 +104,7 @@ func LoginSecurity(decrypters map[string]codec.RsaDecrypter, tolerance time.Dura
 
 		err = s.VerifySignature(c.Request, tolerance)
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(err))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(err))
 			c.Abort()
 			return
 		}
@@ -126,14 +126,14 @@ func NoLoginSecurity(getSecret func (user string) string, tolerance time.Duratio
 		timestamp := attrs[timestampField]
 		nonce := attrs[nonceField]
 		if len(signature) == 0 || len(timestamp) == 0 || len(nonce) == 0 {
-			c.WriteJSON(nil, status.InvalidArgument().WithDetails(ErrInvalidHeader))
+			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidHeader))
 			c.Abort()
 			return
 		}
 
 		user := c.Get(valuer.KeyUser).String()
 		if user == "" {
-			c.WriteJSON(nil, status.Internal().WithDetails(errors.New("security middleware: no found user name")))
+			c.WriteJSON(nil, status.Internal().WithError(errors.New("security middleware: no found user name")))
 			c.Abort()
 			return
 		}
@@ -147,7 +147,7 @@ func NoLoginSecurity(getSecret func (user string) string, tolerance time.Duratio
 
 		err := s.VerifySignature(c.Request, tolerance)
 		if err != nil {
-			c.WriteJSON(nil, status.Unauthenticated().WithDetails(err))
+			c.WriteJSON(nil, status.Unauthenticated().WithError(err))
 			c.Abort()
 			return
 		}

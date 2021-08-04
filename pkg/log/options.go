@@ -23,15 +23,11 @@ type LogOptions struct {
 	RotationTime  time.Duration
 }
 
-func (lo *LogOptions) NewFileOutput(upOutput io.Writer, level Level) (io.Writer, error) {
+func (lo *LogOptions) NewFileOutput(level Level) (io.Writer, error) {
 	fileOutput, err := lo.newFileOutput(level.ToString())
 	if err != nil {
 		return nil, err
 	}
-	if upOutput != nil {
-		return io.MultiWriter(fileOutput, upOutput), nil
-	}
-
 	return fileOutput, nil
 }
 

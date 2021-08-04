@@ -18,5 +18,6 @@ func Debug(isDebug bool) gin.HandlerFunc {
 			_, _ = io.Copy(bytes.NewBuffer(body), c.Request.Body)
 			fmt.Printf("body: %s\n", string(body))
 		}
+		c.Next()
 	}
 }

@@ -15,12 +15,8 @@ func InitStdlog(level Level, options ...LogOption) {
 
 	formatter := log.LstdFlags | log.Lshortfile
 
-	var (
-		debugFileOutput, infoFileOutput, errorFileOutput io.Writer
-		err                                  error
-	)
 	if level >= DEBUG {
-		debugFileOutput, err = opts.NewFileOutput(nil, DEBUG)
+		debugFileOutput, err := opts.NewFileOutput(DEBUG)
 		if err != nil {
 			panic(err)
 		}
@@ -33,7 +29,7 @@ func InitStdlog(level Level, options ...LogOption) {
 	}
 
 	if level >= INFO {
-		infoFileOutput, err = opts.NewFileOutput(debugFileOutput, INFO)
+		infoFileOutput, err := opts.NewFileOutput(INFO)
 		if err != nil {
 			panic(err)
 		}
@@ -45,8 +41,21 @@ func InitStdlog(level Level, options ...LogOption) {
 		defaultInfoLog = &StdLogger{l: infoStdLog}
 	}
 
+	if level >= WARN {
+		warnFileOutput, err := opts.NewFileOutput(WARN)
+		if err != nil {
+			panic(err)
+		}
+		output := warnFileOutput
+		if opts.IsOutputStd {
+			output = io.MultiWriter(output, os.Stdout)
+		}
+		warnStdLog := log.New(output, "", formatter)
+		defaultInfoLog = &StdLogger{l: warnStdLog}
+	}
+
 	if level >= ERROR {
-		errorFileOutput, err = opts.NewFileOutput(infoFileOutput, ERROR)
+		errorFileOutput, err := opts.NewFileOutput(ERROR)
 		if err != nil {
 			panic(err)
 		}
@@ -65,6 +74,10 @@ type StdLogger struct {
 
 func (s *StdLogger) Error(args ...interface{}) {
 	s.l.Output(3, fmt.Sprintln("ERROR ", args))
+}
+
+func (s *StdLogger) Warn(args ...interface{}) {
+	s.l.Output(3, fmt.Sprintln("Warn ", args))
 }
 
 func (s *StdLogger) Info(args ...interface{}) {

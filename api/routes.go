@@ -22,6 +22,7 @@ func Mount(r gin.GroupRoutes) {
 		middleware.CSRF(nil, nil),
 		middleware.MaxBytes(0),
 		middleware.Debug(conf.IsDebug()),
+		middleware.RecordError(),
 	)
 
 	// 接口文档接口

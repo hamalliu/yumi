@@ -10,7 +10,7 @@ import (
 type Status struct {
 	code    int32
 	message I18nMessageID
-	details []string
+	err     error
 }
 
 // New returns a Status representing c and msg.
@@ -35,37 +35,23 @@ func (s *Status) Message(language string) string {
 	return s.message.T(language)
 }
 
-// Details ...
-func (s *Status) Details() []string {
-	if s == nil {
-		return []string{}
-	}
-	return s.details
-}
-
 // Err ...
 func (s *Status) Err() error {
-	if s.Code() == codes.OK {
-		return nil
-	}
-
-	return s
+	return s.err
 }
 
 // Error ...
 func (s *Status) Error() string {
-	if s.Code() == codes.OK {
+	if s.err == nil {
 		return ""
 	}
 
-	return fmt.Sprintf("status: code = %d; desc = %s", s.code, s.message)
+	return s.err.Error()
 }
 
-// WithDetails ...
-func (s *Status) WithDetails(details ...error) *Status {
-	for _, detail := range details {
-		s.details = append(s.details, fmt.Sprintf("%+v", detail))
-	}
+// WithError ...
+func (s *Status) WithError(err error) *Status {
+	s.err = fmt.Errorf("status: code = %d; message = %s; err = %w", s.code, s.message, err)
 
 	return s
 }

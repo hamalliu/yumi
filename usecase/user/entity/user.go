@@ -65,7 +65,7 @@ func (u *User) LawEnforcement() (err error) {
 func (u *User) BcryptPassword() (err error) {
 	pwd, err := login.GetBcrypt().GenerateFromPassword([]byte(u.attr.Password))
 	if err != nil {
-		err := status.Internal().WithDetails(err)
+		err := status.Internal().WithError(err)
 		return err
 	}
 	u.attr.Password = string(pwd)
@@ -76,7 +76,7 @@ func (u *User) BcryptPassword() (err error) {
 func (u *User) VerifyPassword(password string) (err error) {
 	pass, err := login.GetBcrypt().VarifyPassword([]byte(password), []byte(u.attr.Password))
 	if err != nil {
-		return status.Internal().WithDetails(err)
+		return status.Internal().WithError(err)
 	}
 
 	if !pass {
@@ -90,11 +90,11 @@ func (u *User) VerifyPassword(password string) (err error) {
 func (u *User) Session(store sessions.Store, userID, password, client string) (string, error) {
 	sess, err := sessions.NewSession(store, u.attr.UserID, client, 1)
 	if err != nil {
-		return "", status.Internal().WithDetails(err)
+		return "", status.Internal().WithError(err)
 	}
 	err = sess.Save()
 	if err != nil {
-		return "", status.Internal().WithDetails(err)
+		return "", status.Internal().WithError(err)
 	}
 
 	sess.AddFlash(sess.ID, "session_id")
@@ -115,12 +115,12 @@ func (u *User) Authenticate(store sessions.Store, sessionID, secureKey string) e
 
 	vars := sess.GetValues("secure_key")
 	if len(vars) == 0 {
-		return status.Unauthenticated().WithDetails(errors.New("secure_key 泄漏"))
+		return status.Unauthenticated().WithError(errors.New("secure_key 泄漏"))
 	}
 	srvSecureKey := vars[0].(string)
 
 	if secureKey != srvSecureKey {
-		return status.Unauthenticated().WithDetails(errors.New("secureKey error:" + secureKey))
+		return status.Unauthenticated().WithError(errors.New("secureKey error:" + secureKey))
 	}
 
 	return nil
