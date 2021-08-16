@@ -5,6 +5,8 @@ import (
 	"testing"
 	"yumi/conf"
 	"yumi/pkg/stores/mgoc"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
 )
 
 type ProdInfo struct {
@@ -83,7 +85,7 @@ func TestInput(t *testing.T) {
 	coll := mgoCli.Database("client").Collection("clientinfo")
 	docus := []interface{}{}
 	for _, v := range cs {
-		
+
 		if v.GroupID == "" {
 			v.GroupID = "nogroup"
 		}
@@ -94,4 +96,73 @@ func TestInput(t *testing.T) {
 		t.Error(err)
 	}
 	t.Log(len(ret.InsertedIDs))
+}
+
+func TestDataValidate(t *testing.T) {
+	xlsx := excelize.NewFile()
+	xlsx.SetCellStr("Sheet1", "A1", "信任方式")
+	xlsx.SetCellStr("Sheet1", "B1", "信任特征")
+	xlsx.SetCellStr("Sheet1", "C1", "信任程序行为")
+	xlsx.SetCellStr("Sheet1", "D1", "是否启用")
+	xlsx.SetCellStr("Sheet1", "E1", "备注信息")
+
+	style, err := xlsx.NewStyle(`{"font":{"bold":true,"size":12}, "fill":{"type":"pattern","color":["#FF9933"],"pattern":1}}`)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	xlsx.SetCellStyle("Sheet1", "A1", "E1", style)
+
+	dvRange1 := excelize.NewDataValidation(true)
+	dvRange1.Sqref = "A2:A9999"
+	dvRange1.SetDropList([]string{"path", "sha1"})
+	xlsx.AddDataValidation("Sheet1", dvRange1)
+
+	dvRange2 := excelize.NewDataValidation(true)
+	dvRange2.Sqref = "C2:C9999"
+	dvRange2.SetDropList([]string{"是", "否"})
+	xlsx.AddDataValidation("Sheet1", dvRange2)
+
+	dvRange3 := excelize.NewDataValidation(true)
+	dvRange3.Sqref = "D2:D9999"
+	dvRange3.SetDropList([]string{"启用", "禁用"})
+	xlsx.AddDataValidation("Sheet1", dvRange3)
+
+	err = xlsx.SaveAs("c.xlsx")
+	if err != nil {
+		t.Error(err)
+	}
+}
+
+type WhiteList struct {
+	Data_type  string `bson:"data_type" xls:"A2"`  // 信任方式
+	Data_value string `bson:"data_value" xls:"B2"` // 信任特征
+	ActionStr  string `bson:"-" xls:"C2"`
+	Action     bool   `bson:"action" ` // 信任程序行为
+	EnabledStr string `bson:"-" xls:"D2"`
+	Enabled    bool   `bson:"enabled"`         // 是否启用
+	Remark     string `bson:"remark" xls:"E2"` // 备注信息
+}
+
+func TestParseC(t *testing.T) {
+	// mulf, err := os.Open("./1.xlsx")
+	// if err != nil {
+	// 	t.Error(err)
+	// 	return
+	// }
+
+	ws := []WhiteList{}
+	err := ParseExcelToStruct("./1.xlsx", 1, &ws, "col", 1, []int{1, 2, 3, 4})
+	if err != nil {
+		t.Error(err)
+	}
+	for i := range ws {
+		if ws[i].ActionStr == "是" {
+			ws[i].Action = true
+		}
+		if ws[i].EnabledStr == "启用" {
+			ws[i].Enabled = true
+		}
+	}
+	t.Log(ws)
 }

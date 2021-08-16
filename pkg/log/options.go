@@ -34,7 +34,7 @@ func (lo *LogOptions) NewFileOutput(level Level) (io.Writer, error) {
 func (lo *LogOptions) defaultSet() {
 	lo.StorageDir = "logfile"
 	lo.FileName = "yumi"
-	lo.RotationCount = 30
+	lo.RotationCount = 7
 	lo.RotationTime = time.Hour*24
 	lo.IsOutputStd = true
 }

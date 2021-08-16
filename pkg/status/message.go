@@ -36,7 +36,7 @@ type Messages struct {
 func NewMessages() *Messages {
 	m := Messages{}
 	m.msgs = make(map[string]Message)
-	return &Messages{}
+	return &m
 }
 
 func (m *Messages) NewMessageID(enUS, zhCN, zhTW string) MessageID {

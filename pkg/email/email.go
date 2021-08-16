@@ -104,7 +104,7 @@ func New(conf Config) (*Model, error) {
 	return &Model{conf: conf}, nil
 }
 
-func buildManyMailAddress(ma []*mail.Address) string {
+func formatManyMailAddress(ma []*mail.Address) string {
 	var sa string
 	for i := range ma {
 		if sa == "" {
@@ -246,7 +246,7 @@ func (m *Model) GetEmailListByMailBox(user, pwd string, mbName string, offset, l
 				if to, err = env.AddressList(mailHeaderTo); err != nil {
 					return emails, count, offset, err
 				}
-				email.To = buildManyMailAddress(to)
+				email.To = formatManyMailAddress(to)
 				continue
 			}
 		}
@@ -310,7 +310,7 @@ func (m *Model) GetEmailByUID(user, pwd string, uid string) (ReceiveEmail, error
 				if to, err = env.AddressList(mailHeaderTo); err != nil {
 					return email, err
 				}
-				email.To = buildManyMailAddress(to)
+				email.To = formatManyMailAddress(to)
 				email.Text = env.Text
 				email.HTML = env.HTML
 				for i := range env.Attachments {
