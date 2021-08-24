@@ -1,11 +1,16 @@
 package sessions
 
 import (
+	"errors"
 	"sync"
 	"time"
 
 	"yumi/pkg/random"
 	"yumi/pkg/types"
+)
+
+var (
+	ErrorNoSeesion = errors.New("sessions: no session in result")
 )
 
 // Default flashes key.

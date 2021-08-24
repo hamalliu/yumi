@@ -3,15 +3,16 @@ package usecase
 import (
 	"yumi/pkg/stores/dbc/mysqlx"
 	"yumi/pkg/stores/mgoc"
+	"yumi/usecase/media"
+	mediaservice "yumi/usecase/media/service"
 	"yumi/usecase/trade"
 	tradeservice "yumi/usecase/trade/service"
 	"yumi/usecase/trade/thirdpf/wxpay"
 	"yumi/usecase/user"
-	"yumi/usecase/media"
 	userservice "yumi/usecase/user/service"
-	mediaservice "yumi/usecase/media/service"
 )
 
+//=======================================================//
 var tradeSrv *tradeservice.Service
 
 func InstallTrade(mongoC *mgoc.Client, mysqlC *mysqlx.Client, wxMwebConf wxpay.MwebConfig) {
@@ -26,6 +27,7 @@ func Trade() *tradeservice.Service {
 	return tradeSrv
 }
 
+//=======================================================//
 var userSrv *userservice.Service
 
 func InstallUser(mongoC *mgoc.Client) {
@@ -40,6 +42,7 @@ func User() *userservice.Service {
 	return userSrv
 }
 
+//=======================================================//
 var mediaSrv *mediaservice.Service
 
 func InstallMedia(mysqlC *mysqlx.Client) {
@@ -53,3 +56,5 @@ func InstallMedia(mysqlC *mysqlx.Client) {
 func Media() *mediaservice.Service {
 	return mediaSrv
 }
+
+//=======================================================//

@@ -109,8 +109,11 @@ func (u *User) Session(store sessions.Store, userID, password, client string) (s
 // Authenticate 认证登录状态
 func (u *User) Authenticate(store sessions.Store, sessionID, secureKey string) error {
 	sess, err := sessions.GetSession(store, sessionID)
+	if err == sessions.ErrorNoSeesion {
+		return status.Unauthenticated().WithMessage(UserAuthenticationExpired)
+	}
 	if err != nil {
-		return err
+		return status.Internal().WithError(err)
 	}
 
 	vars := sess.GetValues("secure_key")

@@ -15,6 +15,8 @@ var (
 	PasswordFmtIncorrect = m.NewMessageID("", "", "")
 	// 用户名不存在
 	UserNotFound = m.NewMessageID("", "", "")
+	// 用户身份认证已过期
+	UserAuthenticationExpired = m.NewMessageID("The user identity authentication has expired", "用户身份认证已过期", "")
 )
 
 func init() {
