@@ -17,8 +17,11 @@ func New(data Data) (*Service, error) {
 
 // Create ...
 func (s *Service) Create(req CreateRequest) (err error) {
+	// 加载主体
 	ua := req.userAttribute()
 	u := entity.NewUser(&ua)
+
+	// 逻辑处理
 	err = u.LawEnforcement()
 	if err != nil {
 		return err
@@ -47,6 +50,7 @@ func (s *Service) Disable(req DisableRequest) (err error) {
 func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse, error) {
 	resp := LoginByBcryptResponse{}
 
+	// 加载主体
 	exist, attr, err := s.data.Exist(entity.UserAttributeIDs{UserID: req.UserID})
 	if err != nil {
 		return resp, err
@@ -55,18 +59,19 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 		return resp, status.NotFound().WithMessage(entity.UserNotFound)
 	}
 
+	// 逻辑处理
 	u := entity.NewUser(&attr)
 	err = u.VerifyPassword(req.Password)
 	if err != nil {
 		return resp, err
 	}
-
 	//构建session
 	sessID, err := u.Session(s.data.GetSessionsStore(), req.UserID, req.Password, req.Client)
 	if err != nil {
 		return resp, err
 	}
 
+	
 	resp.UserID = req.UserID
 	resp.SecureKey = sessID
 

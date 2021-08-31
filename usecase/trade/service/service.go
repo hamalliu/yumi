@@ -21,12 +21,15 @@ func New(data Data, trades *thirdpf.Trades) (*Service, error) {
 
 // CreateOrderPay 提交支付订单
 func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPayResponse, err error) {
+	// 加载主体
 	attr := req.Attribute()
 	trade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
 	if err != nil {
 		return
 	}
 	op := entity.NewOrderPay(&attr, trade)
+
+	// 逻辑处理
 	err = op.Submit()
 	if err != nil {
 		return
@@ -38,12 +41,14 @@ func (s *Service) CreateOrderPay(req CreateOrderPayRequest) (resp CreateOrderPay
 		return
 	}
 
+	// 返回数据设置
 	resp.set(attr)
 	return
 }
 
 // CancelOrderPay 取消支付订单
 func (s *Service) CancelOrderPay(code string) (err error) {
+	// 加载主体
 	attr, err := s.data.GetOrderPay(code)
 	if err != nil {
 		return err
@@ -53,11 +58,14 @@ func (s *Service) CancelOrderPay(code string) (err error) {
 		return
 	}
 	op := entity.NewOrderPay(&attr, trade)
+
+	// 逻辑处理
 	err = op.Cancel()
 	if err != nil {
 		return err
 	}
 
+	// 持久化
 	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
 		return err
@@ -70,6 +78,7 @@ func (s *Service) CancelOrderPay(code string) (err error) {
 func (s *Service) Pay(req PayRequest) (PayResponse, error) {
 	resp := PayResponse{}
 
+	// 加载主体
 	attr, err := s.data.GetOrderPay(req.Code)
 	if err != nil {
 		return resp, err
@@ -79,6 +88,8 @@ func (s *Service) Pay(req PayRequest) (PayResponse, error) {
 		return resp, err
 	}
 	op := entity.NewOrderPay(&attr, trade)
+
+	// 逻辑处理
 	curTrade, err := s.trades.GetTrade(thirdpf.Way(attr.TradeWay))
 	if err != nil {
 		return resp, err
@@ -88,17 +99,20 @@ func (s *Service) Pay(req PayRequest) (PayResponse, error) {
 		return resp, err
 	}
 
+	// 持久化
 	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
 		return resp, err
 	}
 
+	// 返回数据设置
 	resp.set(attr)
 	return resp, nil
 }
 
 // QueryPaid 查询支付成功（只查询待支付订单）
 func (s *Service) QueryPaid(code string) (paid bool, err error) {
+	// 加载主体
 	attr, err := s.data.GetOrderPay(code)
 	if err != nil {
 		return
@@ -108,11 +122,14 @@ func (s *Service) QueryPaid(code string) (paid bool, err error) {
 		return
 	}
 	op := entity.NewOrderPay(&attr, trade)
+
+	// 逻辑处理
 	paid, err = op.QueryPaid()
 	if err != nil {
 		return
 	}
 
+	// 持久化
 	err = s.data.UpdateOrderPay(attr)
 	if err != nil {
 		return

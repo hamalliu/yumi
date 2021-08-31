@@ -144,12 +144,15 @@ func (m *OrderPay) Pay(curTrade Trade, tradeWay, notifyURL, clientIP string) (st
 		if err != nil {
 			return "", status.Internal().WithError(err)
 		}
+
 		if ret1.TradeStatus == StatusTradePlatformSuccess {
 			// 设置已支付
 			m.setPaid(ret1.TransactionID, ret1.BuyerLogonID)
 			return "", status.AlreadyExists().WithMessage(OrderAlreadyExists)
+
 		} else if ret1.TradeStatus == StatusTradePlatformNotPay {
 			// TODO: 直接返回之前数据
+
 		} else if ret1.TradeStatus == StatusTradePlatformClosed {
 			m.setWaitPay(tradeWay, notifyURL, clientIP)
 			ret2, err := curTrade.Pay(*m.attr)
