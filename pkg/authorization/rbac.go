@@ -30,6 +30,11 @@ var (
 	Delete         Action = "delete"
 	Upload         Action = "upload"
 	UploadMultiple Action = "upload_multiple"
+	Cancel         Action = "cancel"    // 取消一个未完成的操作
+	BatchGet       Action = "batch_get" // 批量获取多个资源
+	Move           Action = "move"      // 将资源从一个父级移动到另一个父级
+	Search         Action = "search"    // List 的替代方法，用于获取不符合 List 语义的数据
+	UnDelete       Action = "undelete"  // 恢复之前删除的资源
 )
 
 type User struct {
