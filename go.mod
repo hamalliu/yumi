@@ -43,6 +43,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/thedevsaddam/gojsonq/v2 v2.5.2 // indirect
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/ugorji/go/codec v1.2.4
 	github.com/xdg/scram v1.0.3 // indirect

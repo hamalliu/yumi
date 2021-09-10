@@ -8,6 +8,9 @@
 		},
 		{
 			"path": "D:\\mine\\go\\pkg\\mod\\github.com\\!shopify\\sarama@v1.29.1"
+		},
+		{
+			"path": "D:\\mine\\go\\pkg\\mod\\github.com\\thedevsaddam\\gojsonq\\v2@v2.5.2"
 		}
 	],
 	"settings": {

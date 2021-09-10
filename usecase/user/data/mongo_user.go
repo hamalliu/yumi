@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -36,7 +37,8 @@ func (cli *MongoCli) collUsers() *mongo.Collection {
 }
 
 func (cli *MongoCli) Ctx() context.Context {
-	return context.Background()
+	timeoutCtx, _ := context.WithTimeout(context.Background(), time.Second)
+	return timeoutCtx
 }
 
 // Create ...

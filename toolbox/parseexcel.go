@@ -98,9 +98,13 @@ func setSheetToStruct(x *excelize.File, tabName string, v reflect.Value, t refle
 			case reflect.Int:
 				vi, err := strconv.Atoi(value)
 				if err != nil {
-					errStr := fmt.Sprintf("表格：%s，坐标：%s， 内容：%s只能全是整数!", tabName, axis, value)
-					err = errors.New(errStr)
-					return err
+					fvi, err := strconv.ParseFloat(value, 64)
+					if err != nil {
+						errStr := fmt.Sprintf("表格：%s，坐标：%s， 内容：%s只能全是整数!", tabName, axis, value)
+						err = errors.New(errStr)
+						return err
+					}
+					vi = int(fvi)
 				}
 				if v.Field(i).CanSet() {
 					v.Field(i).SetInt(int64(vi))
@@ -168,4 +172,70 @@ func excelRowAdd(row string, index int) string {
 	rowi, _ := strconv.Atoi(row)
 	rowi += index
 	return strconv.Itoa(rowi)
+}
+
+func OutputStructToExcel(x *excelize.File, tabIndex int, structItf interface{}, start int, kyExcel string) error {
+	if kyExcel == "" {
+		kyExcel = kyExcelCell
+	}
+
+	v := reflect.ValueOf(structItf)
+	tabname := x.GetSheetName(tabIndex)
+	if tabname == "" {
+		tabname = fmt.Sprintf("Sheet%d", tabIndex)
+		x.NewSheet(tabname)
+	}
+
+	switch v.Elem().Kind() {
+	case reflect.Struct:
+		if err := setStructToSheet(x, tabname, v.Elem(), v.Elem().Type(), 0, kyExcel); err != nil {
+			return err
+		}
+	case reflect.Slice:
+		l := v.Elem().Len()
+		for i := 0; i < l; i++ {
+			ri := i + start
+			if err := setStructToSheet(x, tabname, v.Elem().Index(i), v.Elem().Index(i).Type(), ri, kyExcel); err != nil {
+				return err
+			}
+		}
+	default:
+		err := errors.New("structItf 参数类型不支持。")
+		return err
+	}
+
+	return nil
+}
+
+func setStructToSheet(x *excelize.File, tabName string, v reflect.Value, t reflect.Type, index int, kyExcel string) error {
+	for i := 0; i < t.NumField(); i++ {
+		if t.Field(i).Type.Kind() == reflect.Struct {
+			if err := setStructToSheet(x, tabName, v.Field(i), v.Field(i).Type(), index, kyExcel); err != nil {
+				return err
+			}
+		}
+		axissstr := t.Field(i).Tag.Get("xls")
+		if axissstr == "" {
+			continue
+		}
+		axiss := strings.Split(axissstr, ",")
+		axis := ""
+
+		switch kyExcel {
+		case kyExcelCol:
+			axis = regexp.MustCompile("[a-zA-Z]+").FindString(axiss[0]) + excelRowAdd(regexp.MustCompile("[0-9]+").FindString(axiss[0]), index)
+		case kyExcelRow:
+			axis = excelColAdd(regexp.MustCompile("[a-zA-Z]+").FindString(axiss[0]), index) + regexp.MustCompile("[0-9]+").FindString(axiss[0])
+		case kyExcelCell:
+			axis = axiss[index]
+		default:
+			axis = axiss[index]
+		}
+
+		if !v.Field(i).IsZero() {
+			x.SetCellValue(tabName, axis, v.Field(i))
+		}
+	}
+
+	return nil
 }

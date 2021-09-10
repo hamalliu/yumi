@@ -47,7 +47,7 @@ func main() {
 	srvconf := conf.Get().HttpServer
 	mux := gin.NewMux()
 	server := http.Server{
-		Handler:      mux,
+		Handler:      http.TimeoutHandler(mux, srvconf.HandlerTimeout.Duration(), "handler timeout"),
 		Addr:         srvconf.Addr,
 		ReadTimeout:  srvconf.ReadTimeout.Duration(),
 		WriteTimeout: srvconf.WriteTimeout.Duration(),

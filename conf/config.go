@@ -24,9 +24,10 @@ type Config struct {
 
 // HTTPServer 服务器配置
 type HTTPServer struct {
-	Addr         string             // 启动地址
-	WriteTimeout types.TimeDuration // http写超时
-	ReadTimeout  types.TimeDuration // http读超时
+	Addr           string             // 启动地址
+	WriteTimeout   types.TimeDuration // http写超时
+	ReadTimeout    types.TimeDuration // http读超时
+	HandlerTimeout types.TimeDuration // 请求处理超时
 
 	// CORS 配置
 	CORSAllowedOrigins []string           // 允许的头
