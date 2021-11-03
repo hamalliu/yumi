@@ -65,8 +65,6 @@ func (intnl Internal) PayNotifyResp(err error, resp http.ResponseWriter) {
 	bytes, _ := json.Marshal(&respJ)
 
 	_, _ = resp.Write(bytes)
-
-	return
 }
 
 //QueryPayStatus ...
@@ -261,8 +259,6 @@ func (intnl Internal) RefundNotifyResp(err error, resp http.ResponseWriter) {
 	bytes, _ := json.Marshal(&respJ)
 
 	_, _ = resp.Write(bytes)
-
-	return
 }
 
 func (intnl Internal) getMch(sellerKey string) (wxpay.Merchant, error) {

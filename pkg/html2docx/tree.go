@@ -33,7 +33,7 @@ var (
 func getfirstTag(text string) (tagIndex, taglen int, tagData string) {
 	tagIndex = -1
 	l := len(prefixTags) + len(suffixTags)
-	tags := make([]string, l, l)
+	tags := make([]string, l)
 	tags = append(tags, prefixTags...)
 	tags = append(tags, suffixTags...)
 	for _, tag := range tags {

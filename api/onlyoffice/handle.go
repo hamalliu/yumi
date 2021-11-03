@@ -105,7 +105,6 @@ func Upload(c *gin.Context) {
 	}
 
 	c.WriteJSON(nil, nil)
-	return
 }
 
 //Sample 从样品中复制文件，用于新建文件
@@ -135,7 +134,6 @@ func Sample(c *gin.Context) {
 	}
 
 	c.WriteJSON(nil, nil)
-	return
 }
 
 type renderConfig struct {
@@ -343,7 +341,6 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 
 Error:
 	_, _ = c.Writer.Write([]byte("{\"error\":1}"))
-	return
 }
 
 func forceSave(c *gin.Context, body map[string]interface{}, downloadURI, fileName, userID string) {
@@ -392,7 +389,6 @@ func forceSave(c *gin.Context, body map[string]interface{}, downloadURI, fileNam
 
 Error:
 	_, _ = c.Writer.Write([]byte("{\"error\":1}"))
-	return
 }
 
 func track(c *gin.Context, body map[string]interface{}, fileName, userID string) {
@@ -427,7 +423,6 @@ func track(c *gin.Context, body map[string]interface{}, fileName, userID string)
 	}
 
 	_, _ = c.Writer.Write([]byte("{\"error\":0}"))
-	return
 }
 
 //Track onlyoffice的回调处理
@@ -480,10 +475,9 @@ func Track(c *gin.Context) {
 
 Error:
 	_, _ = c.Writer.Write([]byte("{\"error\":1}"))
-	return
 }
 
-//Convert 转换格式为open office xml格式
+// Convert 转换格式为open office xml格式
 func Convert(c *gin.Context) {
 	reqm := ReqConvert{}
 	if err := c.Bind(&reqm); err != nil {
@@ -560,7 +554,6 @@ func Convert(c *gin.Context) {
 	}
 
 	c.WriteJSON(correctName, nil)
-	return
 }
 
 //Download 下载文件
@@ -579,7 +572,6 @@ func Download(c *gin.Context) {
 
 	c.FileAttachment(filePath, reqm.FileName)
 
-	return
 }
 
 //DeleteFile 删除自己目录下的文件
@@ -612,5 +604,4 @@ func DeleteFile(c *gin.Context) {
 	}
 
 	c.WriteJSON(nil, nil)
-	return
 }

@@ -51,33 +51,21 @@ func (v *defaultValidator) lazyinit() {
 		v.validate = validator.New()
 		f1 := func(fl validator.FieldLevel) bool {
 			str := fl.Field().String()
-			err := RegexpPhone(str)
-			if err != nil {
-				return false
-			}
-			return true
+			return RegexpPhone(str) == nil
 		}
 		if err := v.validate.RegisterValidation("phone_number", f1, false); err != nil {
 			panic(err)
 		}
 		f2 := func(fl validator.FieldLevel) bool {
 			str := fl.Field().String()
-			err := RegexpUser(str)
-			if err != nil {
-				return false
-			}
-			return true
+			return RegexpUser(str) == nil
 		}
 		if err := v.validate.RegisterValidation("user_id", f2, false); err != nil {
 			panic(err)
 		}
 		f3 := func(fl validator.FieldLevel) bool {
 			str := fl.Field().String()
-			err := RegexpPassword(str)
-			if err != nil {
-				return false
-			}
-			return true
+			return RegexpPassword(str) == nil
 		}
 		if err := v.validate.RegisterValidation("password", f3, false); err != nil {
 			panic(err)

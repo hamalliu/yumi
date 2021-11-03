@@ -94,8 +94,6 @@ func (alipp Page) PayNotifyResp(err error, resp http.ResponseWriter) {
 	} else {
 		_, _ = resp.Write([]byte(err.Error()))
 	}
-
-	return
 }
 
 //QueryPayStatus ...

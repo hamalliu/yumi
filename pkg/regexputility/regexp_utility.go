@@ -54,11 +54,7 @@ func RegexpPassword(str string) bool {
 	//包含数字和字母
 	alphabetAndNumber := fmt.Sprintf(".*%s.*%s.*|.*%s.*%s.*", alphabet, number, number, alphabet)
 	re = regexp.MustCompile(alphabetAndNumber)
-	if string(re.Find([]byte(str))) == str {
-		return true
-	}
-
-	return false
+	return string(re.Find([]byte(str))) == str
 }
 
 // RegexpIP4 ...

@@ -21,7 +21,6 @@ func CheckCoordinates(c XY, cities []City, cityCenters []Center) (parent, code s
 		maybeProvinces[maybeCities[i].Parent] = maybeCities[i].Province
 		for _, plg := range maybeCities[i].Polygons {
 			if c.In(plg) {
-				find = true
 				return maybeCities[i].Parent, maybeCities[i].Code
 			}
 		}
@@ -30,7 +29,6 @@ func CheckCoordinates(c XY, cities []City, cityCenters []Center) (parent, code s
 		for _, province := range maybeProvinces {
 			for _, plg := range province.Polygons {
 				if c.In(plg) {
-					find = true
 					return province.Code, ""
 				}
 			}

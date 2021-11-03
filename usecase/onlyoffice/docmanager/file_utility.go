@@ -181,7 +181,7 @@ func (fu FileUtility) GetCorrectName(fileName, userID string) string {
 	name := baseName + ext
 	index := 1
 
-	if fileutility.ExistFile(fu.StoragePath(fileName, userID)) {
+	for fileutility.ExistFile(fu.StoragePath(fileName, userID)) {
 		name = fmt.Sprintf("%s(%d)%s", baseName, index, ext)
 		index++
 	}

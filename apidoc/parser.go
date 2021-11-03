@@ -81,7 +81,7 @@ func Parse(filePath, prefix string) (err error) {
 					}
 
 					// 解析：admin.Mount(ar)
-					if strings.IndexAny("GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE, CONNECT, TRACE", slct.Sel.Name) != -1 {
+					if strings.ContainsAny("GET, POST, PUT, PATCH, HEAD, OPTIONS, DELETE, CONNECT, TRACE", slct.Sel.Name) {
 						funcName := expr.Args[1].(*ast.Ident).Name
 						prms, body, resp, err := ParseDto(filePath, funcName)
 						if err != nil {
@@ -331,14 +331,12 @@ func parseSchema(f *ast.File, objName string) (s openapi3.Schema) {
 				default:
 					if strings.HasPrefix(ss.Type, "array ") {
 						ss.Type = strings.TrimPrefix(ss.Type, "array ")
-						item := openapi3.Schema{}
-						item = parseSchema(f, ss.Type)
+						item := parseSchema(f, ss.Type)
 
 						ss.Type = "array"
 						ss.Items = openapi3.NewSchemaRef("", &item)
 					} else {
-						item := openapi3.Schema{}
-						item = parseSchema(f, ss.Type)
+						item := parseSchema(f, ss.Type)
 
 						ss.Type = "object"
 						ss.Properties = make(map[string]*openapi3.SchemaRef)

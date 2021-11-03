@@ -142,8 +142,6 @@ func Init(conf conf.OnlyOffice) {
 	if err := json.NewDecoder(f).Decode(&_conf); err != nil {
 		panic(err)
 	}
-
-	return
 }
 
 //Get ...

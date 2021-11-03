@@ -883,7 +883,7 @@ func parseBill(billByte []byte, billType, tarType string) ([]DownloadBillReturn,
 			continue
 		}
 
-		if strings.Index(entrys[i], "`") == -1 {
+		if !strings.Contains(entrys[i], "`") {
 			isBillData = false
 		}
 

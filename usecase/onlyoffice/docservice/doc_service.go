@@ -90,36 +90,25 @@ func (ds DocService) ConvertURIErrorMessage(errorCode int) (errorMessage error) 
 	switch errorCode {
 	case -20:
 		errorMessage = fmt.Errorf("Error encrypt signature")
-		break
 	case -8:
 		errorMessage = fmt.Errorf("Error document signature")
-		break
 	case -7:
 		errorMessage = fmt.Errorf("Error document request")
-		break
 	case -6:
 		errorMessage = fmt.Errorf("Error database")
-		break
 	case -5:
 		errorMessage = fmt.Errorf("Error unexpected guid")
-		break
 	case -4:
 		errorMessage = fmt.Errorf("Error download error")
-		break
 	case -3:
 		errorMessage = fmt.Errorf("Error convertation error")
-		break
 	case -2:
 		errorMessage = fmt.Errorf("Error convertation timeout")
-		break
 	case -1:
 		errorMessage = fmt.Errorf("Error convertation unknown")
-		break
 	case 0:
-		break
 	default:
 		errorMessage = fmt.Errorf("%s%d", "ErrorCode = ", errorCode)
-		break
 	}
 
 	return
