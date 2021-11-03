@@ -11,8 +11,8 @@ type Service struct {
 }
 
 // New a Service object
-func New(data Data, options ...ServiceOption) (*Service, error) {
-	do := serviceOptions{}
+func New(data Data, options ...Option) (*Service, error) {
+	do := Options{}
 	for _, option := range options {
 		option.f(&do)
 	}

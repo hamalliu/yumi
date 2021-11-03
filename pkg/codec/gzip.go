@@ -13,8 +13,8 @@ func Gzip(bs []byte) []byte {
 	var b bytes.Buffer
 
 	w := gzip.NewWriter(&b)
-	w.Write(bs)
-	w.Close()
+	_, _ = w.Write(bs)
+	_ = w.Close()
 
 	return b.Bytes()
 }
@@ -25,7 +25,7 @@ func Gunzip(bs []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer r.Close()
+	defer func() { _ = r.Close() }()
 
 	var c bytes.Buffer
 	if _, err = io.Copy(&c, io.LimitReader(r, unzipLimit)); err != nil {

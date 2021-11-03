@@ -2,6 +2,7 @@ package conf
 
 import "yumi/usecase/trade/thirdpf/wxpay"
 
+// Trade ...
 type Trade struct {
 	H5Info H5Info
 }
@@ -13,6 +14,7 @@ type H5Info struct {
 	WapName string //WAP网站名
 }
 
+// MwebConfig ...
 func (t Trade) MwebConfig() wxpay.MwebConfig {
 	return wxpay.MwebConfig{
 		H5Info: wxpay.H5Info{

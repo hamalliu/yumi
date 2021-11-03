@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	// ErrorNoSeesion ...
 	ErrorNoSeesion = errors.New("sessions: no session in result")
 )
 

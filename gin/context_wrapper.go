@@ -54,7 +54,7 @@ func (c *Context) WriteJSON(data interface{}, err error) {
 	c.Bytes(code, "application/json; charset=utf-8", bs)
 }
 
-// WriteJson json序列化通用返回结构，并加密再写入连接中
+// WriteEncryptJSON json序列化通用返回结构，并加密再写入连接中
 func (c *Context) WriteEncryptJSON(data interface{}, err error) {
 	code, bs, err := c.marshalJSON(data, err)
 	if err != nil {

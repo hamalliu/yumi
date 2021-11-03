@@ -7,8 +7,9 @@ import (
 	"os"
 )
 
-func InitStdlog(level Level, options ...LogOption) {
-	opts := LogOptions{}
+// InitStdlog ...
+func InitStdlog(level Level, options ...Option) {
+	opts := Options{}
 	for _, option := range options {
 		option.F(&opts)
 	}
@@ -68,22 +69,27 @@ func InitStdlog(level Level, options ...LogOption) {
 	}
 }
 
+// StdLogger ...
 type StdLogger struct {
 	l *log.Logger
 }
 
+// Error ...
 func (s *StdLogger) Error(args ...interface{}) {
-	s.l.Output(3, fmt.Sprintln("ERROR ", args))
+	_ = s.l.Output(3, fmt.Sprintln("ERROR ", args))
 }
 
+// Warn ...
 func (s *StdLogger) Warn(args ...interface{}) {
-	s.l.Output(3, fmt.Sprintln("Warn ", args))
+	_ = s.l.Output(3, fmt.Sprintln("Warn ", args))
 }
 
+// Info ...
 func (s *StdLogger) Info(args ...interface{}) {
-	s.l.Output(3, fmt.Sprintln("INFO  ", args))
+	_ = s.l.Output(3, fmt.Sprintln("INFO  ", args))
 }
 
+// Debug ...
 func (s *StdLogger) Debug(args ...interface{}) {
-	s.l.Output(3, fmt.Sprintln("DEBUG ", args))
+	_ = s.l.Output(3, fmt.Sprintln("DEBUG ", args))
 }

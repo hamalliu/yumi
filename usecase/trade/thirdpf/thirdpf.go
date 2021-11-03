@@ -26,11 +26,12 @@ const (
 //Way ...
 type Way string
 
+// Trades ...
 type Trades struct {
 	trades map[Way]entity.Trade
 }
 
-// NewThirdpf ...
+// New ...
 func New() *Trades {
 	t := &Trades{}
 	t.trades = make(map[Way]entity.Trade)

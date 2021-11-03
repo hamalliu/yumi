@@ -9,10 +9,12 @@ import (
 	"yumi/pkg/log"
 )
 
+// MongoTX ...
 type MongoTX struct {
 	Sctx mongo.SessionContext
 }
 
+// Start ...
 func (tx *MongoTX) Start() error {
 	err := tx.Sctx.StartTransaction(options.Transaction().
 		SetReadConcern(readconcern.Snapshot()).
@@ -25,10 +27,12 @@ func (tx *MongoTX) Start() error {
 	return nil
 }
 
+// Rollback ...
 func (tx *MongoTX) Rollback() error {
 	return tx.Sctx.AbortTransaction(tx.Sctx)
 }
 
+// Commit ...
 func (tx *MongoTX) Commit() error {
 	for {
 		err := tx.Sctx.CommitTransaction(tx.Sctx)

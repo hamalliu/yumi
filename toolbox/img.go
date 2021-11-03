@@ -71,8 +71,10 @@ func AddTextToImageByPth(srcPth string, drawX, drawY int, text, fntPth string, f
 	if err != nil {
 		return err
 	}
-	defer dst.Close()
-	png.Encode(dst, canvas)
+	defer func() { _ = dst.Close() }()
+	if err := png.Encode(dst, canvas); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -86,7 +88,7 @@ func AddImageToImageByPth(bgPth string, t string, r io.Reader, drawX, drawY int,
 	if err != nil {
 		return err
 	}
-	defer bg.Close()
+	defer func() { _ = bg.Close() }()
 	switch bgPth[len(bgPth)-3:] {
 	case "png":
 		imgDg, err = png.Decode(bg)
@@ -129,8 +131,10 @@ func AddImageToImageByPth(bgPth string, t string, r io.Reader, drawX, drawY int,
 	if err != nil {
 		return err
 	}
-	defer dst.Close()
-	png.Encode(dst, canvas)
+	defer func() { _ = dst.Close() }()
+	if err := png.Encode(dst, canvas); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -183,7 +187,9 @@ func AddTextToImageByReader(src io.Reader, fileType string, drawX, drawY int, te
 
 	//编码成png格式
 	dst := bytes.Buffer{}
-	png.Encode(&dst, canvas)
+	if err := png.Encode(&dst, canvas); err != nil {
+		return nil, err
+	}
 
 	return &dst, nil
 }
@@ -235,7 +241,9 @@ func AddImageToImageByReader(bg io.Reader, t string, r io.Reader, drawX, drawY i
 
 	//编码成png格式
 	dst := bytes.Buffer{}
-	png.Encode(&dst, canvas)
+	if err := png.Encode(&dst, canvas); err != nil {
+		return nil, err
+	}
 
 	return &dst, nil
 }

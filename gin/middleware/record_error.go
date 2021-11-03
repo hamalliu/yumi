@@ -10,6 +10,7 @@ import (
 	"yumi/pkg/types"
 )
 
+// RecordError ...
 func RecordError() gin.HandlerFunc {
 	var warpErr types.WarpError = "middleware.RecordError"
 

@@ -174,6 +174,7 @@ func excelRowAdd(row string, index int) string {
 	return strconv.Itoa(rowi)
 }
 
+// OutputStructToExcel 导出到excel
 func OutputStructToExcel(x *excelize.File, tabIndex int, structItf interface{}, start int, kyExcel string) error {
 	if kyExcel == "" {
 		kyExcel = kyExcelCell
@@ -233,7 +234,9 @@ func setStructToSheet(x *excelize.File, tabName string, v reflect.Value, t refle
 		}
 
 		if !v.Field(i).IsZero() {
-			x.SetCellValue(tabName, axis, v.Field(i))
+			if err := x.SetCellValue(tabName, axis, v.Field(i)); err != nil {
+				return err
+			}
 		}
 	}
 

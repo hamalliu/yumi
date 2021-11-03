@@ -10,7 +10,7 @@ import (
 	"yumi/usecase/trade/thirdpf/wxpay"
 )
 
-// 新建用例
+// Usecase 新建用例
 func Usecase(mongoC *mgoc.Client, mysqlC *mysqlx.Client, wxMwebConf wxpay.MwebConfig) (*service.Service, error) {
 	data := data.New(mysqlC)
 	trades := thirdpf.New()

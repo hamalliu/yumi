@@ -10,7 +10,7 @@ import (
 // Hmac ...
 func Hmac(key []byte, body string) []byte {
 	h := hmac.New(sha256.New, key)
-	io.WriteString(h, body)
+	_, _ = io.WriteString(h, body)
 	return h.Sum(nil)
 }
 

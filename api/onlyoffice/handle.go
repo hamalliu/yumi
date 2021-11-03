@@ -342,7 +342,7 @@ func save(c *gin.Context, body map[string]interface{}, downloadURI, fileName, us
 	return
 
 Error:
-	c.Writer.Write([]byte("{\"error\":1}"))
+	_, _ = c.Writer.Write([]byte("{\"error\":1}"))
 	return
 }
 
@@ -391,7 +391,7 @@ func forceSave(c *gin.Context, body map[string]interface{}, downloadURI, fileNam
 	return
 
 Error:
-	c.Writer.Write([]byte("{\"error\":1}"))
+	_, _ = c.Writer.Write([]byte("{\"error\":1}"))
 	return
 }
 
@@ -479,7 +479,7 @@ func Track(c *gin.Context) {
 	track(c, bodyMap, reqm.FileName, reqm.UserID)
 
 Error:
-	c.Writer.Write([]byte("{\"error\":1}"))
+	_, _ = c.Writer.Write([]byte("{\"error\":1}"))
 	return
 }
 

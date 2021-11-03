@@ -1,7 +1,8 @@
 package mssqlx
 
+// 必须导入在test，main文件中 _ "github.com/denisenkom/go-mssqldb"
+
 import (
-	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/jmoiron/sqlx"
 
 	"yumi/pkg/stores/dbc"

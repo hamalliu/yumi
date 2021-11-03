@@ -1,14 +1,15 @@
 package service
 
-// ServiceOption ...
-type ServiceOption struct {
-	f func(*serviceOptions)
+// Option ...
+type Option struct {
+	f func(*Options)
 }
 
-type serviceOptions struct {
+// Options ...
+type Options struct {
 }
 
 // XXX ...
-func XXX() ServiceOption {
-	return ServiceOption{}
+func XXX() Option {
+	return Option{}
 }

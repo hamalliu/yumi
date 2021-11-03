@@ -83,7 +83,7 @@ func (m *Client) PageSelect(dest interface{}, cloumns, table, where, order strin
 	if err != nil {
 		return 0, 0, 0, err
 	}
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	if err = sqlx.StructScan(rows, dest); err != nil {
 		return 0, 0, 0, err
 	}
@@ -144,7 +144,7 @@ func rowsToJSON(rows *sql.Rows) string {
 	var w bytes.Buffer
 SCAN:
 	valsMap := make(map[string]interface{})
-	sqlx.MapScan(rows, valsMap)
+	_ = sqlx.MapScan(rows, valsMap)
 	b, _ := json.Marshal(valsMap)
 	w.Write(b)
 	if rows.Next() {

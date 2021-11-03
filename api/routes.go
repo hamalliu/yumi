@@ -18,7 +18,7 @@ func Mount(r gin.GroupRoutes) {
 	ar.Use(
 		middleware.Recovery(),
 		middleware.InitCasbin(conf.Get().Casbin.ModelFile, nil),
-		middleware.Cors(conf.Get().HttpServer.CORSAllowedOrigins, int(conf.Get().HttpServer.CORSMaxAge.Duration()/time.Second)),
+		middleware.Cors(conf.Get().HTTPServer.CORSAllowedOrigins, int(conf.Get().HTTPServer.CORSMaxAge.Duration()/time.Second)),
 		middleware.CSRF(nil, nil),
 		middleware.MaxBytes(0),
 		middleware.Debug(conf.IsDebug()),

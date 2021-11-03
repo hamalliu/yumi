@@ -10,7 +10,7 @@ import (
 type Config struct {
 	// 运维层配置
 	HostEnv    HostEnv
-	HttpServer HTTPServer
+	HTTPServer HTTPServer
 	DB         DB
 	Mongo      Mongo
 	Log        Log
@@ -34,6 +34,7 @@ type HTTPServer struct {
 	CORSMaxAge         types.TimeDuration // 最大持续时间
 }
 
+// Casbin ...
 type Casbin struct {
 	ModelFile string
 }

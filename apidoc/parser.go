@@ -65,10 +65,6 @@ func Parse(filePath, prefix string) (err error) {
 
 							for _, imp := range f.Imports {
 								name := ""
-								if imp.Name != nil {
-									name = imp.Name.Name
-								}
-
 								importPath := imp.Path.Value[1 : len(imp.Path.Value)-1]
 								name = filepath.Base(importPath)
 

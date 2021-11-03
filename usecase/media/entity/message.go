@@ -5,7 +5,7 @@ import "yumi/pkg/status"
 var (
 	m = status.NewMessages()
 
-	// 文件太大
+	// FileIsTooLarge 文件太大
 	FileIsTooLarge = m.NewMessageID("", "", "")
 )
 

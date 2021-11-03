@@ -1,5 +1,6 @@
 package log
 
+// Logger 抽象接口
 type Logger interface {
 	Error(args ...interface{})
 	Warn(args ...interface{})

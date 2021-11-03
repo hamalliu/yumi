@@ -96,15 +96,18 @@ func (as ArrayString) IndexOf(elem string) int {
 	return -1
 }
 
-type JsonBytes []byte
+// JSONBytes ...
+type JSONBytes []byte
 
-func (m *JsonBytes) MarshalJSON() ([]byte, error) {
+// MarshalJSON ...
+func (m *JSONBytes) MarshalJSON() ([]byte, error) {
 	return *m, nil
 }
 
-func (m *JsonBytes) UnmarshalJSON(data []byte) (err error) {
+// UnmarshalJSON ...
+func (m *JSONBytes) UnmarshalJSON(data []byte) (err error) {
 	if data[0] == '"' {
-		*m = data[1:len(data)-1]
+		*m = data[1 : len(data)-1]
 	} else {
 		*m = data
 	}

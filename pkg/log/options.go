@@ -9,13 +9,13 @@ import (
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
 )
 
-// LogOption ...
-type LogOption struct {
-	F func(*LogOptions)
+// Option ...
+type Option struct {
+	F func(*Options)
 }
 
-// LogOptions ...
-type LogOptions struct {
+// Options ...
+type Options struct {
 	StorageDir    string
 	FileName      string
 	IsOutputStd   bool
@@ -23,7 +23,8 @@ type LogOptions struct {
 	RotationTime  time.Duration
 }
 
-func (lo *LogOptions) NewFileOutput(level Level) (io.Writer, error) {
+// NewFileOutput ...
+func (lo *Options) NewFileOutput(level Level) (io.Writer, error) {
 	fileOutput, err := lo.newFileOutput(level.ToString())
 	if err != nil {
 		return nil, err
@@ -31,15 +32,15 @@ func (lo *LogOptions) NewFileOutput(level Level) (io.Writer, error) {
 	return fileOutput, nil
 }
 
-func (lo *LogOptions) defaultSet() {
+func (lo *Options) defaultSet() {
 	lo.StorageDir = "logfile"
 	lo.FileName = "yumi"
 	lo.RotationCount = 7
-	lo.RotationTime = time.Hour*24
+	lo.RotationTime = time.Hour * 24
 	lo.IsOutputStd = true
 }
 
-func (lo *LogOptions) newFileOutput(subDir string) (io.Writer, error) {
+func (lo *Options) newFileOutput(subDir string) (io.Writer, error) {
 	lo.defaultSet()
 
 	storageDir := lo.StorageDir
@@ -59,45 +60,45 @@ func (lo *LogOptions) newFileOutput(subDir string) (io.Writer, error) {
 }
 
 // SetStorageDir ...
-func SetStorageDir(storageDir string) LogOption {
-	return LogOption{
-		F: func(lo *LogOptions) {
+func SetStorageDir(storageDir string) Option {
+	return Option{
+		F: func(lo *Options) {
 			lo.StorageDir = storageDir
 		},
 	}
 }
 
 // SetFileName ...
-func SetFileName(fileName string) LogOption {
-	return LogOption{
-		F: func(lo *LogOptions) {
+func SetFileName(fileName string) Option {
+	return Option{
+		F: func(lo *Options) {
 			lo.FileName = fileName
 		},
 	}
 }
 
 // SetIsOutputStd ...
-func SetIsOutputStd(isOutputStd bool) LogOption {
-	return LogOption{
-		F: func(lo *LogOptions) {
+func SetIsOutputStd(isOutputStd bool) Option {
+	return Option{
+		F: func(lo *Options) {
 			lo.IsOutputStd = isOutputStd
 		},
 	}
 }
 
-// SetFileMaxAge ...
-func SetRotationCount(n uint) LogOption {
-	return LogOption{
-		F: func(lo *LogOptions) {
+// SetRotationCount ...
+func SetRotationCount(n uint) Option {
+	return Option{
+		F: func(lo *Options) {
 			lo.RotationCount = n
 		},
 	}
 }
 
 // SetRotationTime ...
-func SetRotationTime(rotationTime time.Duration) LogOption {
-	return LogOption{
-		F: func(lo *LogOptions) {
+func SetRotationTime(rotationTime time.Duration) Option {
+	return Option{
+		F: func(lo *Options) {
 			lo.RotationTime = rotationTime
 		},
 	}

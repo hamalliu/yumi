@@ -6,6 +6,7 @@ import (
 	"yumi/usecase/user/service"
 )
 
+// Usecase ...
 func Usecase(mongoC *mgoc.Client) (*service.Service, error) {
 	data := data.New(mongoC)
 	return service.New(data)

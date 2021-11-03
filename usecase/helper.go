@@ -15,6 +15,7 @@ import (
 //=======================================================//
 var tradeSrv *tradeservice.Service
 
+// InstallTrade ...
 func InstallTrade(mongoC *mgoc.Client, mysqlC *mysqlx.Client, wxMwebConf wxpay.MwebConfig) {
 	var err error
 	tradeSrv, err = trade.Usecase(mongoC, mysqlC, wxMwebConf)
@@ -23,6 +24,7 @@ func InstallTrade(mongoC *mgoc.Client, mysqlC *mysqlx.Client, wxMwebConf wxpay.M
 	}
 }
 
+// Trade ...
 func Trade() *tradeservice.Service {
 	return tradeSrv
 }
@@ -30,6 +32,7 @@ func Trade() *tradeservice.Service {
 //=======================================================//
 var userSrv *userservice.Service
 
+// InstallUser ...
 func InstallUser(mongoC *mgoc.Client) {
 	var err error
 	userSrv, err = user.Usecase(mongoC)
@@ -38,6 +41,7 @@ func InstallUser(mongoC *mgoc.Client) {
 	}
 }
 
+// User ...
 func User() *userservice.Service {
 	return userSrv
 }
@@ -45,6 +49,7 @@ func User() *userservice.Service {
 //=======================================================//
 var mediaSrv *mediaservice.Service
 
+// InstallMedia ...
 func InstallMedia(mysqlC *mysqlx.Client) {
 	var err error
 	mediaSrv, err = media.Usecase(mysqlC)
@@ -53,6 +58,7 @@ func InstallMedia(mysqlC *mysqlx.Client) {
 	}
 }
 
+// Media ...
 func Media() *mediaservice.Service {
 	return mediaSrv
 }

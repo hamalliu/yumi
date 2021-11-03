@@ -53,7 +53,7 @@ type Conn struct {
 
 // Do warp a Do fucntion of redis connect
 func (c *Conn) Do(args ...interface{}) (reply interface{}, err error) {
-	defer c.rc.Close()
+	defer func () { _ = c.rc.Close() }()
 	return c.rc.Do(c.commond, args)
 }
 

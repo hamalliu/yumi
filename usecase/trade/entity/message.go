@@ -7,11 +7,11 @@ import (
 var (
 	m = status.NewMessages()
 
-	// 订单超时
+	// OrderTimeout 订单超时
 	OrderTimeout = m.NewMessageID("", "", "")
-	// 订单已存在
+	// OrderAlreadyExists 订单已存在
 	OrderAlreadyExists = m.NewMessageID("", "", "")
-	// 订单已完成，不能取消
+	// OrderFinishedRefuseCancel 订单已完成，不能取消
 	OrderFinishedRefuseCancel = m.NewMessageID("", "", "")
 )
 

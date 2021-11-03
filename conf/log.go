@@ -2,6 +2,7 @@ package conf
 
 import "yumi/pkg/log"
 
+// Log ...
 type Log struct {
 	Level       log.Level
 	StorageDir  string
@@ -10,8 +11,8 @@ type Log struct {
 }
 
 // Options ...
-func (l *Log) Options() []log.LogOption {
-	opts := []log.LogOption{}
+func (l *Log) Options() []log.Option {
+	opts := []log.Option{}
 	opts = append(opts, log.SetFileName(l.FileName))
 	opts = append(opts, log.SetIsOutputStd(l.IsOutputStd))
 	opts = append(opts, log.SetStorageDir(l.StorageDir))

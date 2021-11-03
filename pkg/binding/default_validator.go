@@ -57,7 +57,9 @@ func (v *defaultValidator) lazyinit() {
 			}
 			return true
 		}
-		v.validate.RegisterValidation("phone_number", f1, false)
+		if err := v.validate.RegisterValidation("phone_number", f1, false); err != nil {
+			panic(err)
+		}
 		f2 := func(fl validator.FieldLevel) bool {
 			str := fl.Field().String()
 			err := RegexpUser(str)
@@ -66,7 +68,9 @@ func (v *defaultValidator) lazyinit() {
 			}
 			return true
 		}
-		v.validate.RegisterValidation("user_id", f2, false)
+		if err := v.validate.RegisterValidation("user_id", f2, false); err != nil {
+			panic(err)
+		}
 		f3 := func(fl validator.FieldLevel) bool {
 			str := fl.Field().String()
 			err := RegexpPassword(str)
@@ -75,7 +79,9 @@ func (v *defaultValidator) lazyinit() {
 			}
 			return true
 		}
-		v.validate.RegisterValidation("password", f3, false)
+		if err := v.validate.RegisterValidation("password", f3, false); err != nil {
+			panic(err)
+		}
 		v.validate.SetTagName("binding")
 	})
 }

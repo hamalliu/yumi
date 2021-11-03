@@ -11,8 +11,8 @@ import (
 )
 
 //InitLogrus ...
-func InitLogrus(level Level, options ...LogOption) {
-	opts := LogOptions{}
+func InitLogrus(level Level, options ...Option) {
+	opts := Options{}
 	for _, option := range options {
 		option.F(&opts)
 	}

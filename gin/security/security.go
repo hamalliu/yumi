@@ -65,7 +65,7 @@ func computeBodySignature(r *http.Request) string {
 	var buf bytes.Buffer
 	tee := io.TeeReader(r.Body, &buf)
 	sha := sha256.New()
-	io.Copy(sha, tee)
+	_, _ = io.Copy(sha, tee)
 	r.Body = ioutil.NopCloser(&buf)
 	return fmt.Sprintf("%x", sha.Sum(nil))
 }

@@ -44,7 +44,7 @@ func main() {
 	usecase.InstallUser(mgoCli)
 
 	log.Info("构建服务器")
-	srvconf := conf.Get().HttpServer
+	srvconf := conf.Get().HTTPServer
 	mux := gin.NewMux()
 	server := http.Server{
 		Handler:      http.TimeoutHandler(mux, srvconf.HandlerTimeout.Duration(), "handler timeout"),
@@ -58,7 +58,7 @@ func main() {
 	api.Mount(router)
 
 	//启动服务
-	log.Info("启动服务器，侦听地址：" + conf.Get().HttpServer.Addr)
+	log.Info("启动服务器，侦听地址：" + conf.Get().HTTPServer.Addr)
 	go func() {
 		if err := gin.Run(&server); err != nil {
 			log.Info(fmt.Errorf("启动服务器失败: %s", err.Error()))

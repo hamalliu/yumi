@@ -49,6 +49,7 @@ type Span struct {
 	references []Reference
 }
 
+// Reference is not define
 type Reference struct {
 	// TODO:
 }

@@ -1,12 +1,19 @@
 package gin
 
+// GroupRoutes ...
 type GroupRoutes interface {
+	// Group ...
 	Group(string, string, ...HandlerFunc) *RouterGroup
-	
+
 	// Handle(string, string, string, ...HandlerFunc) IRoutes
+	// HEAD
 	HEAD(string, string, ...HandlerFunc) IRoutes
+	// GET ...
 	GET(string, string, ...HandlerFunc) IRoutes
+	// POST ...
 	POST(string, string, ...HandlerFunc) IRoutes
+	// PUT ...
 	PUT(string, string, ...HandlerFunc) IRoutes
+	// DELETE ...
 	DELETE(string, string, ...HandlerFunc) IRoutes
 }

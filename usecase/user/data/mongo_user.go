@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -12,15 +11,18 @@ import (
 	"yumi/usecase/user/entity"
 )
 
+// MongoTX ...
 type MongoTX struct {
 	*MongoCli
 	*mgoc.MongoTX
 }
 
+// Ctx ...
 func (tx MongoTX) Ctx() context.Context {
 	return tx.Sctx
 }
 
+// NewTx ...
 func (cli *MongoCli) NewTx() (*MongoTX, error) {
 	sess, err := cli.StartSession()
 	if err != nil {
@@ -32,9 +34,9 @@ func (cli *MongoCli) NewTx() (*MongoTX, error) {
 	return &MongoTX{MongoCli: cli, MongoTX: &mgoc.MongoTX{Sctx: sctx}}, nil
 }
 
+// Ctx ...
 func (cli *MongoCli) Ctx() context.Context {
-	timeoutCtx, _ := context.WithTimeout(context.Background(), time.Second)
-	return timeoutCtx
+	return context.Background()
 }
 
 func (cli *MongoCli) collUsers() *mongo.Collection {

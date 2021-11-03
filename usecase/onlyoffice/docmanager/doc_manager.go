@@ -71,7 +71,7 @@ func (dm DocManager) SaveCreateInfo(fileName, userID, userName string) error {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
+	defer func(){_ = f.Close()}()
 
 	_, err = f.WriteString(fmt.Sprintf("%s,%s,%s", modTimeStr, userID, userName))
 	if err != nil {
