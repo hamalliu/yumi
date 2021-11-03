@@ -51,12 +51,10 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20200427203606-3cfed13b9966 // indirect
 	github.com/ugorji/go/codec v1.2.4
-	github.com/xdg/scram v1.0.3 // indirect
-	github.com/xdg/stringprep v1.0.3 // indirect
 	github.com/xuri/excelize/v2 v2.4.1
 	go.etcd.io/bbolt v1.3.4 // indirect
 	go.etcd.io/etcd v0.0.0-20200513171258-e048e166ab9c
-	go.mongodb.org/mongo-driver v1.4.6
+	go.mongodb.org/mongo-driver v1.5.1
 	go.uber.org/atomic v1.7.0
 	go.uber.org/zap v1.17.0 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
