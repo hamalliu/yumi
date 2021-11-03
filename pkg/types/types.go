@@ -66,16 +66,16 @@ func (s *SpaceSize) UnmarshalText(text []byte) error {
 
 func (s *SpaceSize) String() string {
 	size := int64(*s)
-	if size > 2 << 40 {
+	if size > 2<<40 {
 		return fmt.Sprintf("%dtb", size/2<<40)
 	}
-	if size > 2 << 30 {
+	if size > 2<<30 {
 		return fmt.Sprintf("%dgb", size/2<<30)
 	}
-	if size > 2 << 20 {
+	if size > 2<<20 {
 		return fmt.Sprintf("%dmb", size/2<<20)
 	}
-	if size > 2 << 10 {
+	if size > 2<<10 {
 		return fmt.Sprintf("%dkb", size/2<<10)
 	}
 
@@ -94,4 +94,19 @@ func (as ArrayString) IndexOf(elem string) int {
 	}
 
 	return -1
+}
+
+type JsonBytes []byte
+
+func (m *JsonBytes) MarshalJSON() ([]byte, error) {
+	return *m, nil
+}
+
+func (m *JsonBytes) UnmarshalJSON(data []byte) (err error) {
+	if data[0] == '"' {
+		*m = data[1:len(data)-1]
+	} else {
+		*m = data
+	}
+	return nil
 }

@@ -310,7 +310,7 @@ func (e *EtcdRegistry) register(ctx context.Context, ins *discovery.Instance) (e
 	_, err = e.cli.Put(ctx, prefix, string(val), clientv3.WithLease(clientv3.LeaseID(ttlResp.ID)))
 	if err != nil {
 		err = fmt.Errorf("etcd: register client.Put(%v) appid(%s) hostname(%s) error(%v)",
-		prefix, ins.AppID, ins.Hostname, err)
+			prefix, ins.AppID, ins.Hostname, err)
 		return errors.WithStack(err)
 	}
 	return nil

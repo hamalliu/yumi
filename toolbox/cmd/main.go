@@ -111,7 +111,7 @@ func LeadIn(dsn, dbName, collectionName, path, tenancyID string) error {
 	}
 
 	cs := []ClientInfo{}
-	err = toolbox.ParseExcelToStruct(path, 1, &cs, "col", 1, []int{})
+	err = toolbox.ParseExcelToStruct(path, 0, &cs, "col", 1, []int{})
 	if err != nil {
 		return err
 	}

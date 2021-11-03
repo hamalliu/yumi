@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/xuri/excelize/v2"
 )
 
 const (
@@ -78,7 +78,7 @@ func setSheetToStruct(x *excelize.File, tabName string, v reflect.Value, t refle
 			axis = axiss[index]
 		}
 
-		value := x.GetCellValue(tabName, axis)
+		value, _ := x.GetCellValue(tabName, axis)
 		if value != "" {
 			switch v.Field(i).Kind() {
 			case reflect.String:
@@ -118,7 +118,7 @@ func setSheetToStruct(x *excelize.File, tabName string, v reflect.Value, t refle
 }
 
 func getExcelLen(kyExcel, tabname string, x *excelize.File, keys []int, v reflect.Value) (l int) {
-	rows := x.GetRows(tabname)
+	rows, _ := x.GetRows(tabname)
 
 	switch kyExcel {
 	case kyExcelCol:

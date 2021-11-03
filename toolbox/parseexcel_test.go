@@ -6,7 +6,7 @@ import (
 	"yumi/conf"
 	"yumi/pkg/stores/mgoc"
 
-	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/xuri/excelize/v2"
 )
 
 type ProdInfo struct {
@@ -66,6 +66,25 @@ type ClientInfo struct {
 	BindPSN       bool   `json:"bind_psn" bson:"bind_psn"`
 }
 
+// AbnormalProcessConfBlackList 异常进程策略的黑名单
+type AbnormalProcessConfBlackList struct {
+	Name        string `json:"name" bson:"name" xls:"A2"`                 // 名称
+	ProcessPath string `json:"process_path" bson:"process_path" xls:"B2"` // 进程路径
+	Status      int8   `json:"status" bson:"status" xls:"-"`              // 1-启用 2-禁用
+	XlsStatus   string `json:"-" bson:"-" xls:"C2"`
+}
+
+func TestInput2(t *testing.T) {
+	path := "./异常进程黑名单模板.xlsx"
+	cs := []AbnormalProcessConfBlackList{}
+	err := ParseExcelToStruct(path, 0, &cs, kyExcelCol, 1, []int{0, 1, 2})
+	if err != nil {
+		t.Error(err)
+	}
+
+	t.Log(cs)
+}
+
 func TestInput(t *testing.T) {
 	confMgo := conf.Mongo{
 		Dsn: "mongodb://10.34.4.16:27017",
@@ -78,7 +97,7 @@ func TestInput(t *testing.T) {
 
 	path := "./topav1.xlsx"
 	cs := []*ClientInfo{}
-	err = ParseExcelToStruct(path, 1, &cs, kyExcelCol, 1, []int{})
+	err = ParseExcelToStruct(path, 0, &cs, kyExcelCol, 1, []int{})
 	if err != nil {
 		t.Error(err)
 	}
@@ -152,7 +171,7 @@ func TestParseC(t *testing.T) {
 	// }
 
 	ws := []WhiteList{}
-	err := ParseExcelToStruct("./1.xlsx", 1, &ws, "col", 1, []int{1, 2, 3, 4})
+	err := ParseExcelToStruct("./1.xlsx", 0, &ws, "col", 1, []int{1, 2, 3, 4})
 	if err != nil {
 		t.Error(err)
 	}

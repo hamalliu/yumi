@@ -49,6 +49,10 @@ type Span struct {
 	references []Reference
 }
 
+type Reference struct {
+	// TODO:
+}
+
 // Tag is a simple key value wrapper.
 // TODO (breaking change) deprecate in the next major release, use opentracing.Tag instead.
 type Tag struct {

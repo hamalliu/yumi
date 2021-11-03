@@ -32,13 +32,13 @@ func (cli *MongoCli) NewTx() (*MongoTX, error) {
 	return &MongoTX{MongoCli: cli, MongoTX: &mgoc.MongoTX{Sctx: sctx}}, nil
 }
 
-func (cli *MongoCli) collUsers() *mongo.Collection {
-	return cli.Database("yumi").Collection("users")
-}
-
 func (cli *MongoCli) Ctx() context.Context {
 	timeoutCtx, _ := context.WithTimeout(context.Background(), time.Second)
 	return timeoutCtx
+}
+
+func (cli *MongoCli) collUsers() *mongo.Collection {
+	return cli.Database("yumi").Collection("users")
 }
 
 // Create ...

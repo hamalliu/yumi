@@ -3,7 +3,9 @@
 *.code-workspace
 .idea
 .vscode
+*.xlsx
 logfile
 test
 pay_record
-tmp.json
+main
+tmp.*
