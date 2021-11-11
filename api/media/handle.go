@@ -23,7 +23,7 @@ func UploadMultiple(c *gin.Context) {
 		if err == http.ErrLineTooLong {
 			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(entity.FileIsTooLarge))
 		} else {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(err))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError("parse multipart form error", err))
 		}
 		return
 	}
@@ -34,7 +34,7 @@ func UploadMultiple(c *gin.Context) {
 	for i := 0; i < l; i++ {
 		mulf, err := fds[i].Open()
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(err))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError("read file error", err))
 			return
 		}
 
@@ -64,7 +64,7 @@ func Upload(c *gin.Context) {
 		if err == http.ErrLineTooLong {
 			c.WriteJSON(nil, status.FailedPrecondition().WithMessage(entity.FileIsTooLarge))
 		} else {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(err))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError("read file error", err))
 		}
 		return
 	}

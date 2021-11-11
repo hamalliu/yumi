@@ -50,8 +50,15 @@ func (s *Status) Error() string {
 }
 
 // WithError ...
+func (s *Status) WrapError(wrap string, err error) *Status {
+	s.err = fmt.Errorf("%s:%w", wrap, err)
+
+	return s
+}
+
+// WithError ...
 func (s *Status) WithError(err error) *Status {
-	s.err = fmt.Errorf("status: code = %d; message = %s; err = %w", s.code, s.message, err)
+	s.err = err
 
 	return s
 }

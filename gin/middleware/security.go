@@ -3,6 +3,7 @@ package middleware
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -58,22 +59,23 @@ func LoginSecurity(decrypters map[string]codec.RsaDecrypter, tolerance time.Dura
 		secret := attrs[secretField]
 		signature := attrs[signatureField]
 
+		wrapError := fmt.Sprintf("login api security error, remote_ip=%s", header.RemoteIP(c.Request))
 		if len(publicKey) == 0 || len(secret) == 0 || len(signature) == 0 {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidHeader))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, ErrInvalidHeader))
 			c.Abort()
 			return
 		}
 
 		decrypter, ok := decrypters[publicKey]
 		if !ok {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidPublicKey))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, ErrInvalidPublicKey))
 			c.Abort()
 			return
 		}
 
 		decryptedSecret, err := decrypter.DecryptBase64(secret)
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidSecret))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, ErrInvalidSecret))
 			c.Abort()
 			return
 		}
@@ -83,14 +85,14 @@ func LoginSecurity(decrypters map[string]codec.RsaDecrypter, tolerance time.Dura
 		timestamp := attrs[timestampField]
 		nonce := attrs[nonceField]
 		if len(realSecret) == 0 || len(timestamp) == 0 || len(nonce) == 0 {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidHeader))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, ErrInvalidHeader))
 			c.Abort()
 			return
 		}
 
 		realSecretBytes, err := base64.StdEncoding.DecodeString(realSecret)
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidKey))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, ErrInvalidKey))
 			c.Abort()
 			return
 		}
@@ -104,7 +106,7 @@ func LoginSecurity(decrypters map[string]codec.RsaDecrypter, tolerance time.Dura
 
 		err = s.VerifySignature(c.Request, tolerance)
 		if err != nil {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(err))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, err))
 			c.Abort()
 			return
 		}
@@ -125,15 +127,17 @@ func NoLoginSecurity(getSecret func (user string) string, tolerance time.Duratio
 		signature := attrs[signatureField]
 		timestamp := attrs[timestampField]
 		nonce := attrs[nonceField]
+
+		wrapError := fmt.Sprintf("no login api security error, remote_ip=%s", header.RemoteIP(c.Request))
 		if len(signature) == 0 || len(timestamp) == 0 || len(nonce) == 0 {
-			c.WriteJSON(nil, status.InvalidArgument().WithError(ErrInvalidHeader))
+			c.WriteJSON(nil, status.InvalidArgument().WrapError(wrapError, ErrInvalidHeader))
 			c.Abort()
 			return
 		}
 
 		user := c.Get(valuer.KeyUser).String()
 		if user == "" {
-			c.WriteJSON(nil, status.Internal().WithError(errors.New("security middleware: no found user name")))
+			c.WriteJSON(nil, status.Internal().WrapError("no login api securtiy error", errors.New("not found user name")))
 			c.Abort()
 			return
 		}
@@ -147,7 +151,7 @@ func NoLoginSecurity(getSecret func (user string) string, tolerance time.Duratio
 
 		err := s.VerifySignature(c.Request, tolerance)
 		if err != nil {
-			c.WriteJSON(nil, status.Unauthenticated().WithError(err))
+			c.WriteJSON(nil, status.Unauthenticated().WrapError("no login api securtiy error", err))
 			c.Abort()
 			return
 		}

@@ -61,7 +61,7 @@ func AuthToken(secret string, opts ...AuthorizeOption) gin.HandlerFunc {
 		}
 
 		if c.Get(valuer.KeyUser) == nil {
-			c.WriteJSON(nil, status.Internal().WithError(errors.New("the token does not contain a user name")))
+			c.WriteJSON(nil, status.Internal().WrapError("auth token error", errors.New("the token does not contain a user name")))
 			c.Abort()
 			return
 		}

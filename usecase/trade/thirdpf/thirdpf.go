@@ -46,7 +46,7 @@ func (t *Trades) AddTrade(way Way, trade entity.Trade) {
 // GetTrade 获取交易方式
 func (t *Trades) GetTrade(way Way) (entity.Trade, error) {
 	if t.trades[way] == nil {
-		return nil, status.Internal().WithError(errors.New("unsupported trade way"))
+		return nil, status.Internal().WrapError("get trade error", errors.New("unsupported trade way"))
 	}
 	return t.trades[way], nil
 }

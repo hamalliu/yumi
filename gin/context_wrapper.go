@@ -10,6 +10,7 @@ import (
 	"yumi/gin/valuer"
 	"yumi/pkg/binding"
 	"yumi/pkg/codec"
+	"yumi/pkg/log"
 	"yumi/pkg/status"
 )
 
@@ -22,12 +23,15 @@ func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) 
 
 	s := status.OK()
 	if err != nil {
-		ss, ok := err.(*status.Status)
+		originErr := errors.Unwrap(err)
+		ss, ok := originErr.(*status.Status)
 		if ok {
+			ss.WithError(err)
 			s = ss
 		} else {
 			s = status.Unknown().WithError(err)
 		}
+		log.Error(s.Error())
 	}
 
 	respObj := struct {
