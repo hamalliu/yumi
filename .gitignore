@@ -8,4 +8,5 @@ logfile
 test
 pay_record
 main
+go.sum
 tmp.*
