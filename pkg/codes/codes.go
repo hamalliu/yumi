@@ -146,10 +146,6 @@ const (
 	// authentication credentials for the operation.
 	Unauthenticated Code = 16
 
-	// InvalidRequest ndicates that the request should not be made
-	// in the current state of the server
-	InvalidRequest Code = 17
-
 	_maxCode = 18
 )
 
@@ -171,7 +167,6 @@ var strToCode = map[string]Code{
 	`"UNAVAILABLE"`:         Unavailable,
 	`"DATA_LOSS"`:           DataLoss,
 	`"UNAUTHENTICATED"`:     Unauthenticated,
-	`"INVALID_REQUEST"`:     InvalidRequest,
 }
 
 // UnmarshalJSON unmarshals b into the Code.

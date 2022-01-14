@@ -39,8 +39,6 @@ func (c Code) HTTPStatus() int {
 		return http.StatusInternalServerError
 	case Unauthenticated:
 		return http.StatusUnauthorized
-	case InvalidRequest:
-		return http.StatusBadRequest
 	default:
 		return http.StatusInternalServerError
 	}

@@ -23,11 +23,9 @@ func (c *Context) marshalJSON(data interface{}, err error) (int, []byte, error) 
 
 	s := status.OK()
 	if err != nil {
-		originErr := errors.Unwrap(err)
-		ss, ok := originErr.(*status.Status)
-		if ok {
-			ss.WithError(err)
-			s = ss
+		tmps := &status.Status{}
+		if errors.As(err, &tmps) {
+			s = tmps
 		} else {
 			s = status.Unknown().WithError(err)
 		}

@@ -1,6 +1,8 @@
 package mgoc
 
 import (
+	"context"
+
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readconcern"
@@ -9,33 +11,34 @@ import (
 	"yumi/pkg/log"
 )
 
-// MongoTX ...
 type MongoTX struct {
-	Sctx mongo.SessionContext
+	Sess mongo.Session
+	sctx mongo.SessionContext
 }
 
-// Start ...
+func (tx *MongoTX) Ctx() context.Context {
+	return tx.sctx
+}
+
 func (tx *MongoTX) Start() error {
-	err := tx.Sctx.StartTransaction(options.Transaction().
+	tx.sctx = mongo.NewSessionContext(context.TODO(), tx.Sess)
+
+	if err := tx.Sess.StartTransaction(options.Transaction().
 		SetReadConcern(readconcern.Snapshot()).
-		SetWriteConcern(writeconcern.New(writeconcern.WMajority())),
-	)
-	if err != nil {
+		SetWriteConcern(writeconcern.New(writeconcern.WMajority()))); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// Rollback ...
 func (tx *MongoTX) Rollback() error {
-	return tx.Sctx.AbortTransaction(tx.Sctx)
+	return tx.Sess.AbortTransaction(context.TODO())
 }
 
-// Commit ...
 func (tx *MongoTX) Commit() error {
 	for {
-		err := tx.Sctx.CommitTransaction(tx.Sctx)
+		err := tx.Sess.CommitTransaction(context.TODO())
 		switch e := err.(type) {
 		case nil:
 			return nil
@@ -51,4 +54,8 @@ func (tx *MongoTX) Commit() error {
 			return e
 		}
 	}
+}
+
+func (tx *MongoTX) End() {
+	tx.Sess.EndSession(context.TODO())
 }

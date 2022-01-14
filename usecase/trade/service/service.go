@@ -176,7 +176,7 @@ func (s *Service) PayNotify(tradeWay string, w http.ResponseWriter, req *http.Re
 		return err
 	}
 	if !paid {
-		err = status.InvalidRequest()
+		err = status.FailedPrecondition()
 		curTrade.PayNotifyResp(err, w)
 		return err
 	}

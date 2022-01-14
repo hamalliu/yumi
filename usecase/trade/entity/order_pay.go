@@ -121,7 +121,7 @@ func (m *OrderPay) Cancel() error {
 	if m.attr.Status == Cancelled {
 		return nil
 	}
-	return status.InvalidRequest()
+	return status.FailedPrecondition()
 }
 
 // Pay ...
@@ -163,7 +163,7 @@ func (m *OrderPay) Pay(curTrade Trade, tradeWay, notifyURL, clientIP string) (st
 		}
 	}
 
-	return "", status.InvalidRequest()
+	return "", status.FailedPrecondition()
 }
 
 // QueryPaid ...
@@ -185,7 +185,7 @@ func (m *OrderPay) QueryPaid() (bool, error) {
 		return true, nil
 	}
 
-	return false, status.InvalidRequest()
+	return false, status.FailedPrecondition()
 }
 
 // PayNotifyReq ...

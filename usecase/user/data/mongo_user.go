@@ -13,13 +13,7 @@ import (
 
 // MongoTX ...
 type MongoTX struct {
-	*MongoCli
 	*mgoc.MongoTX
-}
-
-// Ctx ...
-func (tx MongoTX) Ctx() context.Context {
-	return tx.Sctx
 }
 
 // NewTx ...
@@ -29,9 +23,7 @@ func (cli *MongoCli) NewTx() (*MongoTX, error) {
 		return nil, err
 	}
 
-	sctx := mongo.NewSessionContext(cli.Ctx(), sess)
-
-	return &MongoTX{MongoCli: cli, MongoTX: &mgoc.MongoTX{Sctx: sctx}}, nil
+	return &MongoTX{&mgoc.MongoTX{Sess: sess}}, nil
 }
 
 // Ctx ...
