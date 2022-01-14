@@ -3,7 +3,7 @@ package middleware
 import (
 	"errors"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 
 	"yumi/gin"
 	"yumi/gin/valuer"
