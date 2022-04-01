@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -100,7 +101,6 @@ type ClientInfoListUser struct {
 }
 
 func TestSetMax(t *testing.T) {
-	// cli, err := New("mongodb://localhost:27017/client")
 	cli, err := New("mongodb://root:Admin_123@10.34.4.89:27017")
 	if err != nil {
 		t.Error(err)
@@ -123,4 +123,34 @@ func TestSetMax(t *testing.T) {
 	}
 	t.Log(string(bs))
 	return
+}
+
+func TestTvul2(t *testing.T) {
+	fs, err := os.Open("./t_vul2.json")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	var rs []interface{}
+	if err := json.NewDecoder(fs).Decode(&rs); err != nil {
+		t.Error(err)
+		return
+	}
+
+	// cli, err := New("mongodb://root:Admin_123@10.34.4.89:27017")
+	cli, err := New("mongodb://localhost:27017/client")
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	coll := cli.Database("risk").Collection("t_vul3")
+
+	ret, err := coll.InsertMany(context.TODO(), rs)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	t.Log(ret)
 }

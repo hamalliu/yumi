@@ -71,12 +71,22 @@ func (s *Service) LoginByBcrypt(req LoginByBcryptRequest) (LoginByBcryptResponse
 		return resp, err
 	}
 
-	
 	resp.UserID = req.UserID
-	resp.SecureKey = sessID
+	resp.SessionID = sessID
 
 	return resp, nil
 }
+
+// LoginByCookies ...
+func (s *Service) LoginByCookies(req LoginByCookiesRequest) (LoginByCookiesResponse, error) {
+	resp := LoginByCookiesResponse{}
+	return resp, nil
+}
+
+// LoginBySms ...
+func (s *Service) LoginBySms() {}
+
+func (s *Service) RefreshToken() 
 
 // Authenticate ...
 func (s *Service) Authenticate(req AuthentcateRequest) error {

@@ -53,7 +53,7 @@ func ToGrpcAddress(inss []*Instance) []resolver.Address {
 			}
 		}
 		attrs := attributes.Attributes{}
-		attrs.WithValues(balancer.AttributesKey, ins.Balancer)
+		attrs.WithValue(balancer.AttributesKey, ins.Balancer)
 		addr.Attributes = &attrs
 
 		addrs = append(addrs, addr)

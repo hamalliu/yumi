@@ -29,8 +29,15 @@ type LoginByBcryptRequest struct {
 
 // LoginByBcryptResponse ...
 type LoginByBcryptResponse struct {
-	UserID            string
-	SecureKey         string
+	UserID    string
+	SessionID string
+}
+
+type LoginByCookiesRequest struct {
+	SessindID string
+}
+
+type LoginByCookiesResponse struct {
 }
 
 // DisableRequest ...

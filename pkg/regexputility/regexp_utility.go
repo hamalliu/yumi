@@ -57,8 +57,16 @@ func RegexpPassword(str string) bool {
 	return string(re.Find([]byte(str))) == str
 }
 
+
 // RegexpIP4 ...
 func RegexpIP4(str string) bool {
-	re := regexp.MustCompile(`(^[2][0-5][0-5]|^[1][0-9][0-9]|^[1-9][0-9]|^[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][0-5][0-5]$|[1][0-9][0-9]$|[1-9][0-9]$|[0-9]$)`)
+	re := regexp.MustCompile(`(^[2][5][0-5]|^[2][0-4][0-9]|^[1][0-9][0-9]|^[1-9][0-9]|^[0-9])\.([2][5][0-5]|[2][0-4][0-9]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][5][0-5]|[2][0-4][0-9]|[1][0-9][0-9]|[1-9][0-9]|[0-9])\.([2][5][0-5]$|[2][0-4][0-9]$|[1][0-9][0-9]$|[1-9][0-9]$|[0-9]$)`)
+	fmt.Println(string(re.Find([]byte(str))))
+	return string(re.Find([]byte(str))) == str
+}
+
+// RegexpIP6 ...
+func RegexpIP6(str string) bool {
+	re := regexp.MustCompile(`(([\da-fA-F]{1,4}):([\da-fA-F]{1,4}):([\da-fA-F]{1,4}):([\da-fA-F]{1,4}):([\da-fA-F]{1,4}):([\da-fA-F]{1,4}):([\da-fA-F]{1,4}):([\da-fA-F]{1,4}))$`)
 	return string(re.Find([]byte(str))) == str
 }

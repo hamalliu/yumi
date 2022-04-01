@@ -22,18 +22,6 @@ func Register(b Builder, opts ...BuildOption) {
 	}
 }
 
-// Set override any registered builder
-func Set(b Builder, opts ...BuildOption) {
-	mu.Lock()
-	defer mu.Unlock()
-	resolver.Register(&BaseBuilder{b, opts})
-}
-
-// New a BaseBuilder
-func New(b Builder, opts ...BuildOption) *BaseBuilder {
-	return &BaseBuilder{b, opts}
-}
-
 // BaseBuilder is also a resolver builder.
 // It's build() function always returns itself.
 type BaseBuilder struct {

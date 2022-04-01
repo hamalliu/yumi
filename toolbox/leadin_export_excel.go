@@ -49,6 +49,7 @@ func (m ExcelModel) Marshal(x *excelize.File) error {
 				dl = append(dl, k)
 			}
 			dvRange.SetDropList(dl)
+			dvRange.SetError(excelize.DataValidationErrorStyleStop, "", "")
 			x.AddDataValidation(tabName, dvRange)
 		}
 	}
@@ -184,6 +185,38 @@ func (m ExcelModel) setSheetToStruct(x *excelize.File, tabName string, v reflect
 					}
 				default:
 				}
+			}
+		}
+	}
+
+	return nil
+}
+
+// ExportToExcelObject 导出对象
+type ExportToExcelObject interface {
+	GetExportValueByHeaderName(hn string) (value interface{})
+}
+
+// ParseObjectToExcelNoReflect 不使用反射解析导出对象到excel
+func (m ExcelModel) ParseObjectToExcelWithoutReflect(x *excelize.File, tabName string, objs []ExportToExcelObject) (err error) {
+	index := m.Start
+	for _, v := range objs {
+		index++
+		for k := range m.Header {
+			axis := k
+			switch m.ContentType {
+			case ContentTypeCol:
+				axis = regexp.MustCompile("[a-zA-Z]+").FindString(axis) + strconv.Itoa(index)
+			case ContentTypeRow:
+				axis = excelColAdd(regexp.MustCompile("[a-zA-Z]+").FindString(axis), index) +
+					regexp.MustCompile("[0-9]+").FindString(axis)
+			default:
+				return errors.New("no support content_type")
+			}
+
+			value := v.GetExportValueByHeaderName(k)
+			if err = x.SetCellValue(tabName, axis, value); err != nil {
+				return fmt.Errorf("parse object to excel without reflect:%w", err)
 			}
 		}
 	}

@@ -65,7 +65,7 @@ func dial(ctx context.Context, insecure bool, target string, opts ...ClientOptio
 		grpc.WithTimeout(options.timeout),
 	}
 	if options.discovery != nil {
-		grpc.WithResolvers(discovery.New(options.discovery, options.discoveryOpts...))
+		discovery.Register(options.discovery, options.discoveryOpts...)
 	}
 	if insecure {
 		grpcOpts = append(grpcOpts, grpc.WithInsecure())
